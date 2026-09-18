@@ -79,7 +79,7 @@ function baseChar() {
   return {
     id: newId(), name: 'Personagem', skin: '#fde0cc',
     parts: blankParts(),
-    body: { size: 10, head: 10, pose: 0, headRot: 0, rot: 0, flip: 0, handL: 0, handR: 0, shadow: 1 },
+    body: { size: 10, head: 10, pose: 0, headRot: 0, rot: 0, flip: 0, turn: 1, handL: 0, handR: 0, shadow: 1 },
     adj: {},
     hide: { head: 0, face: 0, hair: 0, body: 0, arms: 0, legs: 0, outline: 0 },
     anim: { blink: 1, hair: 1, wings: 1, cape: 1, tail: 1, effects: 1 },
@@ -89,8 +89,16 @@ function baseChar() {
   };
 }
 
-const DEFAULT_GIRL = () => look({ name: 'Básica', h: [1, 2, 0, 1, 0], hc: ['#7a4a2e', '#a0694a'], e: 1, p: 1, ic: ['#7a4a2e', '#c8946a'], b: 1, m: 1, bl: 1, shirt: [1, '#ffffff', '#b8c0cf'], sleeve: [1, '#ffffff'], skirt: [2, '#5b6bd6', '#3b4bb6'], sock: [2, '#ffffff', '#5b6bd6'], shoe: [4, '#3a2f45', '#ffffff'] });
-const DEFAULT_BOY = () => look({ name: 'Básico', h: [0, 1, 0, 3, 0], hc: ['#3a2a22', '#5a4032'], e: 1, p: 1, ic: ['#4a3a2a', '#8a6a4a'], b: 1, m: 1, bl: 0, shirt: [1, '#ffffff', '#b8c0cf'], sleeve: [1, '#ffffff'], pants: [3, '#4a5a78', '#34405a'], sock: [1, '#ffffff'], shoe: [1, '#e84a5f', '#ffffff'], logo: [1, '#e84a5f'] });
+/* Personagens genéricos (como os "Default" do início do jogo de referência) */
+/* Personagens genéricos (como os "Default" do início do jogo de referência) */
+const DEFAULT_GIRL = () => look({ name: 'Menina Padrão', s: '#ffe8dc', h: [1, 2, 0, 1, 0], hc: ['#b4a7e6', '#8f86d8'], e: 2, p: 1, ic: ['#ff7ab8', '#ffc2dc', '#3a1030'], b: 1, m: 1, bl: 2, blc: '#ff9aa8', shirt: [1, '#ffffff', '#c9d2ff'], sleeve: [1, '#ffffff'], logo: [2, '#ff7ab8'], skirt: [6, '#4a5ad6', '#7f8cf0'], sock: [4, '#ffffff', '#4a5ad6'], shoe: [4, '#2b2140', '#ffffff'], profile: { bio: 'Olá! Eu sou a menina padrão do Ateliê.', creator: 'Ateliê', color: 'Rosa', food: 'Morango', place: 'Brasil', personality: 'Alegre', job: 'Estudante' } });
+const DEFAULT_BOY = () => look({ name: 'Menino Padrão', s: '#ffe2d4', h: [0, 1, 0, 3, 0], hc: ['#8a624f', '#8a6e5e', '#3a1f17'], e: 2, p: 1, ic: ['#855944', '#b9876f', '#27170f'], b: 1, bc: '#3a1f17', m: 1, bl: 2, blc: '#ffc2c2', shirt: [1, '#ffffff', '#bbd4ff'], logo: [1, '#8589ff'], jacket: [1, '#4638ff', '#bbd4ff'], sleeve: [3, '#4638ff', '#bbd4ff'], pants: [3, '#3d3e62', '#aaa7cb'], sock: [1, '#ffffff'], shoe: [1, '#ff3f3f', '#ffffff'], profile: { bio: 'E aí! Eu sou o menino padrão do Ateliê.', creator: 'Ateliê', color: 'Azul', food: 'Arroz', place: 'Brasil', personality: 'Engraçado', job: 'Estudante' } });
+/* Reserva genérica N (não é gravada no save até ser usada) */
+function genericDefault(i) {
+  const c = i % 2 ? DEFAULT_BOY() : DEFAULT_GIRL();
+  c.name = 'Padrão ' + (i + 1); c.id = 'padrao-' + i;
+  return c;
+}
 
 /* Os 10 personagens principais (originais do Ateliê Estelar) */
 const MAIN_CHARS = () => [
@@ -99,7 +107,7 @@ const MAIN_CHARS = () => [
   look({ name: 'Mimi', s: '#fde0cc', h: [0, 8, 2, 6, 3], hc: ['#ff8fc4', '#ffd1e6'], e: 2, p: 4, ic: ['#ff4f8b', '#ffb3d1'], b: 1, m: 15, bl: 4, shirt: [6, '#ffd1e6', '#ff8fc4'], sleeve: [4, '#ffd1e6', '#ff8fc4'], sock: [7, '#ffffff', '#ff8fc4'], shoe: [4, '#ff8fc4', '#ffffff'], hat: [6, '#ff8fc4', '#ffffff'], neck: [6, '#ff4f8b', '#ffd166'], tail: [1, '#ff8fc4'], propL: [10, '#ff8fc4', '#9ee7ff'], pet: [1, '#ffffff', '#ffb3d1'], pose: 5, hand: [4, 4], profile: { title: 3, bio: 'Ama doces e gatinhos. Muito, muito fofa.', personality: 'Carinhosa', job: 'Confeiteira', color: 'Rosa' } }),
   look({ name: 'Ravi', s: '#e8b48a', h: [0, 4, 0, 10, 0], hc: ['#8a1c0e', '#ff5a1f'], e: 5, p: 5, ic: ['#ffb300', '#ff5a1f'], b: 4, m: 8, bl: 0, fm: [4, '#8a1c0e'], shirt: [10, '#8a1c0e', '#ffd23f'], sleeve: [3, '#2a0a05'], pants: [3, '#2a0a05', '#8a1c0e'], shoe: [3, '#2a0a05', '#ffd23f'], glove: [4, '#2a0a05', '#ffd23f'], hat: [11, '#2a0a05', '#ffd23f'], cape: [3, '#8a1c0e'], tail: [4, '#8a1c0e', '#ffd23f'], propR: [1, '#e0e6f0', '#ffd23f'], effBack: [2, '#ffd23f', '#ff5a1f'], pet: [8, '#ff5a1f', '#8a1c0e'], pose: 38, hand: [1, 1], profile: { title: 4, bio: 'Guerreiro com coração de dragão.', personality: 'Corajoso', job: 'Cavaleiro', color: 'Vermelho' } }),
   look({ name: 'Nina', s: '#fde0cc', h: [5, 2, 0, 3, 0], hc: ['#4f9a3a', '#c8e86b'], e: 3, p: 1, ic: ['#3fa34d', '#c8e86b'], b: 2, m: 1, bl: 1, fm: [1, '#c58b5b'], shirt: [9, '#3fa34d', '#8b5a2b'], sleeve: [5, '#3fa34d', '#c8e86b'], skirt: [4, '#2f6b3a', '#c8e86b'], shoe: [5, '#8b5a2b'], headAcc: [8, '#ff8fb1', '#ffffff'], propL: [6, '#ff8fb1', '#ffe066'], pet: [2, '#e0823a', '#3fa34d'], pose: 1, profile: { title: 5, bio: 'Conversa com as plantas da floresta encantada.', personality: 'Calma', job: 'Druida', color: 'Verde' } }),
-  look({ name: 'Theo', s: '#f6c9a3', h: [0, 1, 0, 2, 5], hc: ['#f2c94c', '#ffe9a0'], e: 1, p: 1, ic: ['#2f9fd8', '#9ee7ff'], b: 1, m: 3, bl: 0, shirt: [11, '#f4e3b1', '#c58b5b'], sleeve: [3, '#f4e3b1'], pants: [3, '#6b4226', '#4a2c1a'], shoe: [1, '#8b5a2b', '#ffffff'], glasses: [1, '#3a2a22'], propR: [3, '#8e1b3a', '#ffe66d'], pet: [11, '#c58b5b', '#f4e3b1'], pose: 6, hand: [2, 1], profile: { title: 6, bio: 'Leitor voraz, sabe um pouco de tudo.', personality: 'Curioso', job: 'Bibliotecário', color: 'Amarelo' } }),
+  look({ name: 'Theo', s: '#f6c9a3', h: [0, 1, 0, 2, 5], hc: ['#f2c94c', '#ffe9a0'], e: 2, p: 1, ic: ['#2f9fd8', '#9ee7ff'], b: 1, m: 3, bl: 0, shirt: [11, '#f4e3b1', '#c58b5b'], sleeve: [3, '#f4e3b1'], pants: [3, '#6b4226', '#4a2c1a'], shoe: [1, '#8b5a2b', '#ffffff'], glasses: [1, '#3a2a22'], propR: [3, '#8e1b3a', '#ffe66d'], pet: [11, '#c58b5b', '#f4e3b1'], pose: 6, hand: [2, 1], profile: { title: 6, bio: 'Leitor voraz, sabe um pouco de tudo.', personality: 'Curioso', job: 'Bibliotecário', color: 'Amarelo' } }),
   look({ name: 'Lua', s: '#fff0e6', h: [3, 5, 0, 9, 0], hc: ['#e9e6ff', '#9ea7ff'], e: 4, p: 2, ic: ['#6b4cff', '#e9e6ff'], b: 2, m: 4, bl: 1, fm: [8, '#9ea7ff'], shirt: [6, '#1b1446', '#e9e6ff'], sleeve: [5, '#1b1446', '#e9e6ff'], sock: [5, '#1b1446'], shoe: [6, '#e9e6ff', '#6b4cff'], headAcc: [7, '#e9e6ff', '#9ea7ff'], effBack: [9, '#e9e6ff', '#ffe66d'], pet: [4, '#6b4cff', '#ff9df2'], pose: 10, profile: { title: 7, bio: 'Aparece só à noite. Dizem que veio da lua.', personality: 'Misteriosa', job: 'Astróloga', color: 'Prata' } }),
   look({ name: 'Bento', s: '#b07a4f', h: [0, 5, 0, 7, 0], hc: ['#3a2415', '#6b4226'], e: 6, p: 1, ic: ['#3a2415', '#8a5a3a'], b: 3, m: 2, bl: 3, shirt: [12, '#e84a5f', '#ffffff'], sleeve: [1, '#ffffff'], pants: [2, '#4a78c2', '#2f4f8c'], sock: [2, '#ffffff', '#e84a5f'], shoe: [1, '#2b2140', '#ffffff'], hat: [1, '#e84a5f', '#ffffff'], propR: [11, '#ffffff', '#ff8fc4'], pet: [10, '#f1d38b', '#8b5a2b'], pose: 3, hand: [0, 4], profile: { title: 8, bio: 'Faz amizade com todo mundo em cinco minutos.', personality: 'Extrovertido', job: 'Entregador', color: 'Laranja' } }),
   DEFAULT_GIRL(),
@@ -110,7 +118,7 @@ const MAIN_CHARS = () => [
 const CLUBS = [
   { n: 'Clube Estelar', ic: '🌟', c: '#ffe66d' }, { n: 'Clube Fogo', ic: '🔥', c: '#ff5a1f' }, { n: 'Clube Água', ic: '💧', c: '#2f9fd8' },
   { n: 'Clube Floresta', ic: '🌿', c: '#3fa34d' }, { n: 'Clube Cosmos', ic: '🪐', c: '#6b4cff' }, { n: 'Clube Doce', ic: '🍭', c: '#ff8fc4' },
-  { n: 'Clube Sombra', ic: '🦇', c: '#8e1b3a' }, { n: 'Clube Neon', ic: '⚡', c: '#00e5ff' }, { n: 'Clube Sakura', ic: '🌸', c: '#ffb7c9' },
+  { n: 'Clube Sombra', ic: '🦇', c: '#8e1b3a' }, { n: 'Clube Neon', ic: '⚡', c: '#00e5ff' }, { n: 'Clube Sakura', ic: '🌸', c: '#ffb7c9' }, { n: 'Padrão', ic: '👤', c: '#8a94a6' },
 ];
 const PRESETS = () => [
   { club: 1, ch: look({ name: 'Brasa', s: '#f6c9a3', h: [0, 4, 0, 4, 4], hc: ['#ff5a1f', '#ffd23f'], e: 5, p: 1, ic: ['#ffb300', '#ff5a1f'], b: 4, m: 11, shirt: [1, '#2a0a05', '#ff5a1f'], sleeve: [3, '#8a1c0e'], jacket: [5, '#8a1c0e', '#ffd23f'], pants: [3, '#2a0a05'], shoe: [2, '#2a0a05', '#ff5a1f'], effBack: [2, '#ffd23f', '#ff5a1f'], pose: 38 }) },
@@ -131,6 +139,8 @@ const PRESETS = () => [
   { club: 8, ch: look({ name: 'Kitsune', s: '#fde0cc', h: [2, 3, 0, 2, 0], hc: ['#ffffff', '#ffb7c9'], e: 5, p: 5, ic: ['#d7263d', '#ffd166'], b: 2, m: 3, fm: [6, '#d7263d'], shirt: [9, '#ffffff', '#d7263d'], sleeve: [5, '#ffffff', '#d7263d'], pants: [4, '#d7263d'], shoe: [5, '#5a1a2b'], hat: [6, '#ffffff', '#ffb7c9'], tail: [2, '#ffffff', '#ffb7c9'], pet: [2, '#ffffff', '#d7263d'], pose: 42 }) },
   { club: 0, ch: MAIN_CHARS()[0] },
   { club: 0, ch: MAIN_CHARS()[1] },
+  { club: 9, ch: DEFAULT_GIRL() },
+  { club: 9, ch: DEFAULT_BOY() },
 ];
 
 /* Presets de expressão (aba Cabeça > Expressões) */

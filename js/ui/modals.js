@@ -120,7 +120,7 @@ const Modals = (() => {
       $('.modal-body', root).innerHTML = `<p class="muted small">Guarde até 90 personagens reserva. Troque, clone ou copie roupas e cores entre eles.</p>
         <div class="swap">
           <div class="swap-main">${S.chars.map((c, i) => `<button class="ro${i === main ? ' on' : ''}" data-m="${i}">${Rig.portrait(c)}<small>${esc(c.name)}</small></button>`).join('')}</div>
-          <div class="swap-list">${Array.from({ length: PER }, (_, k) => { const i = page * PER + k, c = b[i]; return `<button class="bk${i === slot ? ' on' : ''}${c ? '' : ' empty'}" data-b="${i}">${c ? Rig.portrait(c, 'mini') : ''}<small>${c ? esc(c.name) : 'Vazio ' + (i + 1)}</small></button>`; }).join('')}</div>
+          <div class="swap-list">${Array.from({ length: PER }, (_, k) => { const i = page * PER + k, c = Store.backup(i); return `<button class="bk${i === slot ? ' on' : ''}${b[i] ? '' : ' empty'}" data-b="${i}">${Rig.portrait(c, 'mini')}<small>${esc(c.name)}</small></button>`; }).join('')}</div>
         </div>
         <div class="swap-actions">
           <button class="btn" data-a="swap">⇄ Trocar</button><button class="btn" data-a="store">💾 Guardar cópia</button>
@@ -141,13 +141,13 @@ const Modals = (() => {
           if (d.b != null) { slot = +d.b; Sfx.play('tap'); return draw(root); }
           if (d.pg) { page = clamp(page + +d.pg, 0, 2); return draw(root); }
           if (!d.a) return;
-          const need = () => { if (!B[slot]) { Sfx.play('error'); UI.toast('Essa reserva está vazia'); return false; } return true; };
+          const need = () => { B[slot] = Store.backup(slot); return true; };
           switch (d.a) {
-            case 'swap': { const m = S.chars[main]; S.chars[main] = B[slot] || Object.assign(DEFAULT_GIRL(), { name: 'Novo' }); B[slot] = m; UI.toast('⇄ Trocados!'); break; }
+            case 'swap': { const m = S.chars[main]; S.chars[main] = Store.backup(slot); B[slot] = m; UI.toast('⇄ Trocados!'); break; }
             case 'store': if (B[slot]) return UI.confirm(`Substituir <b>${esc(B[slot].name)}</b> na reserva?`, 'Substituir').then(ok => { if (ok) { B[slot] = clone(S.chars[main]); B[slot].id = newId(); Store.save(); draw(root); } }); B[slot] = clone(S.chars[main]); B[slot].id = newId(); UI.toast('💾 Guardado na reserva'); break;
             case 'all': case 'clothes': case 'hair': if (!need()) return; Store.copyInto(S.chars[main], B[slot], d.a, !!S.settings.copyColors); UI.toast('Copiado!'); break;
             case 'colors': S.settings.copyColors = S.settings.copyColors ? 0 : 1; break;
-            case 'del': if (!need()) return; return UI.confirm(`Apagar <b>${esc(B[slot].name)}</b> da reserva?`, 'Apagar', 'danger').then(ok => { if (ok) { B[slot] = null; Store.save(); draw(root); } });
+            case 'del': if (!B[slot]) { UI.toast('Essa reserva já é a padrão'); return; } return UI.confirm(`Voltar a reserva <b>${esc(B[slot].name)}</b> para o personagem padrão?`, 'Restaurar', 'danger').then(ok => { if (ok) { B[slot] = null; Store.save(); draw(root); } });
           }
           Sfx.play('pick'); Store.save(); draw(root);
         });
@@ -218,13 +218,24 @@ const Modals = (() => {
   }
   function importChar(done) {
     UI.modal({
-      title: 'Importar personagem', body: `<p class="muted small">Cole o código de um personagem. Ele vai <b>substituir</b> o personagem atual.</p><textarea data-code rows="4" placeholder="AE1:..."></textarea><label class="btn">📁 Abrir arquivo<input type="file" data-file accept=".txt,.json" hidden/></label>`,
+      title: 'Importar personagem', body: `<p class="muted small">Cole o código de um personagem. Ele vai <b>substituir</b> o personagem atual.</p>
+        <textarea data-code rows="4" placeholder="Código do Ateliê (AE1:...) ou do Gacha Club (Nome|aniversário|...)"></textarea>
+        <div class="gc-note hidden" data-gcnote><p class="small">🎮 <b>Código do Gacha Club detectado.</b> Serão importados nome, perfil, pele, cores do cabelo, olhos e sobrancelhas, e as cores principais da roupa. As peças são aproximadas, porque os catálogos dos dois jogos são diferentes.</p>
+          <div class="seg"><button class="on" data-base="girl">Base: Menina</button><button data-base="boy">Base: Menino</button></div></div>
+        <label class="btn">📁 Abrir arquivo<input type="file" data-file accept=".txt,.json" hidden/></label>`,
       buttons: [{ label: 'Cancelar' }, {
         label: 'Importar', cls: 'primary', onClick: root => {
-          try { done(Store.importChar($('[data-code]', root).value)); UI.toast('✅ Personagem importado!'); } catch (e) { Sfx.play('error'); UI.toast('❌ Código inválido'); return false; }
+          const base = ($('[data-base].on', root) || {}).dataset?.base || 'girl';
+          try { done(Store.importChar($('[data-code]', root).value, base)); UI.toast('✅ Personagem importado!'); } catch (e) { Sfx.play('error'); UI.toast('❌ Código inválido'); return false; }
         },
       }],
-      onOpen: root => { $('[data-file]', root).onchange = e => { const f = e.target.files[0]; if (f) f.text().then(t => { $('[data-code]', root).value = t.trim(); }); }; },
+      onOpen: root => {
+        const ta = $('[data-code]', root), note = $('[data-gcnote]', root);
+        const check = () => note.classList.toggle('hidden', !Store.isGachaCode(ta.value));
+        ta.addEventListener('input', check);
+        $('[data-file]', root).onchange = e => { const f = e.target.files[0]; if (f) f.text().then(t => { ta.value = t.trim(); check(); }); };
+        root.addEventListener('click', e => { const b = e.target.closest('[data-base]'); if (!b) return; $$('[data-base]', root).forEach(x => x.classList.toggle('on', x === b)); });
+      },
     });
   }
 

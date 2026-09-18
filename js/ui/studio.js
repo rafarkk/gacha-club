@@ -55,13 +55,13 @@ const Studio = (() => {
   }
 
   /* ---------- Cena ---------- */
-  const CH_BOX = [-100, -278, 200, 290];
+  const CH_BOX = [-100, -300, 200, 312];
   function entSVG(k, i, e, o) {
     const tr = `translate(${e.x.toFixed(1)} ${e.y.toFixed(1)}) scale(${(e.s * (e.f ? -1 : 1)).toFixed(3)} ${e.s.toFixed(3)})`;
     let inner = '', box;
     if (k === 'c') {
       const ch = Store.s.chars[e.ci]; if (!ch) return '';
-      inner = `<svg x="-133.5" y="-280" width="267" height="300" viewBox="${Rig.VIEW}" overflow="visible">${Rig.inner(ch, uid(), { noShadow: false })}</svg>`; box = CH_BOX;
+      inner = `<svg x="-133.5" y="-292.4" width="267" height="320.4" viewBox="${Rig.VIEW}" overflow="visible">${Rig.inner(ch, uid(), { noShadow: false })}</svg>`; box = CH_BOX;
     } else if (k === 'p') {
       const t = PARTS.pet[e.pi]; if (!t) return '';
       inner = `<g transform="rotate(${e.r || 0} 0 -60)"><g transform="translate(-59 -123) scale(2.2)"><g class="anim-bob">${t.d({ c: e.c, F: e.c[0], u: uid() })}</g></g></g>`; box = [-66, -132, 132, 136];
@@ -80,8 +80,8 @@ const Studio = (() => {
     for (const { k, e } of ents) {
       if (k === 'c') {
         const ch = Store.s.chars[e.ci]; if (!ch) continue;
-        if (S.names && !viewMode && !o.export) over += `<text x="${e.x}" y="${e.y - 262 * e.s}" class="st-name" text-anchor="middle">${esc(ch.name)}</text>`;
-        if (e.b && ch.chat.text) over += bubbleSVG(e.x, e.y - 262 * e.s - (S.names && !viewMode && !o.export ? 18 : 0), ch.chat.text, { bubble: ch.chat.bubble, font: ch.chat.font, bg: ch.chat.bubbleColor, color: ch.chat.textColor });
+        if (S.names && !viewMode && !o.export) over += `<text x="${e.x}" y="${e.y - 286 * e.s}" class="st-name" text-anchor="middle">${esc(ch.name)}</text>`;
+        if (e.b && ch.chat.text) over += bubbleSVG(e.x, e.y - 286 * e.s - (S.names && !viewMode && !o.export ? 18 : 0), ch.chat.text, { bubble: ch.chat.bubble, font: ch.chat.font, bg: ch.chat.bubbleColor, color: ch.chat.textColor });
       } else if (k === 'p' && e.chat) over += bubbleSVG(e.x, e.y - 128 * e.s, e.chat, { bg: '#ffffff', color: '#2b2140' });
     }
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" class="${o.cls || 'st-svg'}" preserveAspectRatio="xMidYMid meet">

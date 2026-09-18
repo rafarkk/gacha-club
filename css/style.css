@@ -515,3 +515,6 @@ svg .w-fog { animation: wFog 18s ease-in-out infinite alternate; }
   .studio.view .st-stage { aspect-ratio: auto; height: 100%; }
   .jump-grid { grid-template-columns: repeat(3, 1fr); }
 }
+.hidden { display: none !important; }
+.gc-note { margin: 6px 0 10px; padding: 8px 10px; border-radius: 8px; background: rgba(95, 211, 224, .1); border: 1px solid #2f7f8c; }
+.gc-note .seg { margin-top: 6px; }

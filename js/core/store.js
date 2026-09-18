@@ -51,6 +51,7 @@ const Store = (() => {
     d.chars = (d.chars || []).slice(0, 10).map(fixChar);
     while (d.chars.length < 10) d.chars.push(MAIN_CHARS()[d.chars.length]);
     d.backups = Array.from({ length: BACKUP_SLOTS }, (_, i) => d.backups && d.backups[i] ? fixChar(d.backups[i]) : null);
+    d.chars.forEach(c => { if (c.name === 'Básica') c.name = 'Menina Padrão'; if (c.name === 'Básico') c.name = 'Menino Padrão'; });
     if (!(d.cur >= 0 && d.cur < 10)) d.cur = 0;
     const ds = defaultStudio(), st = d.studio || {};
     d.studio = Object.assign(ds, st, { bg: Object.assign(ds.bg, st.bg), narr: Object.assign(ds.narr, st.narr) });
@@ -115,7 +116,48 @@ const Store = (() => {
   const toCode = o => btoa(unescape(encodeURIComponent(JSON.stringify(o))));
   const fromCode = t => { t = String(t).trim(); return JSON.parse(t.startsWith('{') ? t : decodeURIComponent(escape(atob(t)))); };
   function exportChar(ch) { return 'AE1:' + toCode(ch); }
-  function importChar(code) {
+  /* Código de exportação do Gacha Club: 10 textos | números | cores hex.
+     O formato não é documentado; importamos nome, perfil e cores e aproximamos o visual. */
+  function isGachaCode(code) { const f = String(code).trim().split('|'); return f.length > 60 && f.some(x => /^[0-9a-f]{6}$/i.test(x) && /[a-f]/i.test(x)); }
+  function importGacha(code, base = 'girl') {
+    const f = String(code).trim().split('|');
+    const hi = f.findIndex((x, i) => i >= 10 && /^[0-9a-f]{6}$/i.test(x));
+    if (hi < 0) throw new Error('Código do Gacha Club inválido');
+    const col = f.slice(hi).map(x => '#' + x.toLowerCase());
+    const at = (i, d) => /^#[0-9a-f]{6}$/.test(col[i] || '') ? col[i] : d;
+    const c = base === 'boy' ? DEFAULT_BOY() : DEFAULT_GIRL();
+    c.id = newId();
+    c.name = (f[0] || 'Importado').slice(0, 18);
+    const keys = ['birthday', 'age', 'bio', 'creator', 'color', 'food', 'place', 'personality', 'job'];
+    keys.forEach((k, n) => { if (f[n + 1] != null) c.profile[k] = String(f[n + 1]).slice(0, k === 'bio' ? 160 : 24); });
+    c.skin = at(0, c.skin);
+    c.parts.nose.c[0] = Color.shade(c.skin, -28);
+    const hair = [at(1, '#8a624f'), at(2, at(1, '#8a624f')), at(3, '#3a1f17')];
+    HAIR_SLOTS.forEach(s => { c.parts[s].c = hair.slice(); });
+    c.parts.blush.c[0] = at(18, c.parts.blush.c[0]);
+    c.parts.pupilL.c = [at(19, '#855944'), Color.mix(at(19, '#855944'), '#ffffff', .35), at(21, '#27170f')];
+    c.parts.pupilR.c = [at(22, at(19, '#855944')), Color.mix(at(22, at(19, '#855944')), '#ffffff', .35), at(24, '#27170f')];
+    c.parts.browL.c[0] = at(25, hair[2]); c.parts.browR.c[0] = at(27, hair[2]);
+    // Roupas: trios (principal | contorno | secundária) a partir da posição 36; usamos as cores mais frequentes
+    const freq = {};
+    for (let i = 35; i + 2 < col.length;) {
+      if (Color.luminance(col[i + 1]) < .05 && Color.luminance(col[i]) > .08) { const k = col[i] + '|' + col[i + 2]; freq[k] = (freq[k] || 0) + 1; i += 3; } else i++;
+    }
+    const top = Object.entries(freq).sort((a, b) => b[1] - a[1]).map(([k]) => k.split('|'));
+    const pick = (n, d) => top[n] || top[0] || d;
+    const paint = (slots, [m, s2]) => slots.forEach(s => { if (c.parts[s]) { c.parts[s].c[0] = m; c.parts[s].c[1] = s2; } });
+    if (top.length) {
+      paint(['shirt', 'logo'], pick(0));
+      paint(['jacket', 'sleeveL', 'sleeveR'], pick(1));
+      paint(['skirt', 'pantsL', 'pantsR'], pick(2));
+      paint(['sockL', 'sockR'], pick(3));
+      paint(['shoeL', 'shoeR'], pick(4));
+    }
+    return c;
+  }
+
+  function importChar(code, base) {
+    if (isGachaCode(code)) return importGacha(code, base);
     const d = fromCode(String(code).trim().replace(/^AE1:/, ''));
     if (!d || !d.parts) throw new Error('Código de personagem inválido');
     const c = fixChar(d); c.id = newId(); return c;
@@ -136,6 +178,7 @@ const Store = (() => {
     load, save, saveNow, reset, get s() { return S; }, on: f => listeners.add(f),
     get cur() { return S.chars[S.cur]; }, fixChar,
     xpNeed, addXp, copyInto, CLOTHES,
-    exportChar, importChar, exportAll, importAll, addRecent,
+    exportChar, importChar, isGachaCode, exportAll, importAll, addRecent,
+    backup: i => S.backups[i] || genericDefault(i),
   };
 })();

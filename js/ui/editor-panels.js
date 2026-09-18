@@ -86,7 +86,7 @@ const Panels = (() => {
         ${num('headRot', 'Inclinar cabeça', B.headRot, B.headRot + '°')}${num('rot', 'Rotação', B.rot, B.rot + '°')}
         ${num('handL', 'Mão esquerda', B.handL, HANDS[B.handL])}${num('handR', 'Mão direita', B.handR, HANDS[B.handR])}
       </div>
-      <div class="tgl-grid">${toggle('flip', 'Virar ⇆', B.flip)}${toggle('shadow', 'Sombra', B.shadow)}</div>
+      <div class="tgl-grid">${toggle('turn', 'De lado (3/4)', B.turn)}${toggle('flip', 'Virar ⇆', B.flip)}${toggle('shadow', 'Sombra', B.shadow)}</div>
       <h4>Pose <small class="muted">${POSES[B.pose].n}</small></h4>${cats}
       <div class="pose-grid">${poses.map(([p, i]) => `<button class="pz${B.pose === i ? ' on' : ''}" data-pose="${i}" title="${esc(p.n)}">${Rig.poseThumb(i)}<small>${esc(p.n)}</small></button>`).join('')}</div>`;
   }
@@ -277,6 +277,7 @@ const Panels = (() => {
     Editor.change(c => {
       if (k === 'flip') c.body.flip = c.body.flip ? 0 : 1;
       else if (k === 'shadow') c.body.shadow = c.body.shadow ? 0 : 1;
+      else if (k === 'turn') c.body.turn = c.body.turn ? 0 : 1;
       else { const [o, f] = k.split('.'); c[o][f] = c[o][f] ? 0 : 1; }
     });
   }
