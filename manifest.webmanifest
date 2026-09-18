@@ -1,0 +1,15 @@
+{
+  "name": "Ateliê Estelar",
+  "short_name": "Ateliê",
+  "description": "Gacha de moda e cenários: invoque, monte personagens e crie mundos.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#120c2a",
+  "theme_color": "#1a1238",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
