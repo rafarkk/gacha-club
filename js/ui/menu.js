@@ -105,13 +105,13 @@ const Menu = (() => {
     if (b.dataset.app) {
       Sfx.play('open');
       const [tab, sub] = b.dataset.app.split(':');
-      if (tab === 'objects') { UI.toast('📦 Objetos chegam junto com o Estúdio (próxima fase)'); return; }
+      if (tab === 'objects') { UI.loading(350).then(() => Studio.open('objects')); return; }
       Editor.open(tab, sub); return;
     }
     if (b.dataset.nav) {
       const n = NAV.find(x => x.k === b.dataset.nav);
       if (n.k === 'options') return Modals.options();
-      if (n.k === 'studio') { Sfx.play('tap'); UI.toast('🎬 O Estúdio de cenas é a próxima fase do projeto!'); return; }
+      if (n.k === 'studio') { Sfx.play('tap'); UI.loading(350).then(() => Studio.open()); return; }
       if (n.off) { Sfx.play('error'); UI.toast(`🔒 ${n.n}: em breve`); }
       return;
     }

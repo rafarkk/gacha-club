@@ -447,3 +447,71 @@ svg .w-fog { animation: wFog 18s ease-in-out infinite alternate; }
   .adj-side { width: 100%; }
   .modal-wrap { padding: 8px; }
 }
+
+/* ============ ESTÚDIO ============ */
+.studio { position: relative; height: 100%; display: grid; grid-template-columns: 96px minmax(0, 1fr) 112px; grid-template-areas: "left stage right"; background: #0b0820; overflow: hidden; }
+.st-stage { grid-area: stage; position: relative; min-width: 0; min-height: 0; display: grid; place-items: center; touch-action: none; overflow: hidden; }
+.st-svg { width: 100%; height: 100%; display: block; }
+.st-svg .ent { cursor: grab; }
+.st-svg.dragging .st-over { display: none; }
+.st-selbox { fill: rgba(95, 211, 224, .08); stroke: #5fd3e0; stroke-width: 3; stroke-dasharray: 10 7; vector-effect: non-scaling-stroke; }
+.st-name { font-family: var(--ui); font-size: 19px; font-weight: 600; fill: #fff; stroke: #2b2140; stroke-width: 4; paint-order: stroke; }
+.st-left, .st-right { display: flex; flex-direction: column; gap: 6px; padding: calc(8px + var(--safe-t)) 6px calc(8px + var(--safe-b)); background: rgba(20, 16, 44, .92); overflow-y: auto; scrollbar-width: none; z-index: 2; }
+.st-left { grid-area: left; border-right: 2px solid var(--line2); }
+.st-right { grid-area: right; border-left: 2px solid var(--line2); }
+.st-left::-webkit-scrollbar, .st-right::-webkit-scrollbar { display: none; }
+.st-left button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 2px; border-radius: 8px; background: var(--panel2); border: 2px solid var(--line); flex: none; }
+.st-left button b { font-size: .88em; font-weight: 500; line-height: 1.1; text-align: center; }
+.st-left button.on { border-color: var(--acc); background: #1f5e6e; }
+.st-ch { position: relative; display: flex; flex-direction: column; align-items: center; flex: none; padding: 3px; border-radius: 8px; background: var(--panel2); border: 2px solid var(--line); }
+.st-ch svg { width: 64px; height: 58px; }
+.st-ch small { font-size: .82em; max-width: 96px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.st-ch .dot { position: absolute; top: 5px; right: 5px; width: 14px; height: 14px; border-radius: 50%; background: #1b1838; border: 2px solid #5a54a3; }
+.st-ch.in .dot { background: #3de07a; border-color: #b8ffd0; box-shadow: 0 0 6px #3de07a; }
+.st-ch.on { border-color: var(--acc); }
+.st-actions { position: absolute; top: 10px; right: 122px; z-index: 3; display: flex; flex-direction: column; gap: 5px; }
+.has-panel .st-actions { right: 520px; }
+.st-actions > button, .st-scale { display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 70px; padding: 6px 4px; border-radius: 8px; background: rgba(38, 34, 81, .95); border: 2px solid var(--line2); font-size: 1.05em; }
+.st-actions .ico { width: 22px; height: 22px; }
+.st-actions b { font-size: .82em; font-weight: 500; }
+.st-scale { flex-direction: row; justify-content: space-between; padding: 4px; }
+.st-scale button { width: 24px; height: 28px; border-radius: 5px; background: #151230; font-size: 18px; }
+.st-scale b { font-size: .9em; }
+.st-panel { position: absolute; top: 10px; right: 122px; bottom: 10px; width: 390px; z-index: 3; display: none; padding: 8px 10px 14px; overflow-y: auto; background: rgba(29, 26, 58, .97); border: 2px solid var(--line2); border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, .5); }
+.has-panel .st-panel { display: block; }
+.st-ph { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.st-ph b { flex: 1; font-size: 1.25em; font-weight: 600; }
+.st-panel .pick-grid { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); }
+.st-panel .seg { display: flex; flex-wrap: wrap; }
+.st-panel .seg button { flex: 1; }
+.st-who { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin: 8px 0; }
+.st-who button { border-radius: 8px; border: 2px solid var(--line); background: var(--panel2); aspect-ratio: 1; overflow: hidden; }
+.st-who button svg { width: 100%; height: 100%; }
+.st-who button.on { border-color: var(--acc); }
+.studio.view { grid-template-columns: 0 minmax(0, 1fr) 0; }
+.studio.view .st-left, .studio.view .st-right { display: none; }
+.st-exitview { position: absolute; right: 14px; bottom: calc(14px + var(--safe-b)); z-index: 5; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; background: rgba(20, 16, 44, .6); border: 2px solid #cfd2ff; opacity: .7; }
+.jump-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.jump-grid button { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; border-radius: 8px; background: var(--panel2); border: 2px solid var(--line); }
+.scenes-modal { max-width: 900px; }
+.scene-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.scs { display: flex; flex-direction: column; border-radius: 8px; overflow: hidden; border: 2px solid var(--line); background: #0b0820; }
+.scs svg { width: 100%; aspect-ratio: 16 / 9; display: block; }
+.scs > span { aspect-ratio: 16 / 9; display: grid; place-items: center; color: var(--dim); }
+.scs small { padding: 3px 6px; background: var(--panel2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.scs.on { border-color: var(--acc); }
+
+@media (max-width: 860px), (orientation: portrait) and (max-width: 1100px) {
+  .studio { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto auto minmax(0, 1fr); grid-template-areas: "stage" "right" "left" "actions" "panel"; }
+  .st-stage { aspect-ratio: 16 / 9; width: 100%; margin-top: var(--safe-t); }
+  .st-left, .st-right { flex-direction: row; overflow-x: auto; overflow-y: hidden; padding: 5px; border: 0; border-top: 2px solid var(--line2); }
+  .st-left button { min-width: 74px; padding: 5px 2px; }
+  .st-ch svg { width: 50px; height: 44px; }
+  .st-actions { grid-area: actions; position: static; flex-direction: row; flex-wrap: wrap; padding: 5px; background: rgba(20, 16, 44, .92); }
+  .st-actions > button, .st-scale { min-width: 58px; flex: 1 0 auto; }
+  .has-panel .st-actions { right: auto; }
+  .st-panel { grid-area: panel; position: static; width: auto; border-radius: 0; border-width: 2px 0 0; min-height: 0; }
+  .studio.view { grid-template-rows: minmax(0, 1fr); grid-template-areas: "stage"; }
+  .studio.view .st-stage { aspect-ratio: auto; height: 100%; }
+  .jump-grid { grid-template-columns: repeat(3, 1fr); }
+}

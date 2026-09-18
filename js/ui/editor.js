@@ -2,7 +2,7 @@
 
 const Editor = (() => {
   let tab = 'presets', sub = null, zoom = 1;
-  let undo = [], changed = false;
+  let undo = [], changed = false, from = 'menu';
   const el = () => $('#scr-editor');
   const TABS = [
     { k: 'presets', n: 'Predefinidos', i: 'person', c: '#1fa3c4' },
@@ -14,13 +14,14 @@ const Editor = (() => {
   ];
   const ch = () => Store.cur;
 
-  function open(t = 'presets', s = null) {
-    tab = t; sub = s; undo = []; changed = false;
+  function open(t = 'presets', s = null, origin = 'menu') {
+    tab = t; sub = s; undo = []; changed = false; from = origin;
     App.show('editor');
     render();
   }
   function close() {
     if (changed) Store.addXp(10);
+    if (from === 'studio') return Studio.open();
     App.show('menu'); Menu.render();
   }
 
@@ -93,7 +94,7 @@ const Editor = (() => {
       case 'random': Sfx.play('pick'); change(c => randomize(c)); break;
       case 'stand': Sfx.play('tap'); change(c => { c.body.pose = 0; c.body.rot = 0; c.body.headRot = 0; }); break;
       case 'png': UI.exportPNG(Rig.render(ch(), { viewBox: Rig.VIEW }), 800, 900, ch().name || 'personagem'); Store.addXp(5); break;
-      case 'studio': UI.toast('🎬 O Estúdio de cenas é a próxima fase do projeto!'); break;
+      case 'studio': if (changed) Store.addXp(10); changed = false; UI.loading(350).then(() => Studio.open()); break;
     }
   }
 

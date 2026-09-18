@@ -2,7 +2,7 @@
 
 Jogo de vestir e criar personagens no estilo gacha, feito em **HTML, CSS e JavaScript puros**. Não tem dependências nem etapa de build. Funciona no celular e no desktop, pode ser instalado como app (PWA) e roda offline.
 
-> Fase atual: **menu principal + editor completo de personagem**. Próxima fase: **Estúdio** de cenas.
+> Pronto: **menu principal, editor completo de personagem e Estúdio de cenas**. Próximas fases: Gacha/Unidades, Batalhas e Minigames.
 > O mapa das telas usado como referência está em [`referencias/gacha-club/MAPA.md`](referencias/gacha-club/MAPA.md).
 
 ## Como jogar
@@ -34,6 +34,17 @@ Jogo de vestir e criar personagens no estilo gacha, feito em **HTML, CSS e JavaS
 - **Cor livre** em cada peça (principal, secundária e contorno), com paleta, cores recentes e código hex.
 - Botões para desfazer (Ctrl+Z), gerar visual aleatório, zoom e salvar em PNG.
 
+**Estúdio de cenas**
+- Coloque os 10 personagens na cena. A bolinha verde na lista mostra quem está nela.
+- Arraste, vire, mude o tamanho (também com pinça ou roda do mouse) e mude a ordem das camadas.
+- Pose e expressão podem ser trocadas direto na cena.
+- Balões de fala com nome sobre a cabeça, e os mascotes também falam.
+- 20 mascotes e 30 objetos por cena (32 tipos de objeto com cores editáveis).
+- Narrador estilo visual novel: escolha quem narra, quando aparece (sempre ou só visualizando), posição, tamanho, fonte e cores.
+- Fundos e sobreposições, modo visualizar, salvar/carregar 15 cenas e exportar PNG.
+- Atalho "Editar" leva direto à aba certa do editor e volta para o Estúdio.
+- Teclado: setas movem, +/− mudam o tamanho, F vira, Del remove.
+
 **Opções:** som, qualidade das animações, tutorial, créditos, backup do progresso (código ou arquivo) e apagar dados.
 
 **Responsivo:** no desktop e em paisagem segue o layout de referência; no celular os blocos ficam empilhados.
@@ -43,9 +54,9 @@ Jogo de vestir e criar personagens no estilo gacha, feito em **HTML, CSS e JavaS
 | Pasta/arquivo | Conteúdo |
 |---|---|
 | `js/core/` | `core.js` (utilitários, cores, som, janelas) e `store.js` (salvamento e cópias) |
-| `js/rig/` | Personagem articulado: `rig.js` monta as camadas; `parts-*.js` são as peças em SVG |
+| `js/rig/` | Personagem articulado: `rig.js` monta as camadas; `parts-*.js` são as peças, mascotes e objetos de cena em SVG |
 | `js/data/` | `poses.js`, `defaults.js` (slots, personagens, predefinidos, expressões) e `backgrounds.js` |
-| `js/ui/` | Menu, editor, painéis, seletor de cor e janelas |
+| `js/ui/` | Menu, editor, painéis, Estúdio, seletor de cor e janelas |
 | `sw.js`, `manifest.webmanifest` | Instalação e modo offline |
 
 ### Adicionando uma peça

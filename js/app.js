@@ -22,10 +22,12 @@ const App = {
     if (e.key === 'Escape') {
       if (modals.length) { const x = $('[data-close]', modals[modals.length - 1]); if (x) x.click(); return; }
       if (App.screen === 'editor') Editor.close();
+      if (App.screen === 'studio' && Studio.view) Studio.view = false;
       return;
     }
     if (modals.length) return;
     if (App.screen === 'editor' && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); $('[data-act="undo"]').click(); }
+    if (App.screen === 'studio' && Studio.key(e)) e.preventDefault();
   });
 
 

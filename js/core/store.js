@@ -19,7 +19,8 @@ const Store = (() => {
       recentColors: [],
       settings: { sound: 1, quality: 1, linkPairs: 1, copyColors: 1 },
       tutorialSeen: false,
-      scenes: [],
+      studio: defaultStudio(),
+      scenes: Array(15).fill(null),
     };
   }
 
@@ -51,6 +52,12 @@ const Store = (() => {
     while (d.chars.length < 10) d.chars.push(MAIN_CHARS()[d.chars.length]);
     d.backups = Array.from({ length: BACKUP_SLOTS }, (_, i) => d.backups && d.backups[i] ? fixChar(d.backups[i]) : null);
     if (!(d.cur >= 0 && d.cur < 10)) d.cur = 0;
+    const ds = defaultStudio(), st = d.studio || {};
+    d.studio = Object.assign(ds, st, { bg: Object.assign(ds.bg, st.bg), narr: Object.assign(ds.narr, st.narr) });
+    d.studio.chars = (d.studio.chars || []).filter(e => e.ci >= 0 && e.ci < 10);
+    d.studio.pets = (d.studio.pets || []).filter(e => PARTS.pet[e.pi]);
+    d.studio.objs = (d.studio.objs || []).filter(e => PARTS.object[e.oi]);
+    d.scenes = Array.from({ length: 15 }, (_, i) => (d.scenes || [])[i] || null);
     d.v = SAVE_VERSION;
     return d;
   }
