@@ -43,7 +43,10 @@ Screens.gacha = (() => {
     const ft = Gacha.featuredTheme();
     const wish = S.wish && ITEMS[S.wish];
 
+    const highlights = Gacha.pool(b).filter(i => b.featured ? i.theme === ft && i.rarity >= 2 : i.rarity >= 3).sort((x, y) => y.rarity - x.rarity).slice(0, 8);
+
     el().innerHTML = `
+      <div class="split gacha-split"><div class="split-l">
       <div class="banner-tabs">${BANNERS.map(x => `<button class="chip${x.id === bid ? ' on' : ''}" data-bid="${x.id}">${x.featured ? THEMES[ft].icon + ' Destaque' : x.id === 'std' ? '🌟 ' + x.name : '🌍 ' + x.name}</button>`).join('')}</div>
       <div class="banner-card bc-${b.id}">
         <div class="banner-art">${showcase(b)}</div>
@@ -56,6 +59,7 @@ Screens.gacha = (() => {
         ${!S.firstTen ? '<div class="beginner">✨ 1ª invocação x10 garante <b>Lendário</b>!</div>' : ''}
       </div>
 
+      </div><div class="split-r">
       <div class="pity card-glass">
         <div class="pity-row"><span>Lendário+ garantido em</span><b>${toL}</b></div>
         <div class="bar"><i style="width:${p.l / GACHA_RULES.hardPity * 100}%"></i></div>
@@ -76,7 +80,13 @@ Screens.gacha = (() => {
         <button class="btn ghost" id="gRates">📊 Taxas</button>
         <button class="btn ghost" id="gHist">📜 Histórico</button>
         <button class="btn ghost" id="gShop">🛒 Loja</button>
-      </div>`;
+      </div>
+
+      <div class="card-glass highlights">
+        <h4>${b.featured ? '⭐ Itens do tema em destaque' : '💫 Destaques deste banner'}</h4>
+        <div class="grid mini-grid">${highlights.map(i => UI.itemCard(i, { locked: !Store.owned(i.id) })).join('')}</div>
+      </div>
+      </div></div>`;
 
     el().onclick = e => {
       const t = e.target.closest('[data-bid]');

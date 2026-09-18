@@ -1,5 +1,5 @@
 /* Service worker: cache offline do Ateliê Estelar */
-const CACHE = 'atelie-estelar-v1';
+const CACHE = 'atelie-estelar-v2';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest', './icon.svg', './css/style.css',
   './js/data.js', './js/art-char.js', './js/art-scene.js', './js/store.js', './js/gacha.js',

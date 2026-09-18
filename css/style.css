@@ -445,3 +445,94 @@ svg .w-fog { animation: wFog 18s ease-in-out infinite alternate; }
   .wallet { display: grid; grid-template-columns: repeat(2, max-content); gap: 3px 4px; }
   .pill { font-size: .76rem; padding: 2px 7px 2px 4px; }
 }
+
+/* ============ RESPONSIVO: tablet e desktop ============ */
+.brand { display: none; align-items: center; gap: 10px; font-size: 1.15rem; letter-spacing: .01em; white-space: nowrap; }
+.brand img { width: 34px; height: 34px; border-radius: 10px; }
+.brand b { background: linear-gradient(90deg, #fff, #ffc2e4 60%, #ffe07a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.kbd-hint { display: none; font-size: .75rem; color: var(--muted); text-align: center; margin: 4px 0 0; }
+.highlights h4 { margin-top: 0; }
+.mini-grid { grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 6px; }
+.mini-grid .card-name { font-size: .64rem; }
+
+@media (hover: hover) and (pointer: fine) {
+  .card:hover { transform: translateY(-3px); filter: brightness(1.12); }
+  .btn:hover:not(:disabled), .chip:hover, .pull-btn:hover { filter: brightness(1.12); }
+  .roster-item:hover, .roster-new:hover, .pick:hover, .theme-row:hover, .slot-tabs button:hover { border-color: rgba(255, 255, 255, .35); }
+  #bottomnav button:hover { color: var(--text); background: rgba(255, 255, 255, .05); }
+  .kbd-hint { display: block; }
+  ::-webkit-scrollbar { width: 10px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, .15); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+  ::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, .28); }
+  ::-webkit-scrollbar-track { background: transparent; }
+}
+
+/* Tablet e desktop: duas colunas */
+@media (min-width: 760px) {
+  #app { max-width: 1040px; }
+  #screens { padding: 16px 20px calc(var(--nav-h) + var(--safe-b) + 20px); }
+  .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+  .split-l { position: sticky; top: 0; z-index: 4; }
+  .gacha-split { display: block; }
+  .gacha-split .split-l { position: static; }
+  .banner-card, .banner-info { min-height: 400px; }
+  .banner-info { max-width: 50%; padding: 22px; }
+  .banner-info h2 { font-size: 1.7rem; }
+  .banner-info p { font-size: .92rem; }
+  .pull-btn { padding: 18px 8px; font-size: 1.15rem; }
+  .grid.mini-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+  .stage { height: min(calc(100vh - 360px), 560px); min-height: 300px; }
+  .scene-canvas { width: min(100%, calc((100vh - 350px) * .75)); min-width: 240px; }
+  .slot-tabs { top: -16px; }
+  .grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
+  .events-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+  .events-grid .panel { margin: 0; }
+  .album-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 16px; align-items: start; }
+  .album-grid { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); }
+  .res-card { width: calc(20% - 8px); max-width: 150px; }
+  .results { max-width: 880px; }
+  .results.single .res-card { width: 300px; max-width: 300px; }
+  .runner { width: calc(25% - 8px); }
+  .runner .mini { height: 160px; }
+  .modal { max-width: 620px; }
+  .modal.detail-modal { max-width: 460px; }
+}
+
+/* Desktop: menu lateral */
+@media (min-width: 1024px) {
+  #app { max-width: 1400px; display: grid; grid-template-columns: 112px minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+  #topbar { grid-column: 1 / -1; padding: 10px 24px; gap: 16px; }
+  .brand { display: flex; }
+  .wallet { justify-content: flex-end; gap: 8px; }
+  .pill { font-size: .95rem; padding: 6px 14px 6px 10px; }
+  .pill i { font-size: 1rem; }
+  .icon-btn { width: 42px; height: 42px; }
+  #bottomnav {
+    position: relative; grid-column: 1; grid-row: 2; display: flex; flex-direction: column; gap: 8px;
+    padding: 18px 12px; background: rgba(12, 8, 30, .45); backdrop-filter: none; border-top: 0; border-right: 1px solid var(--line);
+  }
+  #bottomnav button { padding: 14px 0 10px; }
+  #bottomnav button span { font-size: 1.7rem; }
+  #bottomnav button b { font-size: .8rem; }
+  #bottomnav button.active { background: linear-gradient(135deg, rgba(255, 111, 181, .25), rgba(138, 108, 255, .25)); box-shadow: inset 0 0 0 1px rgba(255, 111, 181, .45); }
+  #bottomnav .dot { top: 8px; right: 16px; }
+  #screens { grid-column: 2; grid-row: 2; padding: 24px 32px 32px; }
+  .gacha-split { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); }
+  .gacha-split .banner-info { max-width: 56%; }
+  .gacha-split .pull-btns { grid-template-columns: 1fr; }
+  .grid.mini-grid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+  .split { gap: 32px; }
+  .slot-tabs { top: -24px; }
+  .stage { height: min(calc(100vh - 290px), 620px); }
+  .scene-canvas { width: min(100%, calc((100vh - 300px) * .75)); }
+  .banner-card, .banner-info { min-height: min(calc(100vh - 200px), 560px); }
+  .events-grid .contest-panel { grid-column: 1 / -1; }
+  .pick { width: 110px; }
+  .pick .mini { width: 86px; height: 120px; }
+  #toasts { top: 76px; }
+}
+
+@media (min-width: 1440px) {
+  .events-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .events-grid .contest-panel { grid-column: span 3; }
+}

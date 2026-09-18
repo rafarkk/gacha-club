@@ -22,8 +22,8 @@ Screens.events = (() => {
     const lim = Store.limits();
     const exCount = S.scenes.filter(s => s.ex).length;
 
-    el().innerHTML = `
-      <section class="panel">
+    el().innerHTML = `<div class="events-grid">
+      <section class="panel contest-panel">
         <div class="panel-head"><h3>🎭 Desfile do Dia</h3><span class="tries">${'💃'.repeat(S.daily.contestTries)}${'<i>💃</i>'.repeat(3 - S.daily.contestTries)}</span></div>
         <div class="theme-of-day">${th.map(t => `<span class="theme-pill">${THEMES[t].icon} ${THEMES[t].name}</span>`).join('<b>+</b>')}</div>
         <p class="muted small">Cada item dos temas do dia dá <b>+25%</b> de pontuação. Conjuntos (3+ itens do mesmo tema) dão bônus extra!</p>
@@ -69,7 +69,7 @@ Screens.events = (() => {
           <div><b>${fmt(S.stats.contests)}</b><small>desfiles</small></div>
           <div><b>${fmt(S.stats.wins)}</b><small>vitórias</small></div>
         </div>
-      </section>`;
+      </section></div>`;
 
     el().onclick = onClick;
     updatePending();

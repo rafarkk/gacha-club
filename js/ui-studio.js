@@ -33,6 +33,7 @@ Screens.studio = (() => {
     ensureDraft();
     const S = Store.s, lim = Store.limits();
     el().innerHTML = `
+      <div class="split"><div class="split-l">
       <div class="roster">
         <button class="roster-new${!draft.uid ? ' on' : ''}" data-act="new">＋<small>Novo</small></button>
         ${S.chars.map(c => `<button class="roster-item${draft.uid === c.uid ? ' on' : ''}" data-cid="${c.uid}">${Art.doll(c, { viewBox: '30 20 140 130', cls: 'mini', noPet: true })}<small>${esc(c.name)}</small></button>`).join('')}
@@ -46,11 +47,13 @@ Screens.studio = (() => {
         <button class="btn icon" data-act="png" title="Baixar imagem">📸</button>
         ${draft.uid ? '<button class="btn icon danger" data-act="del" title="Excluir">🗑️</button>' : ''}
       </div>
+      </div><div class="split-r">
       <div class="slot-tabs" id="stTabs">
         <button data-tab="body" class="${tab === 'body' ? 'on' : ''}">🙂<small>Corpo</small></button>
         ${CHAR_SLOTS.map(s => `<button data-tab="${s}" class="${tab === s ? 'on' : ''}">${SLOTS[s].icon}<small>${SLOTS[s].name}</small></button>`).join('')}
       </div>
-      <div id="stPanel"></div>`;
+      <div id="stPanel"></div>
+      </div></div>`;
     renderStage();
     renderPanel();
 

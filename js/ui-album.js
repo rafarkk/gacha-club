@@ -10,7 +10,7 @@ Screens.album = (() => {
     const items = ITEM_LIST.filter(i => (fSlot === 'all' || i.slot === fSlot) && (fTheme === 'all' || i.theme === fTheme))
       .sort((a, b) => (Store.owned(b.id) - Store.owned(a.id)) || b.rarity - a.rarity);
 
-    el().innerHTML = `
+    el().innerHTML = `<div class="album-top">
       <section class="panel">
         <div class="panel-head"><h3>📖 Coleção</h3><b>${own}/${total} · ${pct.toFixed(0)}%</b></div>
         <div class="bar"><i style="width:${pct}%"></i></div>
@@ -30,6 +30,7 @@ Screens.album = (() => {
         }).join('')}</div>
       </section>
 
+      </div>
       <div class="filters">
         <button class="chip${fSlot === 'all' ? ' on' : ''}" data-slot="all">Todos</button>
         ${Object.entries(SLOTS).map(([k, s]) => `<button class="chip${fSlot === k ? ' on' : ''}" data-slot="${k}">${s.icon} ${s.name}</button>`).join('')}

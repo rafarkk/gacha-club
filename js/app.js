@@ -108,6 +108,31 @@
     });
   }
 
+  /* Teclado (desktop) */
+  document.addEventListener('keydown', e => {
+    if (e.target.matches('input, textarea')) return;
+    const ov = $('#pull-overlay');
+    if (!ov.classList.contains('hidden') && ov.innerHTML) {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
+        e.preventDefault();
+        const ok = $('#resOk'), sp = $('.spotlight', ov), skip = $('#resSkip');
+        if (ok && !ok.classList.contains('hidden')) ok.click();
+        else if (sp) sp.click();
+        else if (e.key === 'Escape' && skip && !skip.classList.contains('hidden')) skip.click();
+        else ov.click();
+      }
+      return;
+    }
+    const modals = $$('.modal-wrap');
+    if (modals.length) {
+      if (e.key === 'Escape') { const x = $('.modal-x', modals[modals.length - 1]); if (x) x.click(); }
+      return;
+    }
+    if (UI.current === 'scene' && Screens.scene.key(e)) { e.preventDefault(); return; }
+    const tabs = { 1: 'gacha', 2: 'studio', 3: 'scene', 4: 'events', 5: 'album' };
+    if (tabs[e.key] && !e.ctrlKey && !e.metaKey && !e.altKey) UI.go(tabs[e.key]);
+  });
+
   /* Virada do dia enquanto o app está aberto */
   let lastDay = Store.dayKey();
   setInterval(() => {

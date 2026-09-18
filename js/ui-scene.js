@@ -29,6 +29,7 @@ Screens.scene = (() => {
     ensureDraft();
     const S = Store.s, lim = Store.limits();
     el().innerHTML = `
+      <div class="split"><div class="split-l">
       <div class="roster">
         <button class="roster-new${!draft.uid ? ' on' : ''}" data-act="new">＋<small>Novo</small></button>
         ${S.scenes.map(s => `<button class="roster-item scene${draft.uid === s.uid ? ' on' : ''}" data-sid="${s.uid}">${SceneArt.svg(s, S.chars, { cls: 'mini' })}<small>${esc(s.name)}</small></button>`).join('')}
@@ -53,10 +54,13 @@ Screens.scene = (() => {
         <button class="btn icon" data-act="png" title="Baixar imagem">📸</button>
         ${draft.uid ? '<button class="btn icon danger" data-act="del" title="Excluir">🗑️</button>' : ''}
       </div>
+      <p class="kbd-hint">🖱️ Arraste para mover · roda do mouse = tamanho · ⌨️ setas, +/−, F espelha, Del remove</p>
+      </div><div class="split-r">
       <div class="slot-tabs" id="scTabs">
         ${[['bg', '🏞️', 'Fundo'], ['prop', '🪴', 'Objetos'], ['char', '🧑‍🎨', 'Elenco'], ['weather', '🌦️', 'Clima']].map(([k, i, n]) => `<button data-tab="${k}" class="${tab === k ? 'on' : ''}">${i}<small>${n}</small></button>`).join('')}
       </div>
-      <div id="scPanel"></div>`;
+      <div id="scPanel"></div>
+      </div></div>`;
     drawCanvas();
     renderPanel();
     el().onclick = onClick;
@@ -181,6 +185,30 @@ Screens.scene = (() => {
       else if (drag && drag.pinch) drag.pinch = null;
     };
     box.onpointerup = end; box.onpointercancel = end;
+
+    // Desktop: roda do mouse muda o tamanho do elemento selecionado
+    box.onwheel = ev => {
+      const e = draft.els[sel]; if (!e) return;
+      ev.preventDefault();
+      e.s = Math.max(.3, Math.min(3, e.s * (ev.deltaY < 0 ? 1.08 : 1 / 1.08)));
+      const g = box.querySelector(`.el[data-i="${sel}"]`); if (g) applyT(g, e);
+      dirty = true; clearTimeout(box._wt); box._wt = setTimeout(drawCanvas, 250);
+    };
+  }
+
+  /* Desktop: atalhos de teclado */
+  function key(ev) {
+    if (sel < 0 || !draft || !draft.els[sel]) return false;
+    const e = draft.els[sel], step = ev.shiftKey ? 16 : 4;
+    const moves = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
+    if (moves[ev.key]) {
+      e.x = Math.max(0, Math.min(300, e.x + moves[ev.key][0])); e.y = Math.max(0, Math.min(400, e.y + moves[ev.key][1]));
+      dirty = true; drawCanvas(); return true;
+    }
+    const map = { Delete: 'del', Backspace: 'del', '+': 'up', '=': 'up', '-': 'down', f: 'flip', F: 'flip', d: 'dup', D: 'dup', PageUp: 'front', PageDown: 'back' };
+    if (map[ev.key]) { tool(map[ev.key]); return true; }
+    if (ev.key === 'Escape') { sel = -1; drawCanvas(); return true; }
+    return false;
   }
 
   function save() {
@@ -201,5 +229,5 @@ Screens.scene = (() => {
     UI.refresh(); render();
   }
 
-  return { render };
+  return { render, key };
 })();
