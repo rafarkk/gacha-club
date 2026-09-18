@@ -1,3 +1,8 @@
 atelie-estelar/
 .DS_Store
 Thumbs.db
+referencias/**/*.mp4
+referencias/**/*.mov
+referencias/**/*.png
+referencias/**/*.jpg
+referencias/**/*.txt

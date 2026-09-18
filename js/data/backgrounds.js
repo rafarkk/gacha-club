@@ -1,9 +1,9 @@
-/* ============ ARTE DOS CENÁRIOS (viewBox 0 0 300 400) ============ */
+/* ============ FUNDOS E SOBREPOSIÇÕES (viewBox 0 0 300 400) ============
+   Cenários portados do jogo anterior + fundos gerados (palco do clube, padrões) + sobreposições animadas. */
 
-const SceneArt = (() => {
-  const { rng, shade, star, uid } = Art;
+const Scenery = (() => {
+  const shade = Color.shade, star = Shape.star;
   const EMOJI_FONT = `font-family="'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif"`;
-
   const grad = (id, stops, vertical = true) =>
     `<linearGradient id="${id}" x1="0" y1="0" x2="${vertical ? 0 : 1}" y2="${vertical ? 1 : 0}">${stops.map((s, i) => `<stop offset="${(i / (stops.length - 1)).toFixed(2)}" stop-color="${s}"/>`).join('')}</linearGradient>`;
   const sky = (u, stops) => `<defs>${grad(u + 'sk', stops)}</defs><rect width="300" height="400" fill="url(#${u}sk)"/>`;
@@ -118,10 +118,51 @@ const SceneArt = (() => {
   };
 
   /* Clima: partículas animadas (ou estáticas, para exportar imagem) */
+
+  /* Fundos gerados (usam a cor escolhida) */
+  const GEN = {
+    solid: (c) => `<rect width="300" height="400" fill="${c}"/>`,
+    club: (c, u) => {
+      const r = rng('club'); let s = sky(u, ['#140b33', '#3b1c6e', '#1a0f3d']);
+      s += `<defs><radialGradient id="${u}cg"><stop offset="0" stop-color="${c}" stop-opacity=".55"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient></defs><circle cx="150" cy="210" r="190" fill="url(#${u}cg)"/>`;
+      for (let i = 0; i < 64; i++) { const a = i / 64 * 360, h = 14 + r() * 34; s += `<rect x="-3" y="${(-78 - h).toFixed(0)}" width="6" height="${h.toFixed(0)}" rx="2" fill="${i % 3 ? '#b9a7ff' : '#ff9df2'}" opacity=".55" transform="translate(150 210) rotate(${a.toFixed(1)})"/>`; }
+      for (let x = -10; x < 300; x += 26 + r() * 20) { const h = 40 + r() * 90; s += `<rect x="${x.toFixed(0)}" y="${(340 - h).toFixed(0)}" width="${(18 + r() * 14).toFixed(0)}" height="${h.toFixed(0)}" fill="#2a1a52" opacity=".7"/>`; }
+      s += `<rect y="340" width="300" height="60" fill="#120a2a"/><ellipse cx="150" cy="352" rx="120" ry="16" fill="${c}" opacity=".35"/>`;
+      return s;
+    },
+    gradient: (c, u) => { const r = rng('gs'); let s = sky(u, [shade(c, 30), c, shade(c, -45)]); for (let i = 0; i < 40; i++) s += `<circle cx="${(r() * 300).toFixed(0)}" cy="${(r() * 400).toFixed(0)}" r="${(r() * 1.4 + .4).toFixed(1)}" fill="#fff" opacity=".7"/>`; return s; },
+    spiral: (c) => `<rect width="300" height="400" fill="${shade(c, -35)}"/>` + Array.from({ length: 18 }, (_, i) => `<path d="M150 200 L${(150 + 400 * Math.cos(i / 9 * Math.PI)).toFixed(0)} ${(200 + 400 * Math.sin(i / 9 * Math.PI)).toFixed(0)} L${(150 + 400 * Math.cos((i + .5) / 9 * Math.PI)).toFixed(0)} ${(200 + 400 * Math.sin((i + .5) / 9 * Math.PI)).toFixed(0)}Z" fill="${c}" opacity=".55"/>`).join('') + `<circle cx="150" cy="200" r="30" fill="${shade(c, 30)}"/>`,
+    rings: (c) => `<rect width="300" height="400" fill="${shade(c, -40)}"/>` + Array.from({ length: 12 }, (_, i) => `<circle cx="150" cy="200" r="${(12 - i) * 26}" fill="${i % 2 ? c : shade(c, -20)}"/>`).join(''),
+    dots: (c) => { let s = `<rect width="300" height="400" fill="${c}"/>`; for (let y = 10; y < 410; y += 26) for (let x = (y / 26) % 2 ? 0 : 13; x < 310; x += 26) s += `<circle cx="${x}" cy="${y}" r="6" fill="#fff" opacity=".35"/>`; return s; },
+    checker: (c) => { let s = `<rect width="300" height="400" fill="${c}"/>`; for (let y = 0; y < 400; y += 30) for (let x = ((y / 30) % 2) * 30; x < 300; x += 60) s += `<rect x="${x}" y="${y}" width="30" height="30" fill="${shade(c, -18)}"/>`; return s; },
+    stripes: (c) => { let s = `<rect width="300" height="400" fill="${c}"/>`; for (let x = -400; x < 300; x += 36) s += `<path d="M${x} 400 L${x + 400} 0 L${x + 418} 0 L${x + 18} 400Z" fill="#fff" opacity=".18"/>`; return s; },
+  };
+
+  const T = {
+    base: { a: '#8fd3ff', b: '#7cc36a', c: '#5aa24c' }, room: { a: '#f3d9b1', b: '#c58b5b', c: '#8fd3ff' },
+    floresta: { a: '#3fa34d', b: '#8b5a2b', c: '#c8e86b', d: '#1f4d2b', e: '#f4e3b1' }, oceano: { a: '#2f9fd8', b: '#1b4f8c', c: '#7fe3e0', d: '#0e2a4a', e: '#fff3c9' },
+    cosmos: { a: '#6b4cff', b: '#1b1446', c: '#ff9df2', d: '#0b0822', e: '#ffffff' }, doce: { a: '#ff8fc4', b: '#ffd1e6', c: '#9ee7ff', d: '#b0457a', e: '#fff7d6' },
+    sombra: { a: '#2b2233', b: '#8e1b3a', c: '#d9d2e9', d: '#120d17', e: '#ff4d6d' }, neon: { a: '#00e5ff', b: '#ff2bd6', c: '#faff00', d: '#141029', e: '#ffffff' },
+    sakura: { a: '#ffb7c9', b: '#d7263d', c: '#ffffff', d: '#5a1a2b', e: '#ffd166' }, fogo: { a: '#ff5a1f', b: '#8a1c0e', c: '#ffd23f', d: '#2a0a05', e: '#ffe9b0' },
+  };
+  const BG_LIST = [
+    { n: 'Cor sólida', g: 'solid' }, { n: 'Palco do clube', g: 'club' }, { n: 'Degradê estelar', g: 'gradient' }, { n: 'Espiral', g: 'spiral' },
+    { n: 'Anéis', g: 'rings' }, { n: 'Bolinhas', g: 'dots' }, { n: 'Xadrez', g: 'checker' }, { n: 'Listras', g: 'stripes' },
+    { n: 'Quarto', b: 'room', t: 'room' }, { n: 'Campo', b: 'hills', t: 'base' }, { n: 'Floresta', b: 'forest', t: 'floresta' }, { n: 'Praia', b: 'beach', t: 'oceano' },
+    { n: 'Espaço', b: 'space', t: 'cosmos' }, { n: 'Doceria', b: 'candy', t: 'doce' }, { n: 'Castelo', b: 'castle', t: 'sombra' }, { n: 'Cidade neon', b: 'city', t: 'neon' },
+    { n: 'Templo', b: 'temple', t: 'sakura' }, { n: 'Vulcão', b: 'volcano', t: 'fogo' }, { n: 'Palácio submarino', b: 'underwater', t: 'oceano' },
+  ];
+  const FG_LIST = [
+    { n: 'Nenhum' }, { n: 'Chuva', tpl: 'rain', a: '#bfe9ff' }, { n: 'Neve', tpl: 'snow' }, { n: 'Pétalas', tpl: 'petals' }, { n: 'Folhas', tpl: 'leaves', a: '#9bd46a' },
+    { n: 'Vaga-lumes', tpl: 'fireflies', a: '#e9ff70' }, { n: 'Confete', tpl: 'confetti' }, { n: 'Brasas', tpl: 'embers' }, { n: 'Estrelas cadentes', tpl: 'meteors' },
+    { n: 'Névoa', tpl: 'fog' }, { n: 'Bolhas', tpl: 'bubbles' }, { n: 'Céu estrelado', tpl: 'stars' },
+    { n: 'Cortina de palco', frame: 'curtain' }, { n: 'Janela', frame: 'window' }, { n: 'Vinheta', frame: 'vignette' }, { n: 'Moldura dourada', frame: 'gold' },
+  ];
+
   function weather(item, stat) {
     if (!item) return '';
     const c = item.colors, r = rng(item.id), u = uid();
-    const n = { leaves: 14, fireflies: 22, rain: 60, meteors: 5, confetti: 40, fog: 6, petals: 26, embers: 30 }[item.tpl] || 20;
+    const n = { leaves: 14, fireflies: 22, rain: 60, meteors: 5, confetti: 40, fog: 6, petals: 26, embers: 30, snow: 40, bubbles: 18, stars: 30 }[item.tpl] || 20;
     const out = [];
     for (let i = 0; i < n; i++) {
       const x = (r() * 300).toFixed(0), ys = (r() * 400).toFixed(0), dur = 2 + r() * 4, del = (-r() * dur).toFixed(2);
@@ -135,6 +176,9 @@ const SceneArt = (() => {
         case 'embers': out.push(`<circle ${anim('w-rise', 3 + r() * 4)} cx="${x}" cy="${yBot}" r="${(1 + r() * 2).toFixed(1)}" fill="${i % 2 ? '#ffd23f' : '#ff7a1f'}"/>`); break;
         case 'fireflies': out.push(`<circle ${anim('w-wander', 4 + r() * 4)} cx="${x}" cy="${ys}" r="${(1.5 + r() * 1.8).toFixed(1)}" fill="${c.a}"/>`); break;
         case 'meteors': out.push(`<path ${anim('w-meteor', 3 + r() * 3)} d="M${(r() * 300 + 60).toFixed(0)} ${stat ? ys : (r() * 120 - 60).toFixed(0)} l-50 30" stroke="url(#${u}mt)" stroke-width="2.5" stroke-linecap="round"/>`); break;
+        case 'snow': out.push(`<g ${anim('w-fall-sway', 6 + r() * 5)}><circle cx="${x}" cy="${yTop}" r="${(1.6 + r() * 2.4).toFixed(1)}" fill="#fff" opacity=".9"/></g>`); break;
+        case 'bubbles': out.push(`<circle ${anim('w-rise', 5 + r() * 4)} cx="${x}" cy="${yBot}" r="${(3 + r() * 6).toFixed(1)}" fill="#fff" fill-opacity=".12" stroke="#bfe9ff" stroke-width="1.4"/>`); break;
+        case 'stars': out.push(`<path ${stat ? '' : `class="anim-tw" style="animation-delay:${del}s"`} d="${star(+x, +ys, 3 + r() * 4, 1, 4)}" fill="#fff"/>`); break;
         case 'fog': out.push(`<ellipse ${anim('w-fog', 14 + r() * 10)} cx="${x}" cy="${(180 + r() * 220).toFixed(0)}" rx="${(90 + r() * 60).toFixed(0)}" ry="${(24 + r() * 16).toFixed(0)}" fill="#d9d2e9" opacity=".22" filter="url(#${u}fb)"/>`); break;
       }
     }
@@ -143,47 +187,39 @@ const SceneArt = (() => {
     return d + `<defs><filter id="${u}gw" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="1.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><g${glow}>${out.join('')}</g>`;
   }
 
-  function background(item) {
-    if (!item) return `<rect width="300" height="400" fill="#2a2150"/>`;
-    return (BG[item.tpl] || BG.hills)(item.colors, uid());
-  }
 
-  const propGlow = r => r >= 3 ? 'drop-shadow(0 0 6px #ffc93c)' : r >= 2 ? 'drop-shadow(0 0 4px #b56cff)' : 'none';
-
-  function elementSVG(el, i, chars, sel, stat) {
-    const sx = (el.s || 1) * (el.f ? -1 : 1), sy = el.s || 1;
-    const tr = `translate(${el.x.toFixed(1)} ${el.y.toFixed(1)}) scale(${sx.toFixed(3)} ${sy.toFixed(3)})`;
-    if (el.t === 'prop') {
-      const it = ITEMS[el.id]; if (!it) return '';
-      return `<g class="el${sel ? ' sel' : ''}" data-i="${i}" transform="${tr}">${sel ? '<circle r="34" class="selring"/>' : ''}` +
-        `<text x="0" y="4" font-size="48" text-anchor="middle" dominant-baseline="central" ${EMOJI_FONT} style="filter:${stat ? 'none' : propGlow(it.rarity)}">${it.tpl}</text></g>`;
-    }
-    if (el.t === 'char') {
-      const ch = chars.find(c => c.uid === el.cid); if (!ch) return '';
-      return `<g class="el${sel ? ' sel' : ''}" data-i="${i}" transform="${tr}">${sel ? '<rect x="-54" y="-70" width="108" height="140" rx="10" class="selring"/>' : ''}` +
-        `<g transform="translate(-50 -65) scale(.5)">${Art.dollInner(ch, uid())}</g><rect x="-50" y="-65" width="100" height="130" fill="transparent"/></g>`;
+  function frame(kind, u) {
+    switch (kind) {
+      case 'curtain': return `<defs><linearGradient id="${u}cu" x1="0" x2="1"><stop offset="0" stop-color="#8a0f1f"/><stop offset=".5" stop-color="#d7263d"/><stop offset="1" stop-color="#8a0f1f"/></linearGradient></defs>` +
+        `<path d="M0 0 L70 0 Q60 200 80 400 L0 400Z" fill="url(#${u}cu)"/><path d="M300 0 L230 0 Q240 200 220 400 L300 400Z" fill="url(#${u}cu)"/>` +
+        `<path d="M0 0 L300 0 L300 40 Q275 60 250 40 Q225 60 200 40 Q175 60 150 40 Q125 60 100 40 Q75 60 50 40 Q25 60 0 40Z" fill="#b01a2e"/><path d="M0 40 Q25 60 50 40 Q75 60 100 40 Q125 60 150 40 Q175 60 200 40 Q225 60 250 40 Q275 60 300 40" stroke="#ffd166" stroke-width="3" fill="none"/>`;
+      case 'window': return `<path fill-rule="evenodd" d="M-200 -200 H500 V600 H-200Z M40 50 H260 V330 H40Z" fill="#6b4226"/><path d="M150 50 V330 M40 190 H260" stroke="#6b4226" stroke-width="10"/><rect x="30" y="330" width="240" height="16" fill="#8b5a2b"/>`;
+      case 'vignette': return `<defs><radialGradient id="${u}vg" cx=".5" cy=".5" r=".7"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".75"/></radialGradient></defs><rect x="-200" y="-200" width="700" height="800" fill="url(#${u}vg)"/>`;
+      case 'gold': return `<rect x="6" y="6" width="288" height="388" fill="none" stroke="#c58b00" stroke-width="12"/><rect x="14" y="14" width="272" height="372" fill="none" stroke="#ffd23f" stroke-width="4"/>` + [[14, 14], [286, 14], [14, 386], [286, 386]].map(([x, y]) => `<path d="${star(x, y, 12, 5, 4)}" fill="#ffd23f" stroke="#c58b00" stroke-width="2"/>`).join('');
     }
     return '';
   }
 
-  function svg(scene, chars, opts = {}) {
-    const els = (scene.els || []).map((el, i) => elementSVG(el, i, chars, opts.sel === i, opts.static)).join('');
-    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" class="${opts.cls || 'scene-svg'}" preserveAspectRatio="xMidYMid slice">` +
-      `<g class="bg">${background(ITEMS[scene.bg])}</g><g class="els">${els}</g>` +
-      `<g class="weather" pointer-events="none">${weather(ITEMS[scene.weather], opts.static)}</g></svg>`;
+  /* st = { bg, color, fg, tint, tintColor, mx, my, scale } */
+  function background(st) {
+    const u = uid(), d = BG_LIST[st.bg || 0] || BG_LIST[0];
+    const color = st.color || '#6b4cff';
+    let s = d.g ? GEN[d.g](color, u) : BG[d.b](T[d.t], u);
+    const sc = st.scale || 1, mx = st.mx || 0, my = st.my || 0;
+    if (sc !== 1 || mx || my) s = `<g transform="translate(${150 + mx} ${200 + my}) scale(${sc}) translate(-150 -200)">${s}</g>`;
+    if (st.tint) s += `<rect x="-400" y="-400" width="1100" height="1200" fill="${st.tintColor || '#000'}" opacity="${st.tint / 100}"/>`;
+    return s;
   }
-
-  function thumb(item, v = 0) {
-    switch (item.slot) {
-      case 'bg': return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" class="thumb-svg" preserveAspectRatio="xMidYMid slice">${background(item)}</svg>`;
-      case 'prop': return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" class="thumb-svg"><text x="30" y="32" font-size="40" text-anchor="middle" dominant-baseline="central" ${EMOJI_FONT}>${item.tpl}</text></svg>`;
-      case 'weather': return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" class="thumb-svg" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="wt${item.id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b1446"/><stop offset="1" stop-color="#4a2f7a"/></linearGradient></defs><rect width="300" height="400" fill="url(#wt${item.id})"/>${weather(item)}</svg>`;
-      default: return Art.charThumb(item, v);
-    }
+  function foreground(st, stat) {
+    const f = FG_LIST[st.fg || 0]; if (!f || (!f.tpl && !f.frame)) return '';
+    if (f.frame) return frame(f.frame, uid());
+    return weather({ id: 'fg' + st.fg, tpl: f.tpl, colors: { a: f.a || '#ffffff' } }, stat);
   }
+  function svg(st, cls = 'bg-svg', par = 'xMidYMid slice') {
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" class="${cls}" preserveAspectRatio="${par}">${background(st)}<g pointer-events="none">${foreground(st)}</g></svg>`;
+  }
+  const thumbBg = (i, color) => `<svg viewBox="0 0 300 400" class="thumb still" preserveAspectRatio="xMidYMid slice">${background({ bg: i, color })}</svg>`;
+  const thumbFg = i => `<svg viewBox="0 0 300 400" class="thumb" preserveAspectRatio="xMidYMid slice"><rect width="300" height="400" fill="#3a2d70"/>${foreground({ fg: i }, true)}</svg>`;
 
-  return { svg, thumb, background, weather, BG, EMOJI_FONT };
+  return { svg, background, foreground, thumbBg, thumbFg, BG_LIST, FG_LIST, EMOJI_FONT };
 })();
-
-/* Miniatura universal de item */
-Art.thumb = (item, v) => SceneArt.thumb(item, v);

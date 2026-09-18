@@ -1,9 +1,11 @@
 /* Service worker: cache offline do Ateliê Estelar */
-const CACHE = 'atelie-estelar-v2';
+const CACHE = 'atelie-estelar-v3';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest', './icon.svg', './css/style.css',
-  './js/data.js', './js/art-char.js', './js/art-scene.js', './js/store.js', './js/gacha.js',
-  './js/ui-common.js', './js/ui-gacha.js', './js/ui-studio.js', './js/ui-scene.js', './js/ui-events.js', './js/ui-album.js', './js/app.js',
+  './js/core/core.js', './js/core/store.js',
+  './js/rig/parts-hair.js', './js/rig/parts-face.js', './js/rig/parts-body.js', './js/rig/parts-acc.js', './js/rig/parts-pets.js', './js/rig/rig.js',
+  './js/data/poses.js', './js/data/defaults.js', './js/data/backgrounds.js',
+  './js/ui/colorpicker.js', './js/ui/modals.js', './js/ui/menu.js', './js/ui/editor.js', './js/ui/editor-panels.js', './js/app.js',
 ];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));

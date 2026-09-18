@@ -1,49 +1,64 @@
 # ✨ Ateliê Estelar
 
-Gacha de moda e cenários feito em **HTML, CSS e JavaScript puros** — sem dependências, sem build. Funciona no celular, pode ser instalado como app (PWA) e roda offline.
+Jogo de vestir e criar personagens no estilo gacha, feito em **HTML, CSS e JavaScript puros**. Não tem dependências nem etapa de build. Funciona no celular e no desktop, pode ser instalado como app (PWA) e roda offline.
+
+> Fase atual: **menu principal + editor completo de personagem**. Próxima fase: **Estúdio** de cenas.
+> O mapa das telas usado como referência está em [`referencias/gacha-club/MAPA.md`](referencias/gacha-club/MAPA.md).
 
 ## Como jogar
 
 - **Local:** abra o `index.html` no navegador.
-- **No celular:** hospede a pasta em qualquer servidor estático (ex.: GitHub Pages → *Settings › Pages › Deploy from branch › main / root*) e abra o link. Pelo menu do navegador, "Adicionar à tela inicial" instala o jogo.
+- **Online / celular:** publique a pasta em qualquer hospedagem estática. No GitHub Pages: *Settings › Pages › Deploy from branch › main / root*.
 
-## Mecânicas
+## O que já existe
 
-- **3 banners** — *Estrelas Eternas* (visuais de personagem, com **Desejo**), *Destaque* (tema rotativo a cada 2 dias, com 50/50) e *Mundos Oníricos* (fundos, objetos e climas).
-- **5 raridades** — Comum, Raro, Épico, Lendário e Mítico.
-- **Garantias** — Épico+ a cada 10 invocações, chance de Lendário aumentada a partir da 50ª e garantida na 70ª. A 1ª invocação ×10 garante um Lendário. 1 invocação grátis por dia.
-- **Repetidos** — sobem estrelas de ★1 a ★5: ★3 libera a variante de cor e ★5 o **Prisma** animado. Acima de ★5 viram ✨ Poeira Estelar.
-- **Estúdio** — monte personagens com 7 tipos de item. 3+ itens do mesmo tema ativam o bônus de **Conjunto**.
-- **Cenário** — arraste objetos e personagens, use a pinça para mudar o tamanho, espelhe, mude a ordem, escolha fundo e clima. Exporta PNG.
-- **Desfile diário** — 3 tentativas contra rivais; itens dos temas do dia pontuam mais.
-- **Exposição** — cenários expostos rendem 🪙 por hora (até 10h).
-- **Progressão** — missões diárias, presente de login (ciclo de 7 dias), marcos do álbum, conjuntos completos, loja com limite diário e níveis que liberam vagas.
+**Menu principal**
+- Cartão do jogador com título, nível e moedas
+- 10 personagens principais
+- Palco com fundo animado
+- Tablet com 9 atalhos
+- Barra de navegação
 
-## Persistência
+**Reservas:** 90 vagas para guardar personagens. Dá para trocar, clonar e copiar tudo, só as roupas, só o cabelo ou as cores.
 
-O progresso é salvo automaticamente no `localStorage`. Em **⚙️ Ajustes** dá para exportar/importar o progresso (código ou arquivo `.json`) para levar a outro aparelho.
+**Fundos:** 19 cenários e padrões mais 15 sobreposições (chuva, neve, pétalas, cortina de palco...). Também é possível mover, mudar a escala, aplicar tom e trocar a cor.
+
+**Editor**
+- **Predefinidos:** 18 personagens prontos, organizados em clubes. Dá para copiar tudo, só as roupas ou só o cabelo, com ou sem as cores.
+- **Corpo:** pele, tamanho do corpo e da cabeça, inclinação, rotação, virar, formato das mãos, sombra e **51 poses** em 11 categorias.
+- **Cabeça:** 5 camadas de cabelo, com cor da base, degradê e contorno. Olhos, pupilas e sobrancelhas podem ser diferentes de cada lado. Também tem nariz, boca, corado, marcas no rosto e 16 expressões prontas.
+- **Roupas:** chapéus, óculos, enfeites, acessórios de rosto, pescoço, estampa, camisa, jaqueta, mangas, saia, calças, meias, sapatos, luvas, capa, cauda e asas.
+- **Outros:** itens nas duas mãos e escudo, efeitos atrás e na frente, animações, ocultar partes, balão de fala com emote e mascote (15 espécies).
+- **Perfil:** nome, título, clube, aniversário, idade e biografia. Mostra o perfil completo e permite **exportar e importar personagens por código**.
+- **Ajustar:** move, muda a escala e gira qualquer peça da cabeça ou das roupas.
+- **Cor livre** em cada peça (principal, secundária e contorno), com paleta, cores recentes e código hex.
+- Botões para desfazer (Ctrl+Z), gerar visual aleatório, zoom e salvar em PNG.
+
+**Opções:** som, qualidade das animações, tutorial, créditos, backup do progresso (código ou arquivo) e apagar dados.
+
+**Responsivo:** no desktop e em paisagem segue o layout de referência; no celular os blocos ficam empilhados.
 
 ## Estrutura
 
-| Arquivo | Conteúdo |
+| Pasta/arquivo | Conteúdo |
 |---|---|
-| `js/data.js` | Raridades, temas, **itens**, banners, missões e loja — adicione itens aqui |
-| `js/art-char.js` | Arte procedural (SVG) dos personagens |
-| `js/art-scene.js` | Fundos, climas e renderização dos cenários |
-| `js/store.js` | Estado, salvamento, economia e pontuação |
-| `js/gacha.js` | Sorteio, garantias, 50/50, desejo, criação e loja |
-| `js/ui-*.js` | Telas: invocar, estúdio, cenário, eventos e álbum |
+| `js/core/` | `core.js` (utilitários, cores, som, janelas) e `store.js` (salvamento e cópias) |
+| `js/rig/` | Personagem articulado: `rig.js` monta as camadas; `parts-*.js` são as peças em SVG |
+| `js/data/` | `poses.js`, `defaults.js` (slots, personagens, predefinidos, expressões) e `backgrounds.js` |
+| `js/ui/` | Menu, editor, painéis, seletor de cor e janelas |
 | `sw.js`, `manifest.webmanifest` | Instalação e modo offline |
 
-### Adicionando um item
+### Adicionando uma peça
 
-Acrescente uma linha em `ITEM_TABLE` (`js/data.js`):
+Cada lista em `PARTS` é um array cujo índice 0 significa "nenhum". Para criar uma peça nova, acrescente um objeto `{ n: 'Nome', d: k => '<svg...>' }` em `js/rig/parts-*.js`:
 
-```js
-['h_novo', 'hair', 'cosmos', 2, 'Cabelo Novo', 'buns', { a: '#ff9df2', c: '#6b4cff', fx: 'grad' }],
-// [id, slot, tema, raridade 0-4, nome, template, cores]
-```
+- Use `k.c[0]`, `k.c[1]` e `k.c[2]` para as cores principal, secundária e de contorno.
+- Use `k.F` para o preenchimento com degradê (cabelo e pupila).
+- Peças da cabeça e do tronco são desenhadas no espaço do personagem (viewBox 300×420, cabeça centrada em 150,128).
+- Peças de braço e perna são desenhadas no espaço local do membro: a junta fica em (0,0) e o membro aponta para baixo.
 
-Os templates disponíveis estão em `Art.HAIR`, `Art.EYES`, `Art.OUTFIT`, `Art.HAT`, `Art.FACE`, `Art.AURA`, `Art.PET` e `SceneArt.BG`. Para objetos de cenário, o template é um emoji.
+### Adicionando uma pose
 
-Ao publicar uma nova versão, aumente `CACHE` em `sw.js` para que os jogadores recebam os arquivos novos.
+Acrescente em `POSES` (`js/data/poses.js`) os ângulos de ombro/cotovelo e quadril/joelho, usando positivo para fora do corpo.
+
+Ao publicar uma versão nova, aumente `CACHE` em `sw.js`.
