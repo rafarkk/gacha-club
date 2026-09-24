@@ -78,14 +78,14 @@ h4 { margin: 14px 0 6px; font-weight: 600; color: var(--muted); letter-spacing: 
 .pc-cur i { font-style: normal; font-size: .8em; }
 .pc-cur i.gold { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(#ffe07a, #c58b00); color: #5a3a00; font-weight: 700; font-size: .7em; border: 2px solid #8a5a00; }
 
-.roster { grid-area: roster; display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: minmax(0, 1fr); gap: 4px; padding: 6px; background: rgba(20, 16, 44, .75); border: 2px solid var(--line2); border-radius: 12px; align-self: start; max-height: 100%; }
-.ro { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; min-height: 0; aspect-ratio: 1 / .95; padding: 3px; border-radius: 6px; border: 2px solid transparent; background: rgba(255, 255, 255, .04); overflow: hidden; }
+.roster { grid-area: roster; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(5, minmax(0, 1fr)); gap: 4px; padding: 6px; background: rgba(20, 16, 44, .75); border: 2px solid var(--line2); border-radius: 12px; align-self: start; height: min(100%, 50vw); min-height: 0; }
+.ro { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; min-height: 0; min-width: 0; padding: 3px; border-radius: 6px; border: 2px solid transparent; background: rgba(255, 255, 255, .04); overflow: hidden; }
 .ro svg { flex: 1; min-height: 0; }
-.ro small { font-size: .95em; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.ro small { flex: none; font-size: .95em; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .ro.on { border-color: #cfd2ff; background: rgba(255, 255, 255, .14); }
 .menu .stage { grid-area: stage; }
-.side-icons { grid-area: icons; display: flex; flex-direction: column; gap: 10px; align-self: center; }
-.side-icons button { width: 58px; height: 58px; display: grid; place-items: center; border-radius: 10px; background: linear-gradient(180deg, rgba(210, 214, 255, .9), rgba(150, 156, 220, .9)); color: #2b2a5a; border: 2px solid #eef0ff; box-shadow: 0 3px 10px rgba(0, 0, 0, .3); }
+.side-icons { grid-area: icons; display: flex; flex-direction: column; gap: clamp(4px, 1.4vh, 10px); align-self: center; }
+.side-icons button { width: clamp(40px, 9vh, 58px); height: clamp(40px, 9vh, 58px); display: grid; place-items: center; border-radius: 10px; background: linear-gradient(180deg, rgba(210, 214, 255, .9), rgba(150, 156, 220, .9)); color: #2b2a5a; border: 2px solid #eef0ff; box-shadow: 0 3px 10px rgba(0, 0, 0, .3); }
 .side-icons .ico { width: 30px; height: 30px; }
 
 .tablet { grid-area: tablet; min-height: 0; display: flex; }
@@ -94,9 +94,9 @@ h4 { margin: 14px 0 6px; font-weight: 600; color: var(--muted); letter-spacing: 
 .tb-status { display: flex; gap: 8px; align-items: center; font-size: .8em; }
 .batt { display: inline-block; width: 34px; height: 16px; border: 2px solid #6ee7a8; border-radius: 4px; padding: 2px; }
 .batt b { display: block; height: 100%; width: 80%; background: #6ee7a8; border-radius: 1px; }
-.tb-apps { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 1fr; gap: 10px; padding: 18px; background: linear-gradient(160deg, #4a3a8a, #6d4a9a 50%, #3a2f70); border-radius: 0 0 20px 20px; min-height: 0; }
-.app { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 0; }
-.app .ai { --ac: #3a8; width: min(96px, 7.2vw, 11vh); aspect-ratio: 1; display: grid; place-items: center; border-radius: 22%; background: linear-gradient(160deg, color-mix(in srgb, var(--ac) 80%, #fff), var(--ac)); color: #fff; box-shadow: 0 4px 0 color-mix(in srgb, var(--ac) 60%, #000), 0 6px 14px rgba(0, 0, 0, .3); transition: transform .12s; }
+.tb-apps { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 1fr; gap: 10px; padding: 18px; background: linear-gradient(160deg, #4a3a8a, #6d4a9a 50%, #3a2f70); border-radius: 0 0 20px 20px; min-height: 0; container-type: size; }
+.app { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 0; min-width: 0; }
+.app .ai { --ac: #3a8; width: clamp(24px, min(96px, 26cqw, 33cqh - 44px), 96px); aspect-ratio: 1; display: grid; place-items: center; border-radius: 22%; background: linear-gradient(160deg, color-mix(in srgb, var(--ac) 80%, #fff), var(--ac)); color: #fff; box-shadow: 0 4px 0 color-mix(in srgb, var(--ac) 60%, #000), 0 6px 14px rgba(0, 0, 0, .3); transition: transform .12s; }
 .app .ai .ico { width: 55%; height: 55%; }
 .app b { font-size: 1.25em; font-weight: 500; text-shadow: 0 2px 4px rgba(0, 0, 0, .5); white-space: nowrap; }
 .app:active .ai { transform: translateY(3px); box-shadow: 0 1px 0 color-mix(in srgb, var(--ac) 60%, #000); }
@@ -380,8 +380,37 @@ svg .w-fog { animation: wFog 18s ease-in-out infinite alternate; }
   .pc-name { font-size: 1.5em; }
 }
 
+/* ============ TELAS BAIXAS (janela pequena no PC, celular deitado) ============ */
+@media (max-height: 620px) {
+  body { font-size: 15px; }
+  .menu { grid-template-columns: minmax(150px, 19vw) minmax(0, 1fr) auto minmax(250px, 34vw); gap: 6px; padding: calc(6px + var(--safe-t)) 8px 0; }
+  .pc-portrait { width: 64px; }
+  .pc-title { padding: 2px 10px; }
+  .pc-name { font-size: 1.4em; }
+  .pc-lv { width: 90px; padding: 4px 8px; } .pc-lv b { font-size: 1.3em; }
+  .pc-cur { width: 90px; } .pc-cur span { font-size: 1.15em; padding: 2px 8px; gap: 5px; }
+  .pc-cur i.gold { width: 20px; height: 20px; }
+  .roster { padding: 4px; gap: 3px; }
+  .tb-frame { border-radius: 22px; padding: 8px; }
+  .tb-head { padding: 4px 12px; font-size: 1.05em; border-radius: 14px 14px 0 0; }
+  .tb-apps { gap: 4px; padding: 8px; border-radius: 0 0 14px 14px; }
+  .app { gap: 3px; }
+  .app .ai { width: clamp(22px, min(80px, 26cqw, 33cqh - 30px), 80px); }
+  .app b { font-size: 1em; }
+  .bnav { gap: 4px; padding: 4px 4px calc(4px + var(--safe-b)); margin: 0 -8px; }
+  .bnav button { padding: 3px 2px; gap: 0; }
+  .bnav button b { font-size: .88em; }
+  .bnav .ico { width: 20px; height: 20px; }
+}
+/* Muito baixa: só a miniatura na lista (o nome do escolhido aparece no cartão) */
+@media (max-height: 460px) {
+  .ro small { display: none; }
+  .pc-title { font-size: .8em; }
+  .pc-lv small { display: none; }
+}
+
 /* ============ CELULAR / RETRATO ============ */
-@media (max-width: 860px), (orientation: portrait) and (max-width: 1100px) {
+@media (max-width: 640px), (orientation: portrait) and (max-width: 1100px) {
   body { font-size: 16px; }
   .menu { grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr) auto auto auto;
     grid-template-areas: "card card" "stage icons" "roster roster" "tablet tablet" "nav nav"; gap: 8px; padding: calc(8px + var(--safe-t)) 8px 0; }
@@ -401,7 +430,7 @@ svg .w-fog { animation: wFog 18s ease-in-out infinite alternate; }
   .side-icons .ico { width: 24px; height: 24px; }
   .tb-frame { border-radius: 18px; padding: 6px; }
   .tb-head { padding: 4px 12px; font-size: 1em; border-radius: 12px 12px 0 0; }
-  .tb-apps { padding: 8px; gap: 6px; grid-auto-rows: auto; border-radius: 0 0 12px 12px; }
+  .tb-apps { padding: 8px; gap: 6px; grid-auto-rows: auto; border-radius: 0 0 12px 12px; container-type: normal; }
   .app { flex-direction: row; justify-content: flex-start; gap: 6px; padding: 2px; }
   .app .ai { width: 38px; border-radius: 10px; box-shadow: 0 2px 0 color-mix(in srgb, var(--ac) 60%, #000); }
   .app b { font-size: 1em; }
@@ -501,7 +530,7 @@ svg .w-fog { animation: wFog 18s ease-in-out infinite alternate; }
 .scs small { padding: 3px 6px; background: var(--panel2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .scs.on { border-color: var(--acc); }
 
-@media (max-width: 860px), (orientation: portrait) and (max-width: 1100px) {
+@media (max-width: 640px), (orientation: portrait) and (max-width: 1100px) {
   .studio { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto auto minmax(0, 1fr); grid-template-areas: "stage" "right" "left" "actions" "panel"; }
   .st-stage { aspect-ratio: 16 / 9; width: 100%; margin-top: var(--safe-t); }
   .st-left, .st-right { flex-direction: row; overflow-x: auto; overflow-y: hidden; padding: 5px; border: 0; border-top: 2px solid var(--line2); }
