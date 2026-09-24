@@ -33,6 +33,17 @@ PARTS.eye = [null,
   { n: 'Zangado', d: k => ({ w: 'M18 -6 C8 -12 -10 -6 -18 2 C-12 14 10 16 18 6 Z', lash: lashF(k, 'M22 -8 C10 -16 -12 -10 -22 2 L-26 0 L-20 6 C-10 -4 10 -10 20 -4 Z') }) },
   { n: 'Sorrindo com olhos', d: k => ({ closed: true, lash: lashF(k, 'M-17 4 Q0 -14 17 4 L15 6 Q0 -8 -15 6Z') + `<path d="M-15 6 Q0 -6 15 6" stroke="${k.c[1]}" stroke-width="1" fill="none"/>` }) },
   { n: 'Espiral tonto', d: k => ({ closed: true, lash: `<path d="M0 2 m-1 0 a1.5 1.5 0 1 1 3 0 a4 4 0 1 1 -7 -1 a7 7 0 1 1 12 2 a11 11 0 1 1 -19 -3" stroke="${k.c[1]}" stroke-width="2.4" fill="none" stroke-linecap="round"/>` }) },
+  /* ---- rodada 2 ---- */
+  { n: 'Olho redondo grande', d: k => ({ w: 'M17 2 A17 20 0 1 0 -17 2 A17 20 0 1 0 17 2 Z', lash: lashF(k, 'M19 -4 C16 -24 -16 -24 -19 -4 L-22 -2 L-17 -2 C-14 -18 14 -18 17 -2 Z') }) },
+  { n: 'Olhos de lado', d: k => ({ w: 'M16 0 C16 -15 7 -19 -1 -19 C-10 -19 -16 -13 -16 -2 C-16 11 -9 18 0 18 C9 18 16 11 16 0 Z', lash: lashF(k, 'M18 -2 C17 -18 6 -23 -2 -23 C-12 -23 -19 -17 -20 -7 L-24 -4 L-19 -2 C-17 -12 -11 -17 -2 -17 C5 -17 12 -13 16 0 Z') }) },
+  { n: 'Olho de tsundere', d: k => ({ w: 'M18 -4 C10 -12 -10 -8 -18 0 C-14 14 10 16 18 4 Z', lash: lashF(k, 'M21 -6 C10 -16 -12 -12 -22 0 L-26 -2 L-20 4 C-10 -6 10 -10 19 -2 Z') + `<path d="M-6 16 Q2 18 10 14" ${lashStroke(k, 1.4)}/>` }) },
+  { n: 'Olho com rímel', d: k => ({ w: 'M16 0 C16 -15 7 -19 -1 -19 C-10 -19 -16 -13 -16 -2 C-16 11 -9 18 0 18 C9 18 16 11 16 0 Z', lash: lashF(k, 'M19 -2 C17 -20 5 -25 -3 -25 C-14 -25 -21 -18 -22 -7 L-28 -8 L-22 -2 L-26 2 L-19 -1 C-17 -13 -11 -19 -3 -19 C5 -19 13 -14 17 0 Z') }) },
+  { n: 'Sonolento triste', d: k => ({ w: 'M16 -2 C8 -8 -8 -4 -16 2 C-14 14 12 16 16 -2 Z', lash: lashF(k, 'M19 -4 C8 -10 -8 -6 -19 2 L-19 5 C-8 -1 8 -5 17 0 Z') }) },
+  { n: 'Olho de brilho estrela', d: k => ({ w: 'M17 0 C17 -18 8 -23 -1 -23 C-11 -23 -18 -16 -18 -2 C-18 14 -10 21 0 21 C10 21 17 14 17 0 Z', lash: lashF(k, 'M20 -3 C19 -21 6 -27 -2 -27 C-14 -27 -22 -19 -23 -7 L-27 -4 L-21 -2 C-19 -15 -11 -21 -2 -21 C8 -21 15 -16 18 -1 Z') + `<path d="${Shape.star(10, 12, 3.4, 1.2, 4)}" fill="#fff"/>` }) },
+  { n: 'Coraçãozinho fechado', d: k => ({ closed: true, lash: `<path d="${Shape.heart(0, 0, 10)}" fill="${k.c[1]}"/>` }) },
+  { n: 'Linha reta', d: k => ({ closed: true, lash: lashF(k, 'M-17 0 L17 -1 L17 2 L-17 3Z') }) },
+  { n: 'Chorando muito', d: k => ({ closed: true, lash: lashF(k, 'M-17 4 Q0 -8 17 4 L15 6 Q0 -4 -15 6Z') + `<path d="M-10 8 Q-12 26 -6 40 M8 8 Q10 26 4 40" stroke="#8fd3ff" stroke-width="6" fill="none" stroke-linecap="round" opacity=".85"/>` }) },
+  { n: 'X', d: k => ({ closed: true, lash: `<path d="M-10 -10 L10 10 M10 -10 L-10 10" ${lashStroke(k, 4)}/>` }) },
 ];
 
 /* Pupila / íris — cores [íris, degradê da íris, pupila]. Desenhada dentro do branco do olho.
@@ -70,6 +81,17 @@ PARTS.pupil = [null,
   { n: 'Diamante brilhante', d: k => iris(k) + `<path d="M0 -8 L7 3 L0 14 L-7 3Z" fill="${k.c[2]}"/><path d="M0 -8 L3 3 L0 14Z" fill="#fff" opacity=".35"/>` + shine(.6) },
   { n: 'Zigue-zague', d: k => iris(k) + `<path d="M-7 -2 L-3 4 L0 -2 L3 4 L7 -2" stroke="${k.c[2]}" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>` + shine(.6) },
   { n: 'Flor', d: k => iris(k) + [0, 72, 144, 216, 288].map(a => `<circle cx="${(Math.cos(a * Math.PI / 180) * 4).toFixed(1)}" cy="${(3 + Math.sin(a * Math.PI / 180) * 4).toFixed(1)}" r="3" fill="${k.c[2]}"/>`).join('') + `<circle cx="0" cy="3" r="2" fill="${k.c[1]}"/>` + shine(.6) },
+  /* ---- rodada 2 ---- */
+  { n: 'Grande sem brilho', d: k => iris(k) + pupilDot(k, 7, 9, 3) },
+  { n: 'Anel duplo', d: k => iris(k) + [9, 5].map(r => `<circle cx="0" cy="3" r="${r}" fill="none" stroke="${k.c[2]}" stroke-width="1.6"/>`).join('') + shine(.6) },
+  { n: 'Estrela de quatro pontas', d: k => iris(k) + `<path d="${Shape.star(0, 3, 9, 2.6, 4)}" fill="${k.c[2]}"/>` + shine(.6) },
+  { n: 'Pupila de coelho', d: k => iris(k) + pupilDot(k, 5, 6, 5) + `<ellipse cx="-4" cy="-2" rx="2" ry="4" fill="#fff"/><ellipse cx="3" cy="-2" rx="2" ry="4" fill="#fff"/>` },
+  { n: 'Chama', d: k => iris(k) + `<path d="M0 12 Q-8 4 -2 -4 Q-2 2 2 0 Q2 -8 6 -10 Q10 4 0 12Z" fill="${k.c[2]}"/>` + shine(.5) },
+  { n: 'Espiral colorida', d: k => iris(k) + `<path d="M0 3 m-1 0 a1 1 0 1 1 2 0 a3 3 0 1 1 -5 -1 a5 5 0 1 1 9 2 a8 8 0 1 1 -14 -3" stroke="${k.c[2]}" stroke-width="1.8" fill="none"/>` },
+  { n: 'Pupila fina', d: k => iris(k) + pupilDot(k, 2.4, 6, 3) + shine(.8) },
+  { n: 'Brilho em arco', d: k => iris(k) + pupilDot(k) + `<path d="M-9 -6 Q0 -12 9 -6" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="4" cy="10" r="1.8" fill="#fff"/>` },
+  { n: 'Olho de robô', d: k => `<rect x="-11" y="-11" width="22" height="26" rx="4" fill="${k.F}"/><path d="M-6 3 L6 3" stroke="${k.c[2]}" stroke-width="3"/><circle cx="-5" cy="-5" r="2" fill="#fff"/>` },
+  { n: 'Pétala', d: k => iris(k) + [0, 90, 180, 270].map(a => `<ellipse cx="${(Math.cos(a * Math.PI / 180) * 4).toFixed(1)}" cy="${(3 + Math.sin(a * Math.PI / 180) * 4).toFixed(1)}" rx="3.4" ry="2" fill="${k.c[2]}" transform="rotate(${a} ${(Math.cos(a * Math.PI / 180) * 4).toFixed(1)} ${(3 + Math.sin(a * Math.PI / 180) * 4).toFixed(1)})"/>`).join('') + shine(.6) },
 ];
 
 /* Sobrancelhas (esquerda local, centro 0,0) — cores [cor]. Traço fino que afina nas pontas. */
@@ -94,6 +116,17 @@ PARTS.brow = [null,
   { n: 'Triste grossa', d: k => browF(k, 'M-15 4 Q0 2 15 -9 L15 -5 Q0 6 -15 8Z') },
   { n: 'Com falha', d: k => browF(k, 'M-14 3 Q-6 -4 -1 -3 L-2 1 Q-8 0 -14 3Z') + browF(k, 'M3 -3 Q9 -4 14 -1 Q9 -1 3 1Z') },
   { n: 'Pontuda', d: k => browF(k, 'M-15 4 Q-6 -2 4 -4 L15 -10 L10 -1 Q-2 -1 -15 4Z') },
+  /* ---- rodada 2 ---- */
+  { n: 'Pontinho duplo', d: k => `<ellipse cx="-4" cy="0" rx="3.4" ry="2.4" fill="${k.c[0]}"/><ellipse cx="4" cy="-1" rx="3.4" ry="2.4" fill="${k.c[0]}"/>` },
+  { n: 'Grossa reta', d: k => browF(k, 'M-15 -2 L15 -4 L15 2 L-15 4Z') },
+  { n: 'Fina curvada para baixo', d: k => browF(k, 'M-14 -4 Q0 4 14 -4 Q0 2 -14 -4Z') },
+  { n: 'Surpresa alta', d: k => browF(k, 'M-14 -2 Q0 -14 14 -4 Q0 -10 -14 -2Z') },
+  { n: 'Grossa com ponta', d: k => browF(k, 'M-15 6 Q-4 -8 12 -4 L16 -8 L14 0 Q0 -2 -13 8Z') },
+  { n: 'Tracinho', d: k => browF(k, 'M-6 0 L6 -1 L6 1.6 L-6 2.4Z') },
+  { n: 'Levantada de um lado', d: k => browF(k, 'M-14 3 Q-2 -2 14 -10 Q0 -3 -14 5Z') },
+  { n: 'Grossa desfiada', d: k => browF(k, 'M-15 4 Q-2 -8 15 -2 L14 2 Q0 -2 -14 8Z') + `<path d="M-8 2 L-6 -2 M0 0 L2 -4 M8 0 L10 -3" stroke="${k.c[0]}" stroke-width="1.4"/>` },
+  { n: 'Arco suave', d: k => browF(k, 'M-14 3 Q0 -6 14 3 Q0 -3 -14 3Z') },
+  { n: 'Brava fina', d: k => browF(k, 'M-14 -5 L14 3 L14 5 L-14 -3Z') },
 ];
 
 /* Nariz (centro 150,168) — cores [cor] */
@@ -138,6 +171,17 @@ PARTS.mouth = [null,
   { n: 'Sorrisinho de lado', d: k => `<path d="M142 186 Q152 188 160 180" stroke="${k.c[2]}" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M160 180 L162 178" stroke="${k.c[2]}" stroke-width="2" stroke-linecap="round"/>` },
   { n: 'Batom', d: k => `<path d="M140 184 Q145 180 150 183 Q155 180 160 184 Q155 190 150 190 Q145 190 140 184Z" fill="${k.c[1]}" ${ol(k, 1.6)}/><path d="M142 184 Q150 186 158 184" stroke="${k.c[2]}" stroke-width="1" fill="none"/>` },
   { n: 'Dentes cerrados', d: k => `<path d="M138 181 L162 181 Q162 191 150 191 Q138 191 138 181Z" fill="#fff" ${ol(k, 2.2)}/><path d="M138 186 L162 186 M144 181 L144 190 M150 181 L150 191 M156 181 L156 190" stroke="${k.c[2]}" stroke-width="1.2"/>` },
+  /* ---- rodada 2 ---- */
+  { n: 'Sorriso largo', d: k => `<path d="M134 180 Q150 196 166 180" stroke="${k.c[2]}" stroke-width="2.6" fill="none" stroke-linecap="round"/>` },
+  { n: 'Boca de pato', d: k => `<path d="M140 184 Q150 176 160 184 Q150 192 140 184Z" fill="#ffb52e" ${ol(k, 2)}/>` },
+  { n: 'Língua de lado', d: k => `<path d="M140 182 Q150 188 160 182" stroke="${k.c[2]}" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M154 185 Q156 194 162 192 Q164 186 158 184Z" fill="${k.c[1]}" ${ol(k, 1.4)}/>` },
+  { n: 'Triângulo aberto', d: k => `<path d="M142 180 L158 180 L150 192Z" fill="${k.c[0]}" ${ol(k, 2.2)}/><path d="M146 186 L154 186 L150 191Z" fill="${k.c[1]}"/>` },
+  { n: 'Assobiando', d: k => `<circle cx="150" cy="186" r="3.4" fill="${k.c[0]}" ${ol(k, 2)}/><path d="M162 176 q4 -4 8 0" stroke="${k.c[2]}" stroke-width="1.6" fill="none"/>` },
+  { n: 'Sorriso com dente', d: k => `<path d="M140 182 Q150 190 160 182" stroke="${k.c[2]}" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="146" y="184" width="5" height="4" fill="#fff" ${ol(k, 1)}/>` },
+  { n: 'Boca de W', d: k => `<path d="M138 182 L144 188 L150 182 L156 188 L162 182" stroke="${k.c[2]}" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>` },
+  { n: 'Choro aberto', d: k => `<path d="M138 190 Q150 174 162 190 Q150 196 138 190Z" fill="${k.c[0]}" ${ol(k, 2.4)}/><path d="M144 190 Q150 186 156 190 Q150 194 144 190Z" fill="${k.c[1]}"/>` },
+  { n: 'Grande risada', d: k => `<path d="M134 178 L166 178 Q166 202 150 202 Q134 202 134 178Z" fill="${k.c[0]}" ${ol(k, 2.4)}/><path d="M135 179 L165 179 L164 185 L136 185Z" fill="#fff"/><path d="M140 196 Q150 190 160 196 Q150 202 140 196Z" fill="${k.c[1]}"/>` },
+  { n: 'Boquinha pequena', d: k => `<path d="M146 184 Q150 187 154 184" stroke="${k.c[2]}" stroke-width="2.2" fill="none" stroke-linecap="round"/>` },
 ];
 
 /* Blush (bochechas em 106,166 e 194,166) — cores [cor] */

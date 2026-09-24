@@ -28,7 +28,7 @@ Jogo de vestir e criar personagens no estilo gacha, feito em **HTML, CSS e JavaS
 - **Corpo:** vista de lado (3/4) ou de frente, pele, tamanho do corpo e da cabeça, inclinação, rotação, virar, formato das mãos, sombra e **51 poses** em 11 categorias.
 - **Cabeça:** 5 camadas de cabelo, com cor da base, degradê e contorno. Olhos, pupilas e sobrancelhas podem ser diferentes de cada lado. Também tem nariz, boca, corado, marcas no rosto e 16 expressões prontas.
 - **Roupas:** chapéus, óculos, enfeites, acessórios de rosto, pescoço, estampa, camisa, jaqueta, mangas, saia, calças, meias, sapatos, luvas, capa, cauda e asas.
-- **Outros:** itens nas duas mãos e escudo, efeitos atrás e na frente, animações, ocultar partes, balão de fala com emote e mascote (30 espécies).
+- **Outros:** itens nas duas mãos e escudo, efeitos atrás e na frente, animações, ocultar partes, balão de fala com emote e mascote (40 espécies).
 - **Perfil:** nome, título, clube, aniversário, idade e biografia. Mostra o perfil completo e permite **exportar e importar personagens por código**, inclusive **códigos de exportação do Gacha Club** (importa nome, perfil e cores; as peças são aproximadas).
 - **Ajustar:** move, muda a escala e gira qualquer peça da cabeça ou das roupas.
 - **Cor livre** em cada peça (principal, secundária e contorno), com paleta, cores recentes e código hex.
