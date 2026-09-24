@@ -69,6 +69,8 @@ const Rig = (() => {
     const S = ch.skin, SO = H.outline ? 'none' : Color.shade(S, -48);
     const defs = [
       celFilter(u + 'cel'), celFilter(u + 'celD1', { dark: DARK.hairBack }), celFilter(u + 'celD2', { dark: DARK.hairBase }),
+      /* só o tom do cabelo posterior, sem borda (linha do cabelo sem franja: não pode ter emenda) */
+      celFilter(u + 'dkB', { dark: DARK.hairBase, op: 0, lop: 0 }),
       /* pele: sombra quente e mais curta, luz fraca */
       /* membros: desenhados em escala ~2x, então sombra/luz com deslocamento menor */
       celFilter(u + 'celL', { color: Color.shade(Color.mix(S, '#d8506e', .45), -30), op: .26, sh: [-2.2, -3], hl: [1, 1.4], lop: .12 }),
@@ -244,7 +246,7 @@ const Rig = (() => {
       const svg = drawHair(K('hairBase'), 'M70 138 C60 62 104 38 150 38 C196 38 240 62 230 138',
         [[230, 138], [218, 110], [196, 94], [172, 90], [158, 100], [146, 90], [118, 92], [94, 102], [80, 116], [70, 138]], { edgeOnly: 1, bulge: .35, lines: 0 });
       /* acompanha o rosto (no 3/4 o rosto é FACE_T, mais estreito e deslocado) */
-      return `<g transform="${T ? 'translate(154 0) scale(.95 1) translate(-150 0)' : ''}">${fx(svg)}</g>`;
+      return `<g transform="${T ? 'translate(154 0) scale(.95 1) translate(-150 0)' : ''}">${fx(svg, 'dkB')}</g>`;
     };
     const faceD = T ? FACE_T : FACE;
     defs.push(`<clipPath id="${u}fc"><path d="${faceD}"/></clipPath>`);
@@ -257,9 +259,10 @@ const Rig = (() => {
       ${fx((T ? '' : `<ellipse cx="77" cy="146" rx="7" ry="10" fill="${S}" stroke="${SO}" stroke-width="3"/>`) + `<ellipse cx="${223 + 2 * T}" cy="146" rx="7" ry="10" fill="${S}" stroke="${SO}" stroke-width="3"/>
       <path d="${faceD}" fill="${S}" stroke="${SO}" stroke-width="3"/>`, 'celS')}
       ${faceShadow}
-      ${H.face ? '' : `<g transform="translate(${-10 * T} 8) translate(150 166) scale(.94 1) translate(-150 -166)">${draw('blush')}</g><g transform="translate(${-10 * T} 4)">${draw('faceMark')}</g>` + eye(0) + eye(1) + brow(0) + brow(1) + `<g transform="translate(${-18 * T} 3)">${draw('nose')}</g><g transform="translate(${-13 * T} 1) translate(150 184) scale(.9) translate(-150 -184)">${draw('mouth')}</g>`}
+      ${H.face ? '' : `<g transform="translate(${-10 * T} 8) translate(150 166) scale(.94 1) translate(-150 -166)">${draw('blush')}</g><g transform="translate(${-10 * T} 4)">${draw('faceMark')}</g>` + eye(0) + eye(1) + `<g transform="translate(${-18 * T} 3)">${draw('nose')}</g><g transform="translate(${-13 * T} 1) translate(150 184) scale(.9) translate(-150 -184)">${draw('mouth')}</g>`}
       <g transform="translate(${-12 * T} 6)">${draw('faceAcc') + draw('glasses')}</g>
       ${hair ? `<g class="anim-hair">${draw('bangs') || hairline()}</g>${draw('ahoge')}` : ''}
+      ${H.face ? '' : brow(0) + brow(1)}
       <g transform="translate(${-4 * T} 0)">${draw('headAcc') + draw('headAcc2') + draw('hat')}</g>
       ${emote ? `<text x="214" y="40" font-size="40" text-anchor="middle" class="anim-bob" font-family="'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif">${emote}</text>` : ''}
     </g>`;
@@ -296,7 +299,7 @@ const Rig = (() => {
     const bodyX = x => { const v = 150 + (x - 150) * TSX; return T ? turnX(v) : v; };
     const lean = `rotate(${pose.t || 0} 150 ${bodyY(282)})`;
     const behind = `<g transform="${lean}">
-      <g transform="${BODY_T}"><g class="anim-wing">${draw('wings')}</g>
+      <g transform="${BODY_T} translate(150 232) scale(1.3) translate(-150 -232)"><g class="anim-wing">${draw('wings')}</g>
       ${cape ? `<g class="anim-cape">${capeAdj(cape.back)}</g>` : ''}</g>
       ${headBack}
     </g>`;

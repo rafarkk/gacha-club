@@ -372,6 +372,22 @@ svg .w-fog { animation: wFog 18s ease-in-out infinite alternate; }
 @keyframes wRise { 0% { transform: translate(0, 0); opacity: 0; } 10% { opacity: 1; } 100% { transform: translate(14px, -440px); opacity: 0; } }
 @keyframes wWander { 0%, 100% { transform: translate(0, 0); opacity: .2; } 25% { transform: translate(12px, -10px); opacity: 1; } 50% { transform: translate(-6px, -22px); opacity: .5; } 75% { transform: translate(-14px, -6px); opacity: 1; } }
 @keyframes wMeteor { 0%, 60% { transform: translate(0, 0); opacity: 0; } 65% { opacity: 1; } 100% { transform: translate(-260px, 160px); opacity: 0; } }
+/* Cenários: nuvens passando, raios de luz, brilhos, ondas e aurora */
+svg .bg-drift { animation: bgDrift 38s ease-in-out infinite alternate; }
+svg .bg-drift2 { animation: bgDrift 52s ease-in-out infinite alternate-reverse; }
+svg .bg-rays { animation: bgRays 7s ease-in-out infinite; }
+svg .bg-glow { animation: bgGlow 5s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+svg .bg-shimmer { animation: bgShimmer 2.6s ease-in-out infinite; }
+svg .bg-wave { animation: bgWave 5s ease-in-out infinite; }
+svg .bg-wave2 { animation: bgWave2 4.4s ease-in-out infinite; }
+svg .bg-aurora { animation: bgAurora 9s ease-in-out infinite alternate; }
+@keyframes bgDrift { from { transform: translateX(-14px); } to { transform: translateX(14px); } }
+@keyframes bgRays { 0%, 100% { opacity: .6; transform: translateX(0); } 50% { opacity: 1; transform: translateX(8px); } }
+@keyframes bgGlow { 0%, 100% { transform: scale(1); opacity: .9; } 50% { transform: scale(1.06); opacity: 1; } }
+@keyframes bgShimmer { 0%, 100% { opacity: 1; transform: translateX(0); } 50% { opacity: .45; transform: translateX(4px); } }
+@keyframes bgWave { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-24px); } }
+@keyframes bgWave2 { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+@keyframes bgAurora { from { transform: translateX(-16px) skewX(-4deg); opacity: .6; } to { transform: translateX(16px) skewX(4deg); opacity: 1; } }
 @keyframes wFog { from { transform: translateX(-60px); } to { transform: translateX(60px); } }
 
 /* ============ HOVER (mouse) ============ */

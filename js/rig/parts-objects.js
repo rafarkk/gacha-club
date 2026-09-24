@@ -40,3 +40,23 @@ PARTS.object = [null,
   { n: 'Cadeira de rodas', box: [-90, -170, 180, 172], d: k => `<circle cx="-10" cy="-60" r="58" fill="none" stroke="${k.c[2]}" stroke-width="9"/><circle cx="-10" cy="-60" r="58" fill="none" stroke="#9aa3ad" stroke-width="5"/><circle cx="-10" cy="-60" r="44" fill="none" stroke="#9aa3ad" stroke-width="2"/>` + wheel(k, 60, -14, 14) + P(k, 'M-40 -170 L-30 -170 L-24 -90 L60 -90 L60 -78 L-36 -78Z') + P(k, 'M-34 -104 L50 -104 L52 -90 L-30 -90Z', k.c[1]) + `<path d="M50 -78 L60 -28" ${o2(k)}/>` },
   { n: 'Guarda-sol', box: [-120, -250, 240, 252], d: k => `<path d="M0 -230 L6 0" stroke="${k.c[2]}" stroke-width="7"/><path d="M0 -230 L6 0" stroke="#f4f4f4" stroke-width="3"/>` + P(k, 'M-120 -180 Q0 -280 120 -180 Q90 -192 60 -180 Q30 -192 0 -180 Q-30 -192 -60 -180 Q-90 -192 -120 -180Z') + `<path d="M-60 -180 Q-40 -250 0 -250 M60 -180 Q40 -250 0 -250" stroke="${k.c[1]}" stroke-width="12" fill="none" opacity=".8"/>` },
 ];
+
+/* Profundidade dos objetos (como nos mascotes, mas medida pelo tamanho de cada objeto): sombra de dois tons
+   embaixo/direita, luz de borda em cima/esquerda, brilho suave, e sombra de contato no chão (y = 0). */
+function objDepth(k, box, svg) {
+  const id = k.u + 'od', h = Math.max(60, box[3]), d = (h * .045).toFixed(1), e = (h * .016).toFixed(1);
+  const sh = Color.shade(Color.mix(k.c[0], '#3a1a6a', .35), -35);
+  return `<defs><filter id="${id}" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+    <feMorphology in="SourceAlpha" operator="erode" radius="${Math.max(2.2, h * .012).toFixed(1)}" result="in"/>
+    <feOffset in="in" dx="${-d}" dy="${-d * 1.3}" result="o1"/><feComposite in="in" in2="o1" operator="out" result="s1"/>
+    <feFlood flood-color="${sh}" flood-opacity=".5"/><feComposite in2="s1" operator="in" result="shade"/>
+    <feOffset in="in" dx="${e}" dy="${e * 1.3}" result="o2"/><feComposite in="in" in2="o2" operator="out" result="s2"/>
+    <feFlood flood-color="#fff" flood-opacity=".4"/><feComposite in2="s2" operator="in" result="rim"/>
+    <feGaussianBlur in="in" stdDeviation="${(h * .07).toFixed(1)}" result="bl"/><feOffset in="bl" dx="${-d * 1.4}" dy="${-d * 2}" result="bo"/>
+    <feComposite in="in" in2="bo" operator="arithmetic" k2="1" k3="-1" result="hl0"/><feFlood flood-color="#fff" flood-opacity=".26"/><feComposite in2="hl0" operator="in" result="glow"/>
+    <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="shade"/><feMergeNode in="glow"/><feMergeNode in="rim"/></feMerge></filter>
+    <radialGradient id="${id}g"><stop offset="0" stop-color="#000" stop-opacity=".34"/><stop offset=".6" stop-color="#000" stop-opacity=".14"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient></defs>` +
+    (box[1] + box[3] > -4 ? `<ellipse cx="${box[0] + box[2] / 2}" cy="2" rx="${box[2] * .55}" ry="${Math.max(5, box[2] * .07).toFixed(1)}" fill="url(#${id}g)"/>` : '') +
+    `<g class="fx" filter="url(#${id})">${svg}</g>`;
+}
+PARTS.object.forEach(p => { if (!p) return; const d0 = p.d; p.d = k => objDepth(k, p.box, d0(k)); });

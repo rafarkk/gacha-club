@@ -10,8 +10,44 @@ function blob(k, circles) {
   return `<g fill="${k.c[2]}">${circles.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r + 2.2}"/>`).join('')}</g>` +
     `<g fill="${k.F}">${circles.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join('')}</g>`;
 }
-const hairShine = (d = 'M104 66 Q150 50 196 66') => `<path d="${d}" stroke="#fff" stroke-opacity=".38" stroke-width="5" fill="none" stroke-linecap="round"/>`;
-const braid = (k, pts, r = 11) => pts.map(([x, y], i) => `<ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r * 0.8}" fill="${k.F}" ${ol(k, 2)}/>`).join('');
+/* Brilho do cabelo (como no Gacha Club): 2-3 manchas alongadas na curva do alto da cabeça, na cor clara do cabelo */
+function hairGloss(k, cx = 150, cy = 128, rx = 72, ry = 68, ang = [230, 251, 272], len = [7, 11, 8]) {
+  const col = Color.mix(k.c[0], '#ffffff', .62);
+  return ang.map((a, i) => { const r = a * Math.PI / 180, x = cx + rx * Math.cos(r), y = cy + ry * Math.sin(r);
+    return `<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="${len[i]}" ry="${(2.4 + len[i] * .08).toFixed(1)}" fill="${col}" opacity=".8" transform="rotate(${(a - 270).toFixed(0)} ${x.toFixed(1)} ${y.toFixed(1)})"/>`; }).join('');
+}
+const hairShine = () => '';
+/* Trança: gomos em "V" alternados (de baixo para cima, cada gomo por cima do de baixo), com vinco e ponta solta */
+function braid(k, pts, r = 11) {
+  let s = '';
+  const [lx, ly] = pts[pts.length - 1];
+  s += `<path d="M${lx - 5} ${ly + 6} Q${lx - 7} ${ly + 22} ${lx - 2} ${ly + 30} L${lx} ${ly + 22} L${lx + 3} ${ly + 31} Q${lx + 8} ${ly + 20} ${lx + 5} ${ly + 6}Z" fill="${k.F}" ${ol(k, 2.4)}/>`;
+  for (let i = pts.length - 1; i >= 0; i--) {
+    const [x, y] = pts[i], m = i % 2 ? -1 : 1;
+    s += `<g transform="rotate(${m * 16} ${x} ${y})"><path d="M${x - r} ${y - r * .55} Q${x - r * 1.05} ${y + r * .55} ${x} ${y + r * .85} Q${x + r * 1.05} ${y + r * .55} ${x + r} ${y - r * .55} Q${x} ${y - r * .1} ${x - r} ${y - r * .55}Z" fill="${k.F}" ${ol(k, 2.4)}/>` +
+      `<path d="M${x - r * .55} ${y - r * .1} Q${x - r * .1} ${y + r * .3} ${x + r * .1} ${y + r * .6}" stroke="${k.c[2]}" stroke-opacity=".45" stroke-width="1.5" fill="none" stroke-linecap="round"/></g>`;
+  }
+  return s;
+}
+/* Cachos: nuvem de círculos com uma voltinha desenhada dentro de cada cacho */
+function curls(k, circles) {
+  return blob(k, circles) + circles.filter(c => c[2] < 30).map(([x, y, r]) =>
+    `<path d="M${(x - r * .5).toFixed(1)} ${(y + r * .15).toFixed(1)} A${(r * .45).toFixed(1)} ${(r * .45).toFixed(1)} 0 1 1 ${(x + r * .3).toFixed(1)} ${(y + r * .45).toFixed(1)}" stroke="${k.c[2]}" stroke-opacity=".45" stroke-width="1.6" fill="none" stroke-linecap="round"/>`).join('') + hairGloss(k);
+}
+/* Espetado: contorno de pontas com lados levemente côncavos e um fio do centro até cada ponta */
+function spiky(k, pts, c = [150, 110]) {
+  let d = `M${pts[0][0]} ${pts[0][1]}`;
+  for (let i = 1; i < pts.length; i++) {
+    const [ax, ay] = pts[i - 1], [bx, by] = pts[i], mx = (ax + bx) / 2, my = (ay + by) / 2;
+    d += ` Q${(mx + (c[0] - mx) * .08).toFixed(1)} ${(my + (c[1] - my) * .08).toFixed(1)} ${bx} ${by}`;
+  }
+  d += 'Z';
+  const far = pts.filter((p, i) => i % 2 === 1);
+  const id = k.u + 'sp';
+  return `<clipPath id="${id}"><path d="${d}"/></clipPath><path d="${d}" fill="${k.F}"/><g clip-path="url(#${id})">` +
+    far.map(([x, y]) => `<path d="M${(c[0] + (x - c[0]) * .5).toFixed(1)} ${(c[1] + (y - c[1]) * .5).toFixed(1)} L${(c[0] + (x - c[0]) * .82).toFixed(1)} ${(c[1] + (y - c[1]) * .82).toFixed(1)}" stroke="${k.c[2]}" stroke-opacity=".4" stroke-width="1.5" stroke-linecap="round"/>`).join('') +
+    hairGloss(k) + `</g><path d="${d}" fill="none" ${ol(k, 3.2)}/>`;
+}
 
 /* ---------- Gerador de cabelo em mechas (estilo anime) ----------
    cap: caminho aberto que começa no último ponto de pts e termina no primeiro (a "calota" do cabelo).
@@ -59,7 +95,14 @@ function hair(k, cap, pts, o = {}) {
       return st(`M${(x + 2).toFixed(1)} ${y0.toFixed(1)} Q${(x + 3 + sw * .5).toFixed(1)} ${((y0 + y1) / 2).toFixed(1)} ${x1.toFixed(1)} ${y1.toFixed(1)}`, .35, 1.5);
     }).join('');
   }
-  if (shine) inner += `<path d="${shine}" stroke="#fff" stroke-opacity=".42" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="15 6"/>`;
+  if (lines) {
+    /* fios longos e finos do alto até perto de cada ponta */
+    inner += hairTips(pts).map(([x, y]) => {
+      const x0 = 150 + (x - 150) * .35, y1 = y - (y - top) * .3, x1 = x + (150 - x) * .06 - 3 + sw;
+      return st(`M${x0.toFixed(1)} ${top + 6} Q${(x + (150 - x) * .25 + sw).toFixed(1)} ${((top + y1) / 2).toFixed(1)} ${x1.toFixed(1)} ${y1.toFixed(1)}`, .28, 1.3);
+    }).join('');
+  }
+  if (shine) inner += hairGloss(k);
   return `<clipPath id="${id}"><path d="${d}"/></clipPath><path d="${d}" fill="${k.F}"/>` +
     `<g clip-path="url(#${id})">${inner}</g><path d="${line}" fill="none" ${ol(k, w)}/>`;
 }
@@ -76,34 +119,34 @@ PARTS.hairBack = [null,
   { n: 'Longo ondulado', d: k => hair(k, CAP_BACK, [[228, 128], [252, 192], [236, 242], [254, 300], [242, 346], [224, 334], [208, 354], [188, 336], [168, 356], [150, 340], [132, 356], [112, 336], [92, 354], [76, 334], [58, 346], [46, 300], [64, 242], [48, 192], [72, 128]], { top: 150, shine: 0, bulge: .6 }) },
   { n: 'Muito longo', d: k => hair(k, CAP_BACK, [[226, 128], [246, 280], [256, 396], [236, 382], [222, 404], [202, 386], [186, 408], [166, 388], [150, 410], [134, 388], [114, 408], [98, 386], [78, 404], [64, 382], [44, 396], [54, 280], [74, 128]], { top: 150, shine: 0, bulge: .25 }) },
   { n: 'Médio em camadas', d: k => hair(k, CAP_BACK, [[230, 128], [240, 232], [228, 222], [232, 270], [214, 252], [206, 284], [190, 262], [176, 290], [160, 266], [150, 292], [140, 266], [124, 290], [110, 262], [94, 284], [86, 252], [68, 270], [72, 222], [60, 232], [70, 128]], { top: 150, shine: 0, bulge: .35 }) },
-  { n: 'Tranças', d: k => braid(k, [[86, 196], [84, 216], [83, 236], [83, 256], [84, 276], [86, 296]], 12) + braid(k, [[214, 196], [216, 216], [217, 236], [217, 256], [216, 276], [214, 296]], 12) + `<circle cx="86" cy="312" r="6" fill="${k.c[1]}" ${ol(k, 2)}/><circle cx="214" cy="312" r="6" fill="${k.c[1]}" ${ol(k, 2)}/>` },
-  { n: 'Cacheado longo', d: k => blob(k, [[78, 150, 22], [70, 186, 22], [74, 222, 22], [80, 258, 20], [96, 286, 18], [222, 150, 22], [230, 186, 22], [226, 222, 22], [220, 258, 20], [204, 286, 18], [120, 290, 18], [150, 294, 18], [180, 290, 18], [150, 200, 70]]) },
+  { n: 'Tranças', d: k => [86, 214].map((x, i) => braid(k, [[x, 190], [x + (i ? 2 : -2), 208], [x + (i ? 3 : -3), 226], [x + (i ? 3 : -3), 244], [x + (i ? 2 : -2), 262], [x, 280]], 12) + `<ellipse cx="${x}" cy="${291}" rx="7" ry="4.5" fill="${k.c[1]}" ${ol(k, 2.2)}/>`).join('') },
+  { n: 'Cacheado longo', d: k => curls(k, [[78, 150, 22], [70, 186, 22], [74, 222, 22], [80, 258, 20], [96, 286, 18], [222, 150, 22], [230, 186, 22], [226, 222, 22], [220, 258, 20], [204, 286, 18], [120, 290, 18], [150, 294, 18], [180, 290, 18], [150, 200, 70]]) },
   { n: 'Repicado', d: k => hair(k, CAP_BACK, [[230, 128], [244, 240], [240, 318], [226, 296], [220, 326], [204, 300], [196, 334], [178, 306], [164, 336], [150, 310], [136, 336], [122, 306], [104, 334], [96, 300], [80, 326], [74, 296], [60, 318], [56, 240], [70, 128]], { top: 150, shine: 0, bulge: .1 }) },
   { n: 'Bob longo', d: k => hair(k, CAP_BACK, [[232, 128], [240, 200], [236, 256], [220, 246], [206, 262], [186, 248], [166, 264], [150, 250], [134, 264], [114, 248], [94, 262], [80, 246], [64, 256], [60, 200], [68, 128]], { top: 150, shine: 0, bulge: .5 }) },
 ];
 
 /* Cabelo posterior (volume da cabeça, atrás do rosto) */
 PARTS.hairBase = [null,
-  { n: 'Curto redondo', d: k => hair(k, CAP_BASE, [[238, 150], [236, 190], [224, 178], [216, 198], [200, 182], [150, 188], [100, 182], [84, 198], [76, 178], [64, 190], [62, 150]], { top: 60, bulge: .5, shine: 0 }) },
-  { n: 'Chanel', d: k => hair(k, CAP_BASE, [[238, 150], [242, 214], [228, 202], [218, 218], [204, 204], [150, 208], [96, 204], [82, 218], [72, 202], [58, 214], [62, 150]], { top: 60, bulge: .35, shine: 0 }) },
-  { n: 'Volumoso', d: k => hair(k, 'M50 150 C34 58 96 20 150 20 C204 20 266 58 250 150', [[250, 150], [254, 198], [238, 186], [232, 210], [214, 194], [150, 200], [86, 194], [68, 210], [62, 186], [46, 198], [50, 150]], { top: 50, bulge: .55, shine: 0 }) },
-  { n: 'Espetado', d: k => `<path d="M70 150 L50 122 L64 104 L46 80 L74 74 L68 44 L100 54 L110 24 L134 44 L150 16 L166 44 L190 24 L200 54 L232 44 L226 74 L254 80 L236 104 L250 122 L230 150Z" fill="${k.F}" ${ol(k, 2.8)}/>` },
-  { n: 'Cacheado', d: k => blob(k, [[74, 104, 22], [70, 140, 22], [78, 174, 20], [226, 104, 22], [230, 140, 22], [222, 174, 20], [92, 66, 24], [124, 46, 24], [150, 40, 24], [176, 46, 24], [208, 66, 24], [150, 120, 72]]) },
-  { n: 'Médio reto', d: k => hair(k, CAP_BASE, [[238, 150], [244, 248], [230, 234], [220, 252], [204, 238], [150, 242], [96, 238], [80, 252], [70, 234], [56, 248], [62, 150]], { top: 60, bulge: .3, shine: 0 }) },
+  { n: 'Curto redondo', d: k => hair(k, CAP_BASE, [[238, 150], [250, 186], [232, 176], [226, 198], [210, 182], [196, 194], [150, 186], [104, 194], [90, 182], [74, 198], [68, 176], [50, 186], [62, 150]], { top: 60, bulge: .25, shine: 0 }) },
+  { n: 'Chanel', d: k => hair(k, CAP_BASE, [[238, 150], [244, 200], [256, 224], [234, 212], [222, 228], [204, 212], [150, 212], [96, 212], [78, 228], [66, 212], [44, 224], [56, 200], [62, 150]], { top: 60, bulge: .25, shine: 0 }) },
+  { n: 'Volumoso', d: k => hair(k, 'M50 150 C34 58 96 20 150 20 C204 20 266 58 250 150', [[250, 150], [268, 178], [250, 176], [262, 206], [238, 196], [232, 218], [212, 202], [150, 204], [88, 202], [68, 218], [62, 196], [38, 206], [50, 176], [32, 178], [50, 150]], { top: 50, bulge: .3, shine: 0 }) },
+  { n: 'Espetado', d: k => spiky(k, [[70, 150], [44, 128], [64, 108], [38, 82], [72, 76], [62, 42], [100, 54], [108, 18], [134, 42], [152, 8], [168, 42], [194, 18], [202, 54], [240, 42], [228, 76], [262, 82], [236, 108], [256, 128], [230, 150]]) },
+  { n: 'Cacheado', d: k => curls(k, [[74, 104, 22], [70, 140, 22], [78, 174, 20], [226, 104, 22], [230, 140, 22], [222, 174, 20], [92, 66, 24], [124, 46, 24], [150, 40, 24], [176, 46, 24], [208, 66, 24], [150, 120, 72]]) },
+  { n: 'Médio reto', d: k => hair(k, CAP_BASE, [[238, 150], [246, 236], [258, 260], [234, 248], [222, 264], [206, 250], [150, 252], [94, 250], [78, 264], [66, 248], [42, 260], [54, 236], [62, 150]], { top: 60, bulge: .2, shine: 0 }) },
   { n: 'Raspado', d: k => `<path d="M72 124 C70 70 106 52 150 52 C194 52 230 70 228 124 C220 104 190 92 150 92 C110 92 80 104 72 124Z" fill="${k.F}" ${ol(k, 2.8)}/>` },
-  { n: 'Fofo curto', d: k => hair(k, 'M60 150 C48 70 90 32 150 32 C210 32 252 70 240 150', [[240, 150], [242, 188], [228, 178], [222, 196], [150, 186], [78, 196], [72, 178], [58, 188], [60, 150]], { top: 60, bulge: .7, shine: 0 }) },
+  { n: 'Fofo curto', d: k => hair(k, 'M60 150 C48 70 90 32 150 32 C210 32 252 70 240 150', [[240, 150], [256, 180], [238, 178], [244, 198], [222, 190], [150, 186], [78, 190], [56, 198], [62, 178], [44, 180], [60, 150]], { top: 60, bulge: .45, shine: 0 }) },
 ];
 
 /* Rabo de cavalo / penteados presos */
 PARTS.ponytail = [null,
-  { n: 'Rabo alto', d: k => hair(k, 'M182 62 C238 36 272 92 262 150', [[262, 150], [258, 214], [250, 196], [240, 268], [232, 222], [222, 250], [218, 150], [202, 94], [186, 86]], { top: 70, bulge: .3, shine: 0, sw: -2 }) + `<circle cx="190" cy="72" r="9" fill="${k.c[1]}" ${ol(k, 2)}/>` },
+  { n: 'Rabo alto', d: k => hair(k, 'M176 56 C224 14 294 48 286 128', [[286, 128], [292, 196], [276, 182], [280, 250], [260, 222], [258, 278], [240, 236], [232, 256], [224, 172], [206, 96], [182, 80]], { top: 64, bulge: .18, shine: 0, sw: -2 }) + `<ellipse cx="188" cy="66" rx="8" ry="11" fill="${k.c[1]}" ${ol(k, 2.4)} transform="rotate(35 188 66)"/>` },
   { n: 'Maria-chiquinha', d: k => [0, 1].map(m => { const p = hair(Object.assign({}, k, { u: k.u + m }), 'M92 92 C44 94 24 162 36 232', [[36, 232], [48, 262], [52, 240], [62, 256], [62, 218], [70, 150], [96, 118]], { top: 110, bulge: .3, shine: 0 }) + `<circle cx="86" cy="96" r="8" fill="${k.c[1]}" ${ol(k, 2)}/>`; return m ? `<g transform="translate(300 0) scale(-1 1)">${p}</g>` : p; }).join('') },
   { n: 'Coque', d: k => `<circle cx="150" cy="36" r="27" fill="${k.F}" ${ol(k, 2.8)}/><path d="M130 30 Q150 20 170 30 M134 44 Q150 36 166 44" stroke="${k.c[2]}" stroke-width="1.7" fill="none" opacity=".45"/><rect x="132" y="56" width="36" height="7" rx="3" fill="${k.c[1]}" ${ol(k, 2)}/>` },
   { n: 'Coques duplos', d: k => `<circle cx="90" cy="52" r="25" fill="${k.F}" ${ol(k, 2.8)}/><circle cx="210" cy="52" r="25" fill="${k.F}" ${ol(k, 2.8)}/><path d="M78 46 Q90 38 102 44 M198 44 Q210 38 222 46" stroke="#fff" stroke-opacity=".4" stroke-width="3" fill="none"/><path d="M76 58 Q90 66 104 58 M196 58 Q210 66 224 58" stroke="${k.c[2]}" stroke-opacity=".4" stroke-width="1.7" fill="none"/>` },
-  { n: 'Trança lateral', d: k => braid(k, [[80, 176], [84, 198], [88, 220], [92, 242], [96, 264], [100, 286]], 13) + `<circle cx="102" cy="302" r="7" fill="${k.c[1]}" ${ol(k, 2)}/>` },
+  { n: 'Trança lateral', d: k => braid(k, [[80, 172], [83, 192], [86, 212], [89, 232], [92, 252], [95, 272]], 13) + `<ellipse cx="95" cy="284" rx="7.5" ry="4.8" fill="${k.c[1]}" ${ol(k, 2.2)}/>` },
   { n: 'Rabo de lado', d: k => hair(k, 'M86 104 C40 144 36 226 60 280', [[60, 280], [70, 300], [74, 276], [84, 290], [88, 240], [94, 184], [100, 150]], { top: 120, bulge: .3, shine: 0 }) + `<circle cx="86" cy="116" r="8" fill="${k.c[1]}" ${ol(k, 2)}/>` },
   { n: 'Chiquinhas curtas', d: k => [0, 1].map(m => { const p = hair(Object.assign({}, k, { u: k.u + m }), 'M88 86 C58 78 42 104 44 134', [[44, 134], [48, 150], [56, 136], [64, 146], [70, 126], [80, 124], [92, 98]], { top: 96, bulge: .4, shine: 0 }) + `<circle cx="86" cy="90" r="6" fill="${k.c[1]}" ${ol(k, 2)}/>`; return m ? `<g transform="translate(300 0) scale(-1 1)">${p}</g>` : p; }).join('') },
-  { n: 'Rabo gigante', d: k => hair(k, 'M186 58 C264 20 306 110 290 196', [[290, 196], [284, 262], [272, 244], [260, 336], [248, 288], [236, 306], [222, 170], [206, 94], [190, 84]], { top: 70, bulge: .3, shine: 0, sw: -2 }) + `<circle cx="192" cy="70" r="10" fill="${k.c[1]}" ${ol(k, 2)}/>` },
+  { n: 'Rabo gigante', d: k => hair(k, 'M180 54 C258 4 318 90 304 190', [[304, 190], [306, 270], [290, 250], [288, 340], [266, 300], [262, 352], [244, 302], [236, 322], [224, 172], [206, 94], [186, 80]], { top: 64, bulge: .18, shine: 0, sw: -2 }) + `<ellipse cx="190" cy="66" rx="9" ry="12" fill="${k.c[1]}" ${ol(k, 2.4)} transform="rotate(35 190 66)"/>` },
 ];
 
 /* Cabelo frontal (franja) — mechas pontudas sobre a testa, laterais emoldurando o rosto */
@@ -114,12 +157,12 @@ PARTS.bangs = [null,
   { n: 'Espetada', d: k => hair(k, 'M68 150 C54 60 102 30 150 30 C198 30 246 60 232 150', [[232, 150], [226, 156], [216, 108], [206, 138], [196, 98], [180, 134], [170, 94], [154, 136], [144, 92], [128, 132], [118, 96], [102, 136], [92, 108], [80, 154], [68, 150]], { edgeOnly: 1, bulge: .05, w: 3 }) },
   { n: 'Mechas longas', d: k => hair(k, CAP_BANGS, [[230, 150], [226, 226], [212, 118], [194, 140], [180, 100], [162, 136], [148, 98], [130, 138], [116, 100], [102, 140], [88, 118], [74, 226], [70, 150]], { edgeOnly: 1, bulge: .45 }) },
   { n: 'Franjinha', d: k => hair(k, 'M72 132 C64 62 104 38 150 38 C196 38 236 62 228 132', [[228, 132], [216, 110], [204, 86], [190, 106], [178, 84], [164, 106], [150, 84], [136, 106], [122, 84], [110, 106], [96, 86], [84, 110], [72, 132]], { edgeOnly: 1, bulge: .3 }) },
-  { n: 'Cacheada', d: k => blob(k, [[80, 96, 15], [98, 80, 16], [120, 72, 16], [142, 70, 16], [164, 70, 16], [186, 74, 16], [206, 84, 16], [222, 100, 14], [150, 60, 30]]) },
+  { n: 'Cacheada', d: k => curls(k, [[80, 96, 15], [98, 80, 16], [120, 72, 16], [142, 70, 16], [164, 70, 16], [186, 74, 16], [206, 84, 16], [222, 100, 14], [150, 60, 30]]) },
   { n: 'Topete', d: k => hair(k, 'M70 150 C58 70 94 40 134 42 C144 16 196 12 212 40 C234 58 240 96 230 150', [[230, 150], [222, 162], [214, 104], [196, 118], [184, 86], [160, 106], [150, 86], [124, 110], [112, 92], [92, 122], [84, 106], [76, 154], [70, 150]], { edgeOnly: 1, bulge: .35, sw: -3, shine: 'M150 34 Q180 22 206 42' }) },
   { n: 'Cobrindo o olho', d: k => hair(k, CAP_BANGS, [[232, 150], [226, 200], [214, 178], [204, 202], [190, 150], [176, 128], [160, 106], [140, 122], [126, 98], [108, 126], [96, 104], [84, 152], [70, 150]], { edgeOnly: 1, bulge: .4, sw: -4 }) },
   { n: 'Emo repicada', d: k => hair(k, CAP_BANGS, [[232, 150], [226, 202], [218, 168], [212, 194], [200, 152], [192, 178], [182, 126], [166, 110], [150, 124], [140, 100], [124, 120], [112, 98], [96, 122], [86, 104], [76, 148], [70, 150]], { edgeOnly: 1, bulge: .1, sw: -3 }) },
   { n: 'Princesa', d: k => hair(k, CAP_BANGS, [[230, 150], [224, 184], [212, 110], [196, 134], [184, 96], [164, 124], [150, 82], [136, 124], [116, 96], [104, 134], [88, 110], [76, 184], [70, 150]], { edgeOnly: 1, bulge: .8 }) },
-  { n: 'Moicano', d: k => `<path d="M126 110 L118 60 L132 66 L130 30 L146 44 L150 10 L156 44 L172 30 L168 66 L182 60 L174 110 Q150 100 126 110Z" fill="${k.F}" ${ol(k, 2.8)}/>` },
+  { n: 'Moicano', d: k => spiky(k, [[126, 110], [114, 60], [132, 64], [126, 28], [146, 42], [150, 6], [156, 42], [176, 28], [168, 64], [186, 60], [174, 110]], [150, 100]) },
 ];
 
 /* Ahoge (mechas-antena no topo) */

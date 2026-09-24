@@ -46,23 +46,42 @@ PARTS.shirt = [null,
   { n: 'Esportiva', d: k => P(k, TORSO) + `<path d="M150 208 L150 286" stroke="${k.c[1]}" stroke-width="3"/><path d="M122 250 L136 250 M164 250 L178 250" stroke="${k.c[1]}" stroke-width="4"/>` + P(k, 'M138 200 L162 200 L164 212 Q150 218 136 212Z', k.c[1]) },
 ];
 
+/* Detalhes de camisa aplicados por cima (hem: barra mais escura; fold: dobras na cintura; rib: barra canelada) */
+function shirtDeco(k, flags) {
+  const id = k.u + 'sd', dk = Color.shade(k.c[0], -16), ln = (d, op = .45, w = 1.4) => `<path d="${d}" stroke="${k.c[2]}" stroke-opacity="${op}" stroke-width="${w}" fill="none" stroke-linecap="round"/>`;
+  let s = `<clipPath id="${id}"><path d="${TORSO}"/></clipPath><g clip-path="url(#${id})">`;
+  if (flags.includes('hem') || flags.includes('rib')) {
+    s += `<rect x="100" y="279" width="100" height="24" fill="${dk}"/>` + ln('M100 279 L200 279', .55);
+    if (flags.includes('rib')) for (let x = 118; x < 186; x += 5) s += ln(`M${x} 281 L${x} 300`, .3, 1);
+  }
+  if (flags.includes('fold')) s += ln('M131 256 Q135 265 133 275') + ln('M169 248 Q166 261 169 273') + ln('M146 262 Q150 268 155 266', .3);
+  return s + `</g><path d="${TORSO}" fill="none" ${ol(k, 3)}/>`;
+}
+/* Casaco comprido (desce até o meio da coxa, abrindo um pouco na barra) */
+const JLONG = 'M123 212 Q150 204 177 212 C181 250 188 300 204 346 Q150 356 96 346 C112 300 119 250 123 212Z';
+
 /* Jaqueta aberta: o próprio contorno do tronco, um pouco mais largo, cortado no meio (abertura 'gap') e na barra
    (y0..y1). Assim acompanha cintura e quadril de qualquer corpo e nunca deixa o quadril aparecendo pelo lado. */
-const jk = (k, gap, y1, fill, y0 = 190) => {
-  const id = k.u + 'jk' + gap + y0, X = `translate(150 0) scale(1.04 1) translate(-150 0)`, TORSO = JACKET;
+const jk = (k, gap, y1, fill, y0 = 190, path) => {
+  const id = k.u + 'jk' + gap + y0, X = `translate(150 0) scale(1.04 1) translate(-150 0)`, TORSO = path || JACKET;
   return `<clipPath id="${id}h"><rect x="0" y="${y0}" width="${150 - gap}" height="${y1 - y0}"/><rect x="${150 + gap}" y="${y0}" width="150" height="${y1 - y0}"/></clipPath>` +
     `<clipPath id="${id}t"><path d="${TORSO}" transform="${X}"/></clipPath>` +
     `<g clip-path="url(#${id}h)"><path d="${TORSO}" transform="${X}" fill="${fill || k.c[0]}" ${ol(k, 3)}/></g>` +
     `<g clip-path="url(#${id}t)"><path d="M${150 - gap} ${y0} L${150 - gap} ${y1} L0 ${y1} M${150 + gap} ${y0} L${150 + gap} ${y1} L300 ${y1}${y0 > 200 ? ` M0 ${y0} L${150 - gap} ${y0} M${150 + gap} ${y0} L300 ${y0}` : ''}" fill="none" ${ol(k, 3)}/></g>`;
 };
+const SHIRT_DECO = { 1: 'hem fold', 2: 'hem fold', 3: 'hem fold', 4: 'hem fold', 7: 'fold', 11: 'rib', 12: 'fold', 14: 'hem', 15: 'hem' };
+PARTS.shirt.forEach((p, i) => { if (!p || !SHIRT_DECO[i]) return; const d0 = p.d; p.d = k => d0(k) + shirtDeco(k, SHIRT_DECO[i]); });
+
 PARTS.jacket = [null,
   { n: 'Jaqueta aberta', d: k => jk(k, 7, 289) + `<path d="M143 213 L134 236 M157 213 L166 236" stroke="${k.c[2]}" stroke-width="2"/>` },
   { n: 'Blazer', d: k => jk(k, 5, 291) + P(k, 'M144 213 L132 240 L144 246Z', Color.shade(k.c[0], -18)) + P(k, 'M156 213 L168 240 L156 246Z', Color.shade(k.c[0], -18)) + `<circle cx="146" cy="262" r="2.6" fill="${k.c[1]}"/><circle cx="146" cy="276" r="2.6" fill="${k.c[1]}"/>` },
-  { n: 'Casaco longo', d: k => P(k, 'M123 212 L143 213 L139 348 L98 340 L117 252Z') + P(k, 'M177 212 L157 213 L161 348 L202 340 L183 252Z') + `<path d="M143 213 L132 238 M157 213 L168 238" stroke="${k.c[2]}" stroke-width="2"/><path d="M118 280 L142 282 M182 280 L158 282" stroke="${k.c[1]}" stroke-width="4"/>` },
+  { n: 'Casaco longo', d: k => jk(k, 8, 352, null, 190, JLONG) + P(k, 'M142 212 L128 244 L140 250Z', Color.shade(k.c[0], -18)) + P(k, 'M158 212 L172 244 L160 250Z', Color.shade(k.c[0], -18)) +
+    `<path d="M116 280 L141 282 M184 280 L159 282" stroke="${k.c[1]}" stroke-width="4"/><path d="M126 300 Q132 322 128 344 M174 300 Q168 322 172 344" stroke="${k.c[2]}" stroke-opacity=".35" stroke-width="1.4" fill="none"/>` },
   { n: 'Cardigã', d: k => jk(k, 4, 292) + range(230, 282, 16).map(y => `<circle cx="143" cy="${y}" r="2.2" fill="${k.c[1]}"/>`).join('') },
   { n: 'Bomber', d: k => jk(k, 7, 280) + jk(k, 7, 280, k.c[1], 269) + P(k, 'M132 210 Q150 222 168 210 L166 204 Q150 214 134 204Z', k.c[1]) },
   { n: 'Gola alta', d: k => jk(k, 6, 290) + P(k, 'M122 214 L118 186 L140 196 L144 214Z') + P(k, 'M178 214 L182 186 L160 196 L156 214Z') },
-  { n: 'Capa de chuva', d: k => P(k, 'M122 211 Q150 204 178 211 L186 300 L194 344 Q150 354 106 344 L114 300Z') + `<path d="M150 212 L150 348" stroke="${k.c[2]}" stroke-width="1.5"/>` + range(226, 330, 20).map(y => `<circle cx="156" cy="${y}" r="2.6" fill="${k.c[1]}"/>`).join('') },
+  { n: 'Capa de chuva', d: k => jk(k, .6, 352, null, 190, JLONG) + P(k, 'M132 206 Q150 222 168 206 L170 216 Q150 232 130 216Z') + range(232, 336, 20).map(y => `<circle cx="157" cy="${y}" r="2.6" fill="${k.c[1]}" ${ol(k, 1.2)}/>`).join('') +
+    `<path d="M130 290 Q134 318 124 344 M170 290 Q166 318 176 344" stroke="${k.c[2]}" stroke-opacity=".35" stroke-width="1.4" fill="none"/>` },
 ];
 
 PARTS.skirt = [null,
@@ -70,7 +89,9 @@ PARTS.skirt = [null,
   { n: 'Saia curta', d: k => P(k, 'M121 266 L179 266 L191 308 Q150 316 109 308Z') },
   { n: 'Saia rodada', d: k => P(k, 'M123 262 L177 262 Q204 296 214 318 Q150 334 86 318 Q96 296 123 262Z') + `<path d="M90 312 Q150 326 210 312" stroke="${k.c[1]}" stroke-width="5" fill="none"/>` },
   { n: 'Saia longa', d: k => P(k, 'M123 264 L177 264 L198 366 Q150 376 102 366Z') + `<path d="M140 270 L128 368 M160 270 L172 368" stroke="${k.c[2]}" stroke-width="1.2" opacity=".5"/>` },
-  { n: 'Tutu', d: k => blob({ c: k.c, F: k.c[1] }, [[110, 300, 12], [128, 306, 12], [150, 308, 12], [172, 306, 12], [190, 300, 12]]) + blob({ c: k.c, F: k.c[0] }, [[116, 288, 13], [134, 294, 13], [150, 296, 13], [166, 294, 13], [184, 288, 13], [150, 276, 22]]) },
+  { n: 'Tutu', d: k => { const ruf = (y0, y1, x0, x1, n, fill) => { let d = `M${x0 + 12} ${y0} L${x1 - 12} ${y0} L${x1} ${y1 - 4}`; const w = (x1 - x0) / n;
+      for (let i = n - 1; i >= 0; i--) d += ` Q${(x0 + w * (i + .5)).toFixed(1)} ${y1 + 7} ${(x0 + w * i).toFixed(1)} ${i ? y1 : y1 - 4}`; return P(k, d + 'Z', fill); };
+    return ruf(268, 304, 98, 202, 7, k.c[1]) + ruf(264, 292, 106, 194, 6) + `<path d="M121 266 L179 266" stroke="${k.c[1]}" stroke-width="4"/>`; } },
   { n: 'Pregueada', d: k => P(k, 'M121 266 L179 266 L192 310 Q150 318 108 310Z') + range(126, 176, 10).map(x => `<path d="M${x + 2} 268 L${x - 4 + (x - 150) * .2} 312" stroke="${k.c[2]}" stroke-width="1.4" opacity=".6"/>`).join('') + `<path d="M121 270 L179 270" stroke="${k.c[1]}" stroke-width="4"/>` },
   { n: 'Assimétrica', d: k => P(k, 'M121 266 L179 266 L202 332 L152 302 L102 318Z') },
   { n: 'Corrente', d: k => P(k, 'M119 272 L181 272 L182 280 L118 280Z') + range(124, 176, 8).map((x, i) => `<ellipse cx="${x}" cy="${290 + Math.sin(i / 1.3) * 6}" rx="4" ry="2.6" fill="none" stroke="${k.c[1]}" stroke-width="2"/>`).join('') },
@@ -147,9 +168,12 @@ PARTS.shoe = [null,
   { n: 'Bota curta', d: k => P(k, tube(LS - 18, LS - 2, 18, 18)) + shoeBase(k) + `<path d="M-9 ${LS - 16} L9 ${LS - 16}" stroke="${k.c[1]}" stroke-width="3"/>` },
   { n: 'Bota longa', d: k => P(k, tube(4, LS - 2, 19, 17)) + shoeBase(k) + P(k, tube(2, 9, 21, 20), k.c[1]) },
   { n: 'Boneca', d: k => shoeBase(k) + `<path d="M-9 ${LS - 1} L9 ${LS - 1}" stroke="${k.c[1]}" stroke-width="3"/><circle cx="6" cy="${LS - 1}" r="2" fill="${k.c[1]}"/>` },
-  { n: 'Sandália', d: k => `<ellipse cx="0" cy="${LS + 4}" rx="8" ry="6" fill="${k.S}" stroke="${k.SO}" stroke-width="2"/>` + P(k, `M-11 ${LS + 7} L11 ${LS + 7} L11 ${LS + 11} L-11 ${LS + 11}Z`) + `<path d="M-7 ${LS - 1} L7 ${LS + 5} M7 ${LS - 1} L-7 ${LS + 5}" stroke="${k.c[0]}" stroke-width="2.6"/>` },
-  { n: 'Salto', d: k => P(k, `M-8 ${LS - 5} L8 ${LS - 5} Q10 ${LS + 3} 3 ${LS + 12} L-3 ${LS + 12} Q-10 ${LS + 3} -8 ${LS - 5}Z`) + P(k, `M-2 ${LS + 10} L2 ${LS + 10} L1 ${LS + 16} L-1 ${LS + 16}Z`, k.c[1]) },
-  { n: 'Pantufa', d: k => `<ellipse cx="0" cy="${LS + 3}" rx="13" ry="10" fill="${k.c[0]}" ${ol(k, 2.2)}/><ellipse cx="-6" cy="${LS - 6}" rx="3" ry="6" fill="${k.c[0]}" ${ol(k, 1.8)}/><ellipse cx="6" cy="${LS - 6}" rx="3" ry="6" fill="${k.c[0]}" ${ol(k, 1.8)}/><circle cx="-4" cy="${LS + 1}" r="1.6" fill="${k.c[2]}"/><circle cx="4" cy="${LS + 1}" r="1.6" fill="${k.c[2]}"/><circle cx="0" cy="${LS + 5}" r="2" fill="${k.c[1]}"/>` },
+  { n: 'Sandália', d: k => { const t = G.toe || 0, o = -t * 2.5;
+    return `<ellipse cx="${o}" cy="${LS + 4}" rx="${t ? 9.5 : 8}" ry="6" fill="${k.S}" stroke="${k.SO}" stroke-width="2"/>` + P(k, `M${-11 + o * 1.4} ${LS + 7} L${11 + o * .6} ${LS + 7} L${11 + o * .6} ${LS + 11} L${-11 + o * 1.4} ${LS + 11}Z`) + `<path d="M${-7 + o} ${LS - 1} L${7 + o} ${LS + 5} M${7 + o} ${LS - 1} L${-7 + o} ${LS + 5}" stroke="${k.c[0]}" stroke-width="2.6"/>`; } },
+  { n: 'Salto', d: k => { const t = G.toe || 0, x = v => (-t * v).toFixed(1);
+    return t ? P(k, `M${x(4.5)} ${LS + 5} L${x(8.5)} ${LS + 5} L${x(8)} ${LS + 13} L${x(5)} ${LS + 13}Z`, k.c[1]) + P(k, `M${x(8)} ${LS - 5} L${x(-4)} ${LS - 5} Q${x(-12)} ${LS + 5} ${x(-15)} ${LS + 13} L${x(-3)} ${LS + 12} Q${x(3)} ${LS + 6} ${x(9)} ${LS + 5}Z`)
+      : P(k, `M-8 ${LS - 5} L8 ${LS - 5} Q10 ${LS + 3} 3 ${LS + 12} L-3 ${LS + 12} Q-10 ${LS + 3} -8 ${LS - 5}Z`) + P(k, `M-2 ${LS + 10} L2 ${LS + 10} L1 ${LS + 16} L-1 ${LS + 16}Z`, k.c[1]); } },
+  { n: 'Pantufa', d: k => { const o = -(G.toe || 0) * 3; return `<g transform="translate(${o} 0)"><ellipse cx="0" cy="${LS + 3}" rx="13" ry="10" fill="${k.c[0]}" ${ol(k, 2.2)}/><ellipse cx="-6" cy="${LS - 6}" rx="3" ry="6" fill="${k.c[0]}" ${ol(k, 1.8)}/><ellipse cx="6" cy="${LS - 6}" rx="3" ry="6" fill="${k.c[0]}" ${ol(k, 1.8)}/><circle cx="-4" cy="${LS + 1}" r="1.6" fill="${k.c[2]}"/><circle cx="4" cy="${LS + 1}" r="1.6" fill="${k.c[2]}"/><circle cx="0" cy="${LS + 5}" r="2" fill="${k.c[1]}"/></g>`; } },
   { n: 'Galocha', d: k => P(k, tube(16, LS - 2, 19, 18)) + shoeBase(k) + `<path d="M-5 20 L-5 ${LS - 6}" stroke="#fff" stroke-opacity=".5" stroke-width="3" stroke-linecap="round"/>` },
 ];
 
@@ -163,13 +187,18 @@ PARTS.glove = [null,
 
 /* Mãos (formato escolhido em Corpo) — desenhadas na ponta do antebraço */
 const HANDS = ['Aberta', 'Punho', 'Apontando', 'Paz', 'Aceno'];
+/* Mãos no estilo do Gacha Club: maiores que o pulso, arredondadas, com o polegar para a frente e vincos dos dedos */
 function drawHand(type, fill, stroke, big) {
-  const y = AF + 5, r = big ? 8 : 5.6, s = `stroke="${stroke}" stroke-width="${(3 / G.sf).toFixed(2)}"`;
+  const k = big ? 1.3 : 1.2, y0 = AF, y = AF + 5.5, sw = (3 / G.sf / k).toFixed(2), s = `stroke="${stroke}" stroke-width="${sw}" stroke-linejoin="round"`;
+  const crease = d => `<path d="${d}" stroke="${stroke}" stroke-width="${(1.5 / G.sf / k).toFixed(2)}" fill="none" stroke-linecap="round" opacity=".75"/>`;
+  const thumb = `<path d="M3.5 ${y - 3.5} Q8.5 ${y - 2.5} 8 ${y + 2.5} Q7.3 ${y + 5.5} 4.5 ${y + 4.5}Z" fill="${fill}" ${s}/>`;
+  let h;
   switch (type) {
-    case 1: return `<circle cx="0" cy="${y}" r="${r - .8}" fill="${fill}" ${s}/>`;
-    case 2: return `<ellipse cx="0" cy="${y + 9}" rx="2.6" ry="6" fill="${fill}" ${s}/><circle cx="0" cy="${y}" r="${r - .8}" fill="${fill}" ${s}/>`;
-    case 3: return `<ellipse cx="-3" cy="${y + 9}" rx="2.4" ry="6" fill="${fill}" ${s} transform="rotate(12 -3 ${y + 9})"/><ellipse cx="3" cy="${y + 9}" rx="2.4" ry="6" fill="${fill}" ${s} transform="rotate(-12 3 ${y + 9})"/><circle cx="0" cy="${y}" r="${r - .8}" fill="${fill}" ${s}/>`;
-    case 4: return `<path d="M-7 ${y - 4} Q-9 ${y + 12} 0 ${y + 13} Q9 ${y + 12} 7 ${y - 4} Z" fill="${fill}" ${s}/><path d="M-3 ${y + 5} L-3 ${y + 11} M1 ${y + 5} L1 ${y + 12} M5 ${y + 4} L5 ${y + 10}" stroke="${stroke}" stroke-width="1.2"/>`;
-    default: return `<ellipse cx="0" cy="${y + 1}" rx="${r}" ry="${r + 1.2}" fill="${fill}" ${s}/><ellipse cx="${-r + 1}" cy="${y - 1}" rx="2.6" ry="3.6" fill="${fill}" ${s}/>`;
+    case 1: /* punho */ h = `<path d="M-5.5 ${y - 5} Q0 ${y - 7.5} 5.5 ${y - 5} Q7.5 ${y + 1} 5.5 ${y + 6} Q0 ${y + 8.5} -5.5 ${y + 6} Q-7.5 ${y + 1} -5.5 ${y - 5}Z" fill="${fill}" ${s}/>` + thumb + crease(`M-4 ${y + 1} Q-1 ${y + 2.5} 2 ${y + 1}`); break;
+    case 2: /* apontando */ h = `<path d="M-1.8 ${y + 3} L-2 ${y + 13} Q0 ${y + 15.5} 2 ${y + 13} L1.8 ${y + 3}Z" fill="${fill}" ${s}/><path d="M-5.5 ${y - 5} Q0 ${y - 7.5} 5.5 ${y - 5} Q7.5 ${y + 1} 5.5 ${y + 6} Q0 ${y + 8} -5.5 ${y + 6} Q-7.5 ${y + 1} -5.5 ${y - 5}Z" fill="${fill}" ${s}/>` + thumb; break;
+    case 3: /* paz */ h = [-2.6, 2.6].map(x => `<path d="M${x - 1.8} ${y + 3} L${x * 1.6 - 1.9} ${y + 13} Q${x * 1.6} ${y + 15.5} ${x * 1.6 + 1.9} ${y + 13} L${x + 1.8} ${y + 3}Z" fill="${fill}" ${s}/>`).join('') + `<path d="M-5.5 ${y - 5} Q0 ${y - 7.5} 5.5 ${y - 5} Q7.5 ${y + 1} 5.5 ${y + 6} Q0 ${y + 8} -5.5 ${y + 6} Q-7.5 ${y + 1} -5.5 ${y - 5}Z" fill="${fill}" ${s}/>` + thumb; break;
+    case 4: /* aceno: mão aberta com dedos */ h = `<path d="M-6.5 ${y - 4} Q-8.5 ${y + 8} -5.5 ${y + 12} Q0 ${y + 15} 5.5 ${y + 12} Q8.5 ${y + 8} 6.5 ${y - 4} Q0 ${y - 7} -6.5 ${y - 4}Z" fill="${fill}" ${s}/>` + crease(`M-2.5 ${y + 6} L-2.8 ${y + 12} M1 ${y + 6} L1 ${y + 13} M4.2 ${y + 5} L4.5 ${y + 11}`); break;
+    default: /* aberta (repouso) */ h = `<path d="M-6 ${y - 4.5} Q0 ${y - 7} 6 ${y - 4.5} Q8 ${y + 3} 6 ${y + 8.5} Q0 ${y + 11.5} -6 ${y + 8.5} Q-8 ${y + 3} -6 ${y - 4.5}Z" fill="${fill}" ${s}/>` + thumb + crease(`M-4.5 ${y + 5} Q-1 ${y + 6.5} 3 ${y + 5}`);
   }
+  return `<g transform="translate(0 ${y0}) scale(${k}) translate(0 ${-y0})">${h}</g>`;
 }

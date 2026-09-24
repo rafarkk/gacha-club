@@ -21,14 +21,14 @@ Jogo de vestir e criar personagens no estilo gacha, feito em **HTML, CSS e JavaS
 
 **Reservas:** 90 vagas para guardar personagens. Dá para trocar, clonar e copiar tudo, só as roupas, só o cabelo ou as cores.
 
-**Fundos:** 19 cenários e padrões mais 15 sobreposições (chuva, neve, pétalas, cortina de palco...). Também é possível mover, mudar a escala, aplicar tom e trocar a cor.
+**Fundos:** 22 cenários e padrões (com profundidade e animações) mais 15 sobreposições (chuva, neve, pétalas, cortina de palco...). Também é possível mover, mudar a escala, aplicar tom e trocar a cor.
 
 **Editor**
 - **Predefinidos:** 18 personagens prontos, organizados em clubes. Dá para copiar tudo, só as roupas ou só o cabelo, com ou sem as cores.
 - **Corpo:** vista de lado (3/4) ou de frente, pele, tamanho do corpo e da cabeça, inclinação, rotação, virar, formato das mãos, sombra e **51 poses** em 11 categorias.
 - **Cabeça:** 5 camadas de cabelo, com cor da base, degradê e contorno. Olhos, pupilas e sobrancelhas podem ser diferentes de cada lado. Também tem nariz, boca, corado, marcas no rosto e 16 expressões prontas.
 - **Roupas:** chapéus, óculos, enfeites, acessórios de rosto, pescoço, estampa, camisa, jaqueta, mangas, saia, calças, meias, sapatos, luvas, capa, cauda e asas.
-- **Outros:** itens nas duas mãos e escudo, efeitos atrás e na frente, animações, ocultar partes, balão de fala com emote e mascote (15 espécies).
+- **Outros:** itens nas duas mãos e escudo, efeitos atrás e na frente, animações, ocultar partes, balão de fala com emote e mascote (20 espécies).
 - **Perfil:** nome, título, clube, aniversário, idade e biografia. Mostra o perfil completo e permite **exportar e importar personagens por código**, inclusive **códigos de exportação do Gacha Club** (importa nome, perfil e cores; as peças são aproximadas).
 - **Ajustar:** move, muda a escala e gira qualquer peça da cabeça ou das roupas.
 - **Cor livre** em cada peça (principal, secundária e contorno), com paleta, cores recentes e código hex.

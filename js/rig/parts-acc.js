@@ -101,12 +101,24 @@ PARTS.tail = [null,
 /* Asas (asa esquerda desenhada; direita espelhada) */
 const wingPair = (w, cls = 'anim-wing') => `<g class="${cls}-l">${w}</g><g class="${cls}-r">${mir(w)}</g>`;
 PARTS.wings = [null,
-  { n: 'Anjo', d: k => wingPair(range(0, 4, 1).map(i => `<ellipse cx="${104 - i * 14}" cy="${214 - i * 10 + i * i * 2}" rx="${30 - i * 2}" ry="9" fill="${k.c[0]}" ${ol(k, 2)} transform="rotate(${-22 + i * 12} ${104 - i * 14} ${214 - i * 10})"/>`).join('') + P(k, 'M124 222 C90 190 60 190 40 206 C60 214 90 226 122 240Z')) },
+  /* Anjo: asa em arco com a borda de baixo em penas (festões), camadas mais claras por dentro e vincos das penas */
+  { n: 'Anjo', d: k => { const layer = (sc, fill, n) => { let d = 'M128 234 C116 198 86 170 46 164 C26 162 12 170 10 180';
+      const pts = [[10, 180], [22, 204], [38, 224], [58, 240], [82, 252], [108, 256], [126 , 248]];
+      for (let i = 1; i < pts.length; i++) { const [ax, ay] = pts[i - 1], [bx, by] = pts[i]; d += ` Q${((ax + bx) / 2 - 8).toFixed(1)} ${((ay + by) / 2 + 12).toFixed(1)} ${bx} ${by}`; }
+      return `<g transform="translate(128 234) scale(${sc}) translate(-128 -234)">${P(k, d + 'Z', fill)}</g>`; };
+    return wingPair(layer(1, Color.shade(k.c[0], -8)) + layer(.74, k.c[0]) + layer(.46, Color.mix(k.c[0], '#ffffff', .45)) +
+      `<path d="M118 222 C98 196 70 180 38 176" stroke="#fff" stroke-width="3" fill="none" opacity=".55" stroke-linecap="round"/>` +
+      [[30, 206], [48, 228], [70, 244], [96, 252]].map(([x, y]) => `<path d="M${x + 6} ${y - 14} L${x} ${y + 2}" stroke="${k.c[2]}" stroke-width="1.2" opacity=".3"/>`).join('')); } },
   { n: 'Morcego', d: k => wingPair(P(k, 'M128 228 C96 170 56 160 20 176 C32 188 30 200 26 214 C40 208 50 214 54 228 C64 220 78 224 84 240 C98 230 112 234 126 250Z') + `<path d="M126 234 L30 184 M124 240 L54 222 M122 246 L84 238" stroke="${k.c[1]}" stroke-width="1.6" opacity=".7"/>`) },
   { n: 'Fada', d: k => wingPair(`<path d="M130 226 C100 170 60 158 46 184 C36 210 90 224 128 232Z" fill="${k.c[0]}" fill-opacity=".7" ${ol(k, 2)}/><path d="M130 236 C100 256 70 286 80 300 C96 312 120 272 132 242Z" fill="${k.c[1]}" fill-opacity=".7" ${ol(k, 2)}/>`) },
   { n: 'Dragão', d: k => wingPair(P(k, 'M130 226 L70 150 L60 174 L36 170 L46 196 L22 204 L46 220 L40 240 L80 232 L100 250Z') + `<path d="M130 226 L60 174 M126 232 L46 196 M120 238 L46 220" stroke="${k.c[1]}" stroke-width="2"/>`) },
   { n: 'Borboleta', d: k => wingPair(`<path d="M132 230 C120 180 70 150 44 170 C24 190 60 226 130 236Z" fill="${k.c[0]}" ${ol(k, 2)}/><path d="M130 240 C90 250 60 280 72 300 C90 318 124 280 132 246Z" fill="${k.c[1]}" ${ol(k, 2)}/><circle cx="72" cy="182" r="8" fill="#fff" opacity=".5"/>`) },
-  { n: 'Cristal', d: k => wingPair(P(k, 'M130 226 L96 150 L110 214Z', k.c[0]) + P(k, 'M128 232 L50 170 L100 226Z', Color.shade(k.c[0], 18)) + P(k, 'M128 238 L40 236 L100 246Z', k.c[1]) + P(k, 'M130 244 L70 290 L112 254Z', Color.shade(k.c[1], 18))) },
+  /* Cristal: 4 placas largas facetadas em leque, cada uma com face clara e face escura, e brilho */
+  { n: 'Cristal', d: k => { const plate = (a, l, w, c1) => { const r = a * Math.PI / 180, x0 = 128, y0 = 232, tx = x0 - l * Math.cos(r), ty = y0 - l * Math.sin(r), nx = -Math.sin(r) * w, ny = Math.cos(r) * w, mx = x0 - l * .55 * Math.cos(r), my = y0 - l * .55 * Math.sin(r);
+      const f = n => n.toFixed(1);
+      return P(k, `M${x0} ${y0} L${f(mx + nx)} ${f(my + ny)} L${f(tx)} ${f(ty)} L${f(mx - nx)} ${f(my - ny)}Z`, c1) + `<path d="M${x0} ${y0} L${f(tx)} ${f(ty)} L${f(mx - nx)} ${f(my - ny)}Z" fill="#fff" opacity=".32"/><path d="M${x0} ${y0} L${f(tx)} ${f(ty)}" stroke="#fff" stroke-width="1.2" opacity=".6"/>`; };
+    return wingPair(plate(-38, 88, 16, Color.shade(k.c[1], 10)) + plate(-12, 108, 20, k.c[1]) + plate(14, 112, 22, Color.shade(k.c[0], 10)) + plate(40, 96, 20, k.c[0]) +
+      `<path d="${Shape.star(46, 186, 4.4, 1.2, 4)}" fill="#fff" class="anim-tw"/><path d="${Shape.star(70, 262, 3.4, 1, 4)}" fill="#fff" class="anim-tw"/>`); } },
 ];
 
 /* Efeitos atrás/à frente do personagem */
