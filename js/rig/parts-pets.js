@@ -161,6 +161,38 @@ PARTS.pet = [null,
     `<path d="M24 8 C40 6 48 16 47 25 C46 34 38 38 26 38 C14 38 7 33 7 25 C7 16 12 9 24 8Z" fill="${k.c[0]}" ${po(k)}/>` +
     petEyes(k, 19, 33, 22) + petCheeks(13, 39, 29) + `<path d="M17 31 Q26 36 35 31" stroke="${k.c[2]}" stroke-width="1.6" fill="none" stroke-linecap="round"/>` +
     `<circle cx="11" cy="26" r="1" fill="${k.c[2]}"/><circle cx="14" cy="26" r="1" fill="${k.c[2]}"/>` + paws(k, [19, 33], 51) },
+  /* ---- recriados a partir do Gacha Club ---- */
+  { n: 'Hamster', d: k => `<path d="M10 52 Q4 30 26 26 Q48 30 42 52 Q26 56 10 52Z" fill="${k.c[0]}" ${po(k)}/><ellipse cx="26" cy="46" rx="10" ry="7" fill="${light(k)}"/>` +
+    `<circle cx="12" cy="16" r="6" fill="${k.c[0]}" ${po(k)}/><circle cx="40" cy="16" r="6" fill="${k.c[0]}" ${po(k)}/><circle cx="12" cy="16" r="3" fill="${k.c[1]}"/><circle cx="40" cy="16" r="3" fill="${k.c[1]}"/>` +
+    `<path d="M26 12 C40 12 46 22 45 30 C44 38 36 42 26 42 C16 42 8 38 7 30 C6 22 12 12 26 12Z" fill="${k.c[0]}" ${po(k)}/><ellipse cx="14" cy="34" rx="7" ry="5" fill="${light(k)}"/><ellipse cx="38" cy="34" rx="7" ry="5" fill="${light(k)}"/>` +
+    petEyes(k, 19, 33, 26, 2.8) + petCheeks(12, 40, 33) + `<path d="M24.8 31.4 L27.2 31.4 L26 33Z" fill="#ff8fa3"/>` + petMouth(k, 26, 34, 2.2) + paws(k, [20, 32], 44) },
+  { n: 'Caracol', d: k => `<path d="M4 50 Q4 42 16 42 L44 42 Q52 42 50 50Z" fill="${k.c[1]}" ${po(k)}/><path d="M40 42 Q40 24 44 16 M46 42 Q48 26 52 18" stroke="${k.c[2]}" stroke-width="2.4" fill="none"/><circle cx="44" cy="15" r="2.6" fill="${k.c[2]}"/><circle cx="52" cy="17" r="2.6" fill="${k.c[2]}"/>` +
+    `<circle cx="22" cy="28" r="18" fill="${k.c[0]}" ${po(k)}/><path d="M22 28 m-2 0 a2 2 0 1 1 4 0 a6 6 0 1 1 -10 -2 a10 10 0 1 1 18 4 a15 15 0 1 1 -24 -8" stroke="${dark(k, -30)}" stroke-width="2" fill="none"/>` +
+    petEyes(k, 42, 48, 34, 2) + petMouth(k, 45, 39, 1.6) },
+  { n: 'Panda', d: k => `<path d="M11 50 Q8 34 26 32 Q44 34 41 50 Q26 54 11 50Z" fill="#fff" ${po(k)}/><path d="M11 42 Q8 50 16 52 L20 40Z M41 42 Q44 50 36 52 L32 40Z" fill="${k.c[2]}"/>` +
+    `<circle cx="11" cy="13" r="6.6" fill="${k.c[2]}"/><circle cx="41" cy="13" r="6.6" fill="${k.c[2]}"/>` +
+    `<path d="M26 11 C40 11 45 19 44 27 C43 36 36 40 26 40 C16 40 9 36 8 27 C7 19 12 11 26 11Z" fill="#fff" ${po(k)}/>` +
+    `<ellipse cx="18" cy="25" rx="6" ry="7" fill="${k.c[2]}" transform="rotate(-20 18 25)"/><ellipse cx="34" cy="25" rx="6" ry="7" fill="${k.c[2]}" transform="rotate(20 34 25)"/><circle cx="18" cy="25" r="2.4" fill="#fff"/><circle cx="34" cy="25" r="2.4" fill="#fff"/>` +
+    `<ellipse cx="26" cy="31" rx="2.6" ry="1.8" fill="${k.c[2]}"/>` + petMouth(k, 26, 33.4, 2) + petCheeks(12, 40, 32) },
+  { n: 'Pônei', d: k => `<path d="M10 52 Q10 34 26 32 Q42 32 44 44 L44 52 Q26 56 10 52Z" fill="${k.c[0]}" ${po(k)}/><path d="M14 48 L14 56 M22 50 L22 56 M34 50 L34 56 M40 48 L40 56" stroke="${k.c[2]}" stroke-width="3" stroke-linecap="round"/>` +
+    `<path d="M4 40 Q-4 50 4 56 Q6 48 12 44Z" fill="${k.c[1]}" ${po(k, 2)}/>` +
+    `<path d="M30 36 Q28 10 40 8 Q54 10 52 26 Q50 34 42 34 Q36 40 30 36Z" fill="${k.c[0]}" ${po(k)}/><path d="M36 8 L34 0 L42 6Z" fill="${k.c[0]}" ${po(k, 2)}/>` +
+    `<path d="M32 10 Q20 14 24 30 Q28 20 34 18 Q26 26 30 34 Q34 22 38 18Z" fill="${k.c[1]}" ${po(k, 2)}/>` + petEyes(k, 44, 44, 20, 2.6) + `<circle cx="50" cy="28" r="1.2" fill="${k.c[2]}"/>` },
+  { n: 'Peixe no aquário', d: k => `<path d="M8 20 Q8 54 26 54 Q44 54 44 20Z" fill="#bff4ff" fill-opacity=".45" ${po(k)}/><path d="M6 18 L46 18" stroke="${k.c[2]}" stroke-width="2.4"/><path d="M10 40 Q26 36 42 40 Q42 54 26 54 Q10 54 10 40Z" fill="#8ad8ff" opacity=".5"/>` +
+    `<g class="anim-bob"><ellipse cx="26" cy="36" rx="9" ry="6" fill="${k.c[0]}" ${po(k, 1.8)}/><path d="M17 36 L11 31 L11 41Z" fill="${k.c[1]}" ${po(k, 1.6)}/><circle cx="30" cy="35" r="1.8" fill="${k.c[2]}"/></g><path d="M16 50 Q14 44 18 40 M36 50 Q38 44 34 40" stroke="#3a9a48" stroke-width="2.4" fill="none"/><circle cx="30" cy="26" r="2" fill="none" stroke="#fff" stroke-width="1"/>` },
+  { n: 'Fada', d: k => `<g class="anim-flap"><ellipse cx="12" cy="26" rx="10" ry="6" fill="${k.c[1]}" fill-opacity=".7" ${po(k, 1.6)} transform="rotate(-30 12 26)"/><ellipse cx="40" cy="26" rx="10" ry="6" fill="${k.c[1]}" fill-opacity=".7" ${po(k, 1.6)} transform="rotate(30 40 26)"/></g>` +
+    `<path d="M18 50 L26 34 L34 50Z" fill="${k.c[0]}" ${po(k)}/><circle cx="26" cy="24" r="11" fill="#ffe8d8" ${po(k)}/><path d="M15 22 Q14 10 26 10 Q38 10 37 22 Q32 16 26 17 Q20 16 15 22Z" fill="${k.c[0]}" ${po(k, 2)}/>` +
+    petEyes(k, 22, 30, 25, 2) + petCheeks(18, 34, 29, 2.4) + `<path d="${Shape.star(42, 12, 4, 1.4, 4)}" fill="#fff" class="anim-tw"/>` },
+  { n: 'Cogumelo', d: k => `<path d="M16 54 L18 34 L34 34 L36 54 Q26 56 16 54Z" fill="#fff8e8" ${po(k)}/>` + petEyes(k, 21, 31, 44, 2.4) + petCheeks(17, 35, 49, 2.4) + petMouth(k, 26, 49, 1.6) +
+    `<path d="M4 34 Q2 8 26 6 Q50 8 48 34 Q26 40 4 34Z" fill="${k.c[0]}" ${po(k)}/><circle cx="16" cy="20" r="5" fill="#fff"/><circle cx="32" cy="14" r="4" fill="#fff"/><circle cx="38" cy="26" r="3.4" fill="#fff"/><circle cx="22" cy="30" r="2.4" fill="#fff"/>` },
+  { n: 'Polvo', d: k => [8, 16, 24, 32, 40].map(x => `<path d="M${x + 2} 34 Q${x - 4} 46 ${x + 2} 54" stroke="${k.c[2]}" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M${x + 2} 34 Q${x - 4} 46 ${x + 2} 54" stroke="${k.c[0]}" stroke-width="4" fill="none" stroke-linecap="round"/>`).join('') +
+    `<path d="M6 36 Q4 8 26 6 Q48 8 46 36 Q26 42 6 36Z" fill="${k.c[0]}" ${po(k)}/><circle cx="16" cy="14" r="3" fill="#fff" opacity=".6"/>` + petEyes(k, 19, 33, 26, 3) + petCheeks(13, 39, 32) + `<circle cx="26" cy="33" r="2" fill="${k.c[2]}"/>` },
+  { n: 'Coruja', d: k => `<path d="M8 50 Q2 30 12 16 L8 4 L20 12 Q26 10 32 12 L44 4 L40 16 Q50 30 44 50 Q26 56 8 50Z" fill="${k.c[0]}" ${po(k)}/><ellipse cx="26" cy="40" rx="12" ry="11" fill="${light(k)}"/>` +
+    [36, 42].map(y => `<path d="M18 ${y} q4 3 8 0 q4 3 8 0" stroke="${k.c[2]}" stroke-width="1.2" fill="none" opacity=".5"/>`).join('') +
+    `<circle cx="18" cy="24" r="8" fill="#fff" ${po(k, 2)}/><circle cx="34" cy="24" r="8" fill="#fff" ${po(k, 2)}/>` + petEyes(k, 18, 34, 24, 3.4) + `<path d="M23 30 L29 30 L26 35Z" fill="#ffb52e" ${po(k, 1.4)}/>` },
+  { n: 'Tartaruga', d: k => `<ellipse cx="26" cy="50" rx="22" ry="5" fill="${k.c[1]}" ${po(k, 2)}/>` + [[10, 50], [40, 50]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="5" ry="4" fill="${k.c[1]}" ${po(k, 2)}/>`).join('') +
+    `<path d="M40 40 Q52 34 50 26 Q44 22 40 30Z" fill="${k.c[1]}" ${po(k)}/>` + petEyes(k, 46, 46, 29, 1.8) +
+    `<path d="M6 48 Q6 22 26 20 Q46 22 46 48Z" fill="${k.c[0]}" ${po(k)}/>` + [[26, 30], [16, 40], [36, 40]].map(([x, y]) => `<path d="M${x - 6} ${y} L${x - 3} ${y - 5} L${x + 3} ${y - 5} L${x + 6} ${y} L${x + 3} ${y + 5} L${x - 3} ${y + 5}Z" fill="${dark(k)}" ${po(k, 1.4)}/>`).join('') },
 ];
 /* aplica a profundidade em todos os mascotes */
 PARTS.pet.forEach(p => { if (!p) return; const d0 = p.d; p.d = k => petDepth(k, d0(k)); });

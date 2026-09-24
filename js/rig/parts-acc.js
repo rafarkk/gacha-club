@@ -117,7 +117,7 @@ PARTS.prop = [null,
   { n: 'Batata', d: k => held(`<path d="M-11 -16 C-2 -22 12 -18 14 -6 C16 6 14 18 4 22 C-6 26 -16 18 -15 6 C-14 -2 -18 -10 -11 -16Z" fill="${k.c[0]}" ${ol(k, 2.6)}/>` + [[-5, -8], [6, -4], [-3, 6], [7, 10], [-8, 14]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.5" fill="${k.c[1]}"/>`).join(''), 0) },
   /* ---- recriados a partir do Gacha Club ---- */
   { n: 'Tridente', d: k => held(`<path d="M0 16 L0 -84" stroke="${k.c[1]}" stroke-width="4"/>` + P(k, 'M-14 -80 L-14 -96 L-10 -88 L-10 -80 L-2 -80 L-2 -104 L0 -96 L2 -104 L2 -80 L10 -80 L10 -88 L14 -96 L14 -80 Q0 -72 -14 -80Z')) },
-  { n: 'Arco', d: k => held(`<path d="M-6 -60 Q22 -20 -6 20" stroke="${k.c[0]}" stroke-width="5" fill="none" ${ol(k, 1)}/><path d="M-6 -60 L-6 20" stroke="${k.c[1]}" stroke-width="1.2"/>`, 0) },
+  { n: 'Arco', d: k => held(`<path d="M-6 -60 Q22 -20 -6 20" stroke="${k.c[2]}" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M-6 -60 Q22 -20 -6 20" stroke="${k.c[0]}" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M-6 -60 L-6 20" stroke="${k.c[1]}" stroke-width="1.2"/>`, 0) },
   { n: 'Machado', d: k => held(`<path d="M0 16 L0 -70" stroke="#8a5a2a" stroke-width="5"/>` + P(k, 'M0 -70 Q22 -80 26 -58 Q22 -40 0 -46Z')) },
   { n: 'Adaga', d: k => held(P(k, 'M-3 -8 L-3 -46 L0 -54 L3 -46 L3 -8Z') + P(k, 'M-9 -10 L9 -10 L9 -6 L-9 -6Z', k.c[1]) + P(k, 'M-2 -6 L2 -6 L2 8 L-2 8Z', k.c[1])) },
   { n: 'Foice', d: k => held(`<path d="M0 16 L0 -84" stroke="${k.c[1]}" stroke-width="4"/>` + P(k, 'M0 -84 Q-40 -96 -60 -64 Q-36 -80 0 -74Z')) },
