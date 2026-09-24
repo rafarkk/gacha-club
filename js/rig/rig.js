@@ -331,7 +331,8 @@ const Rig = (() => {
       <g class="fx-front">${draw('effFront')}</g>
       ${pet}
     </g>`;
-    const shadow = ch.body.shadow && !o.noShadow ? `<ellipse cx="150" cy="${G.FEET_Y - 2}" rx="${64 * sz}" ry="${11 * sz}" fill="url(#${u}gs)"/>` : '';
+    /* sombra no chão como no Gacha Club: elipse sólida translúcida, da largura dos pés, com as solas a 3/4 da altura dela (base logo abaixo dos pés) */
+    const shadow = ch.body.shadow && !o.noShadow ? `<ellipse cx="${150 + (T ? -10.5 : 0) * sz * flip}" cy="${G.FEET_Y - 13 * sz}" rx="${57 * sz}" ry="${11.5 * sz}" fill="#0a0620" opacity=".6"/>` : '';
     return `<defs>${defs.join('')}</defs><g class="${cls}">${shadow}${body}</g>`;
   }
 

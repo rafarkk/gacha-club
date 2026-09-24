@@ -56,7 +56,7 @@ function objDepth(k, box, svg) {
     <feComposite in="in" in2="bo" operator="arithmetic" k2="1" k3="-1" result="hl0"/><feFlood flood-color="#fff" flood-opacity=".26"/><feComposite in2="hl0" operator="in" result="glow"/>
     <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="shade"/><feMergeNode in="glow"/><feMergeNode in="rim"/></feMerge></filter>
     <radialGradient id="${id}g"><stop offset="0" stop-color="#000" stop-opacity=".34"/><stop offset=".6" stop-color="#000" stop-opacity=".14"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient></defs>` +
-    (box[1] + box[3] > -4 ? `<ellipse cx="${box[0] + box[2] / 2}" cy="2" rx="${box[2] * .55}" ry="${Math.max(5, box[2] * .07).toFixed(1)}" fill="url(#${id}g)"/>` : '') +
+    (box[1] + box[3] > -4 ? `<ellipse cx="${box[0] + box[2] / 2}" cy="2" rx="${box[2] * .46}" ry="${Math.max(4, box[2] * .06).toFixed(1)}" fill="#0a0620" opacity=".6"/>` : '') +
     `<g class="fx" filter="url(#${id})">${svg}</g>`;
 }
 PARTS.object.forEach(p => { if (!p) return; const d0 = p.d; p.d = k => objDepth(k, p.box, d0(k)); });

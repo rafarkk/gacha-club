@@ -31,11 +31,11 @@ h4 { margin: 14px 0 6px; font-weight: 600; color: var(--muted); letter-spacing: 
 .scene-bg .bg-svg { width: 100%; height: 100%; display: block; }
 .stage { position: relative; overflow: hidden; z-index: 1; min-height: 0; }
 .stage-char { position: absolute; inset: 0; transform-origin: 50% 88%; transition: transform .25s; }
-.stage-char .rig-svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .35)); }
+.stage-char .rig-svg { width: 100%; height: 100%; display: block; }
 /* Profundidade do personagem (rig.js): sem filtros na qualidade baixa */
 .low-quality .rig-svg .fx, .low-quality .portrait .fx, .low-quality .thumb .fx { filter: none; }
 .low-quality .fxs { display: none; }
-.spot { position: absolute; left: 22%; right: 22%; bottom: 5%; height: 7%; border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 255, 255, .35), transparent); pointer-events: none; }
+.spot { display: none; }
 
 /* ---------- Botões genéricos ---------- */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 14px; border-radius: 8px; background: var(--panel3); border: 1px solid var(--line2); font-weight: 600; transition: filter .15s, transform .1s; }
@@ -111,6 +111,8 @@ h4 { margin: 14px 0 6px; font-weight: 600; color: var(--muted); letter-spacing: 
 .bnav button.off { opacity: .45; }
 .ui-hidden > .ui { display: none !important; }
 .ui-hidden { grid-template-areas: "stage stage stage stage" "stage stage stage stage" "stage stage stage stage"; }
+/* tela limpa: o palco ocupa a tela toda, então o personagem encolhe um pouco para caber com folga */
+.ui-hidden .stage-char { inset: 26% 14% 7%; }
 /* Painéis do menu "na frente" da cena: vidro fosco, sombra projetada e brilho na borda de cima */
 .pcard, .roster { backdrop-filter: blur(8px) saturate(1.2); -webkit-backdrop-filter: blur(8px) saturate(1.2); box-shadow: 0 12px 30px rgba(4, 2, 20, .55), inset 0 1px 0 rgba(255, 255, 255, .16); }
 .tb-frame { box-shadow: 0 18px 44px rgba(4, 2, 20, .65), inset 0 0 0 2px #333, inset 0 2px 0 #4a4a4a; }
@@ -381,6 +383,29 @@ svg .bg-shimmer { animation: bgShimmer 2.6s ease-in-out infinite; }
 svg .bg-wave { animation: bgWave 5s ease-in-out infinite; }
 svg .bg-wave2 { animation: bgWave2 4.4s ease-in-out infinite; }
 svg .bg-aurora { animation: bgAurora 9s ease-in-out infinite alternate; }
+svg .bg-drift-w { animation: bgDriftW 40s ease-in-out infinite alternate; }
+svg .bg-drift-w2 { animation: bgDriftW 56s ease-in-out infinite alternate-reverse; }
+svg .bg-sweep { animation: bgSweep 6s ease-in-out infinite alternate; }
+svg .bg-spots { animation: bgSpots 3.2s ease-in-out infinite alternate; }
+svg .bg-spots2 { animation: bgSpots 4.6s ease-in-out infinite alternate-reverse; }
+svg .bg-thump { animation: bgThump .5s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
+svg .bg-facets { animation: bgFacets 2s linear infinite; }
+svg .bg-leaf { animation: bgLeaf 9s linear infinite; }
+svg .bg-curtain { animation: bgCurtain 6s ease-in-out infinite alternate; }
+svg .bg-plant { animation: bgPlant 4.5s ease-in-out infinite; transform-box: fill-box; transform-origin: center bottom; }
+@keyframes bgPlant { 0%, 100% { transform: rotate(-2.5deg); } 50% { transform: rotate(2.5deg); } }
+svg .bg-water { animation: bgWater .8s linear infinite; }
+svg .bg-streak { animation: bgStreak 2s linear infinite; }
+svg .bg-bat { animation: wWander 6s ease-in-out infinite; }
+@keyframes bgWater { to { stroke-dashoffset: -36; } }
+@keyframes bgStreak { from { transform: translateY(-120px); } to { transform: translateY(260px); } }
+@keyframes bgDriftW { from { transform: translateX(-50px); } to { transform: translateX(50px); } }
+@keyframes bgSweep { from { transform: rotate(-14deg); } to { transform: rotate(14deg); } }
+@keyframes bgSpots { from { transform: translateX(-24px); opacity: .6; } to { transform: translateX(24px); opacity: 1; } }
+@keyframes bgThump { from { transform: scale(1); } to { transform: scale(1.12); } }
+@keyframes bgFacets { 0%, 100% { opacity: 1; } 50% { opacity: .6; } }
+@keyframes bgLeaf { 0% { transform: translate(0, -40px) rotate(0); opacity: 0; } 10% { opacity: 1; } 100% { transform: translate(-160px, 620px) rotate(540deg); opacity: 0; } }
+@keyframes bgCurtain { from { transform: skewX(0); } to { transform: skewX(1.4deg); } }
 @keyframes bgDrift { from { transform: translateX(-14px); } to { transform: translateX(14px); } }
 @keyframes bgRays { 0%, 100% { opacity: .6; transform: translateX(0); } 50% { opacity: 1; transform: translateX(8px); } }
 @keyframes bgGlow { 0%, 100% { transform: scale(1); opacity: .9; } 50% { transform: scale(1.06); opacity: 1; } }
