@@ -6,7 +6,7 @@
 
 const POSES = [
   // ---------- Em pé ----------
-  { n: 'Em pé', c: 'Em pé', a: [10, 0, 10, 0], l: [3, 0, 3, 0] },
+  { n: 'Em pé', c: 'Em pé', a: [26, 4, 26, 4], l: [3, 3, 3, 3] },
   { n: 'Relaxado', c: 'Em pé', a: [6, -10, 14, 6], l: [6, -2, 1, 0], t: -2, h: 4 },
   { n: 'Mãos na cintura', c: 'Em pé', a: [40, -64, 40, -64], l: [7, 0, 7, 0], hd: [1, 1] },
   { n: 'Acenando', c: 'Em pé', a: [10, 0, 112, 40], l: [3, 0, 3, 0], h: -5, hd: [0, 4] },
@@ -67,5 +67,6 @@ const POSES = [
   { n: 'Surpreso', c: 'Extra', a: [60, -150, 60, -150], l: [10, 0, 10, 0], h: -4, hd: [4, 4] },
   { n: 'Bocejando', c: 'Extra', a: [10, 0, 60, -150], l: [4, 0, 4, 0], h: -10, hd: [0, 1] },
   { n: 'Selfie', c: 'Extra', a: [10, 0, 130, -40], l: [10, -10, 4, 0], h: -10, hd: [0, 3] },
+  { n: 'Segurando à frente', c: 'Extra', a: [84, 6, 8, 0], l: [6, -3, 6, -3], hd: [1, 0] },
 ];
 const POSE_CATS = [...new Set(POSES.map(p => p.c))];

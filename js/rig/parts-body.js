@@ -4,14 +4,25 @@
 
 const G = {
   HC: [150, 128], NECK: [150, 198],
-  SH: [[126, 220], [174, 220]], HIP: [[137, 282], [163, 282]],
-  AU: 37, AF: 33, LT: 56, LS: 54, AW: 10.5, TW: 15, SW: 12,
+  /* ombro abaixo do topo do tronco: o alto da manga fica alinhado com a linha do ombro */
+  SH: [[126, 222], [174, 222]], HIP: [[137, 282], [163, 282]],
+  AU: 24, AF: 21, LT: 36, LS: 33, AW: 10.5, TW: 16.5, SW: 13.5,
   FEET_Y: 408,
+  /* sf: escala do trecho que está sendo desenhado (o rig ajusta); os contornos dividem por ela para não engrossar */
+  sf: 1,
 };
-const TORSO = 'M124 212 Q150 204 176 212 L178 250 L181 284 Q150 292 119 284 L122 250Z';
+/* Tronco: peito, cintura mais fina e quadril mais largo. TORSO muda conforme o corpo (o rig escolhe antes de desenhar
+   as roupas): TORSO_M reto, TORSO_F com busto e cintura marcada. */
+const TORSO_M = 'M123 212 Q150 204 177 212 C179 230 177 246 175 260 L180 286 Q150 294 120 286 L125 260 C123 246 121 230 123 212Z';
+const TORSO_F = 'M125 212 Q150 205 175 212 C180 222 180 238 173 250 C170 256 169 260 170 263 C180 272 184 280 184 290 Q150 298 116 290 C116 280 120 272 130 263 C131 260 130 256 127 250 C120 238 120 222 125 212Z';
+let TORSO = TORSO_M;
+/* Jaquetas caem retas do ombro até a barra (não entram na cintura), cobrindo o quadril como no Gacha Club */
+const JACKET_M = 'M123 212 Q150 204 177 212 C180 240 181 265 181 288 Q150 296 119 288 C119 265 120 240 123 212Z';
+const JACKET_F = 'M125 212 Q150 205 175 212 C181 238 184 262 185 291 Q150 299 115 291 C116 262 119 238 125 212Z';
+let JACKET = JACKET_M;
 const tube = (y0, y1, w0, w1) => `M${-w0 / 2} ${y0} L${w0 / 2} ${y0} L${w1 / 2} ${y1} L${-w1 / 2} ${y1}Z`;
 const tubeR = (y0, y1, w0, w1) => `M${-w0 / 2} ${y0} A${w0 / 2} ${w0 / 2} 0 0 1 ${w0 / 2} ${y0} L${w1 / 2} ${y1} L${-w1 / 2} ${y1}Z`;
-const P = (k, d, fill) => `<path d="${d}" fill="${fill || k.c[0]}" ${ol(k, 2.2)}/>`;
+const P = (k, d, fill) => `<path d="${d}" fill="${fill || k.c[0]}" ${ol(k, 3)}/>`;
 const stripes = (k, id, clipD, ys, w = 4) => `<clipPath id="${id}"><path d="${clipD}"/></clipPath><g clip-path="url(#${id})">${ys.map(y => `<rect x="-60" y="${y}" width="420" height="${w}" fill="${k.c[1]}"/>`).join('')}</g>`;
 const range = (a, b, s) => { const r = []; for (let v = a; v <= b; v += s) r.push(v); return r; };
 const mir = s => `<g transform="translate(300 0) scale(-1 1)">${s}</g>`;
@@ -23,7 +34,7 @@ PARTS.shirt = [null,
   { n: 'Gola alta', d: k => P(k, TORSO) + P(k, 'M138 190 L162 190 L163 214 Q150 218 137 214Z') + `<path d="M138 197 L162 197 M138 204 L162 204" stroke="${k.c[2]}" stroke-width="1.2" opacity=".5"/>` },
   { n: 'Social com gravata', d: k => P(k, TORSO) + P(k, 'M137 206 L150 222 L163 206 L166 214 L150 226 L134 214Z', Color.shade(k.c[0], 12)) + P(k, 'M147 222 L153 222 L157 256 L150 264 L143 256Z', k.c[1]) },
   { n: 'Moletom', d: k => P(k, 'M122 211 Q150 202 178 211 L182 252 L186 290 Q150 298 114 290 L118 252Z') + P(k, 'M130 212 Q150 234 170 212 Q162 200 150 202 Q138 200 130 212Z', Color.shade(k.c[0], -14)) + P(k, 'M132 262 L168 262 L164 282 L136 282Z', Color.shade(k.c[0], -8)) + `<path d="M144 222 L143 240 M156 222 L157 240" stroke="${k.c[1]}" stroke-width="2.4" stroke-linecap="round"/>` },
-  { n: 'Vestido', d: k => P(k, 'M121 256 L179 256 L206 334 Q150 346 94 334Z') + `<path d="M96 326 Q150 338 204 326" stroke="${k.c[1]}" stroke-width="6" fill="none"/>` + P(k, TORSO) + `<path d="M122 256 L178 256" stroke="${k.c[1]}" stroke-width="5"/>` },
+  { n: 'Vestido', d: k => P(k, TORSO) + P(k, 'M127 254 L173 254 L206 334 Q150 346 94 334Z') + `<path d="M96 326 Q150 338 204 326" stroke="${k.c[1]}" stroke-width="6" fill="none"/>` + `<path d="M128 256 L172 256" stroke="${k.c[1]}" stroke-width="5"/>` },
   { n: 'Marinheiro', d: k => P(k, TORSO) + P(k, 'M124 212 L150 244 L176 212 L186 220 L176 234 L150 262 L124 234 L114 220Z', k.c[1]) + `<path d="M120 222 L150 256 L180 222" stroke="#fff" stroke-width="2" fill="none"/>` + P(k, 'M150 248 L136 240 L136 258Z M150 248 L164 240 L164 258Z', '#e84a5f') + `<circle cx="150" cy="248" r="4" fill="#c0304a"/>` },
   { n: 'Cropped', d: k => P(k, 'M124 212 Q150 204 176 212 L178 250 Q150 257 122 250Z') + `<path d="M140 208 Q150 218 160 208" stroke="${k.c[2]}" stroke-width="2" fill="none"/>` },
   { n: 'Kimono', d: k => P(k, TORSO) + `<path d="M136 206 L160 250 M164 206 L150 230" stroke="${k.c[1]}" stroke-width="6" stroke-linecap="round"/>` + P(k, 'M121 246 L179 246 L180 266 L120 266Z', k.c[1]) + `<path d="M121 256 L179 256" stroke="${k.c[2]}" stroke-width="1.5" opacity=".6"/>` },
@@ -35,13 +46,22 @@ PARTS.shirt = [null,
   { n: 'Esportiva', d: k => P(k, TORSO) + `<path d="M150 208 L150 286" stroke="${k.c[1]}" stroke-width="3"/><path d="M122 250 L136 250 M164 250 L178 250" stroke="${k.c[1]}" stroke-width="4"/>` + P(k, 'M138 200 L162 200 L164 212 Q150 218 136 212Z', k.c[1]) },
 ];
 
+/* Jaqueta aberta: o próprio contorno do tronco, um pouco mais largo, cortado no meio (abertura 'gap') e na barra
+   (y0..y1). Assim acompanha cintura e quadril de qualquer corpo e nunca deixa o quadril aparecendo pelo lado. */
+const jk = (k, gap, y1, fill, y0 = 190) => {
+  const id = k.u + 'jk' + gap + y0, X = `translate(150 0) scale(1.04 1) translate(-150 0)`, TORSO = JACKET;
+  return `<clipPath id="${id}h"><rect x="0" y="${y0}" width="${150 - gap}" height="${y1 - y0}"/><rect x="${150 + gap}" y="${y0}" width="150" height="${y1 - y0}"/></clipPath>` +
+    `<clipPath id="${id}t"><path d="${TORSO}" transform="${X}"/></clipPath>` +
+    `<g clip-path="url(#${id}h)"><path d="${TORSO}" transform="${X}" fill="${fill || k.c[0]}" ${ol(k, 3)}/></g>` +
+    `<g clip-path="url(#${id}t)"><path d="M${150 - gap} ${y0} L${150 - gap} ${y1} L0 ${y1} M${150 + gap} ${y0} L${150 + gap} ${y1} L300 ${y1}${y0 > 200 ? ` M0 ${y0} L${150 - gap} ${y0} M${150 + gap} ${y0} L300 ${y0}` : ''}" fill="none" ${ol(k, 3)}/></g>`;
+};
 PARTS.jacket = [null,
-  { n: 'Jaqueta aberta', d: k => P(k, 'M124 212 L143 213 L140 288 L118 286 L122 250Z') + P(k, 'M176 212 L157 213 L160 288 L182 286 L178 250Z') + `<path d="M143 213 L134 236 M157 213 L166 236" stroke="${k.c[2]}" stroke-width="2"/>` },
-  { n: 'Blazer', d: k => P(k, 'M124 212 L144 213 L146 290 L118 287 L122 250Z') + P(k, 'M176 212 L156 213 L154 290 L182 287 L178 250Z') + P(k, 'M144 213 L132 240 L144 246Z', Color.shade(k.c[0], -18)) + P(k, 'M156 213 L168 240 L156 246Z', Color.shade(k.c[0], -18)) + `<circle cx="146" cy="262" r="2.6" fill="${k.c[1]}"/><circle cx="146" cy="276" r="2.6" fill="${k.c[1]}"/>` },
+  { n: 'Jaqueta aberta', d: k => jk(k, 7, 289) + `<path d="M143 213 L134 236 M157 213 L166 236" stroke="${k.c[2]}" stroke-width="2"/>` },
+  { n: 'Blazer', d: k => jk(k, 5, 291) + P(k, 'M144 213 L132 240 L144 246Z', Color.shade(k.c[0], -18)) + P(k, 'M156 213 L168 240 L156 246Z', Color.shade(k.c[0], -18)) + `<circle cx="146" cy="262" r="2.6" fill="${k.c[1]}"/><circle cx="146" cy="276" r="2.6" fill="${k.c[1]}"/>` },
   { n: 'Casaco longo', d: k => P(k, 'M123 212 L143 213 L139 348 L98 340 L117 252Z') + P(k, 'M177 212 L157 213 L161 348 L202 340 L183 252Z') + `<path d="M143 213 L132 238 M157 213 L168 238" stroke="${k.c[2]}" stroke-width="2"/><path d="M118 280 L142 282 M182 280 L158 282" stroke="${k.c[1]}" stroke-width="4"/>` },
-  { n: 'Cardigã', d: k => P(k, 'M124 212 L146 216 L146 292 L118 288 L122 250Z') + P(k, 'M176 212 L154 216 L154 292 L182 288 L178 250Z') + range(230, 282, 16).map(y => `<circle cx="143" cy="${y}" r="2.2" fill="${k.c[1]}"/>`).join('') },
-  { n: 'Bomber', d: k => P(k, 'M123 212 L143 213 L141 276 L120 274 L122 250Z') + P(k, 'M177 212 L157 213 L159 276 L180 274 L178 250Z') + P(k, 'M120 268 L141 270 L141 280 L119 278Z', k.c[1]) + P(k, 'M180 268 L159 270 L159 280 L181 278Z', k.c[1]) + P(k, 'M132 210 Q150 222 168 210 L166 204 Q150 214 134 204Z', k.c[1]) },
-  { n: 'Gola alta', d: k => P(k, 'M124 212 L144 213 L141 290 L118 287 L122 250Z') + P(k, 'M176 212 L156 213 L159 290 L182 287 L178 250Z') + P(k, 'M122 214 L118 186 L140 196 L144 214Z') + P(k, 'M178 214 L182 186 L160 196 L156 214Z') },
+  { n: 'Cardigã', d: k => jk(k, 4, 292) + range(230, 282, 16).map(y => `<circle cx="143" cy="${y}" r="2.2" fill="${k.c[1]}"/>`).join('') },
+  { n: 'Bomber', d: k => jk(k, 7, 280) + jk(k, 7, 280, k.c[1], 269) + P(k, 'M132 210 Q150 222 168 210 L166 204 Q150 214 134 204Z', k.c[1]) },
+  { n: 'Gola alta', d: k => jk(k, 6, 290) + P(k, 'M122 214 L118 186 L140 196 L144 214Z') + P(k, 'M178 214 L182 186 L160 196 L156 214Z') },
   { n: 'Capa de chuva', d: k => P(k, 'M122 211 Q150 204 178 211 L186 300 L194 344 Q150 354 106 344 L114 300Z') + `<path d="M150 212 L150 348" stroke="${k.c[2]}" stroke-width="1.5"/>` + range(226, 330, 20).map(y => `<circle cx="156" cy="${y}" r="2.6" fill="${k.c[1]}"/>`).join('') },
 ];
 
@@ -79,42 +99,51 @@ PARTS.logo = [null,
 /* ---------- Membros (seg: 'u' braço, 'f' antebraço, 't' coxa, 's' canela) ---------- */
 const AU = G.AU, AF = G.AF, LT = G.LT, LS = G.LS;
 
+/* Mangas: faixas do braço contínuo (L: t = 0 ombro, L.knee = cotovelo, 1 = pulso). Começam um pouco acima do
+   ombro (t < 0) para cobrir a junta com o tronco. */
+const puff = (k, L, r, fill) => { const p = L.pt(.08); return `<circle cx="${p.x.toFixed(2)}" cy="${(p.y + 1).toFixed(2)}" r="${r}" fill="${fill || k.c[0]}" ${ol(k)}/>`; };
 PARTS.sleeve = [null,
-  { n: 'Curta', d: (k, s) => s === 'u' ? P(k, tubeR(-3, 15, 20, 18)) : '' },
-  { n: 'Meia', d: (k, s) => s === 'u' ? P(k, tubeR(-3, AU + 1, 20, 16)) : '' },
-  { n: 'Longa', d: (k, s) => s === 'u' ? P(k, tubeR(-3, AU + 2, 19, 16)) : P(k, tube(-2, AF, 16, 14)) },
-  { n: 'Bufante', d: (k, s) => s === 'u' ? `<circle cx="0" cy="6" r="12.5" fill="${k.c[0]}" ${ol(k, 2.2)}/><path d="M-10 14 L10 14" stroke="${k.c[1]}" stroke-width="3"/>` : '' },
-  { n: 'Sino', d: (k, s) => s === 'u' ? P(k, tubeR(-3, AU + 2, 18, 16)) : P(k, tube(-2, AF + 3, 16, 28)) + `<path d="M-12 ${AF + 2} L12 ${AF + 2}" stroke="${k.c[1]}" stroke-width="3"/>` },
-  { n: 'Com punho', d: (k, s) => s === 'u' ? P(k, tubeR(-3, AU + 2, 19, 16)) : P(k, tube(-2, AF - 6, 16, 15)) + P(k, tube(AF - 8, AF + 1, 17, 17), k.c[1]) },
-  { n: 'Listrada', d: (k, s) => { const d = s === 'u' ? tubeR(-3, AU + 2, 19, 16) : tube(-2, AF, 16, 14); return P(k, d) + stripes(k, k.u + 'sl' + s, d, range(2, 40, 8), 3.5) + `<path d="${d}" fill="none" ${ol(k, 2.2)}/>`; } },
-  { n: 'Rasgada', d: (k, s) => s === 'u' ? P(k, tubeR(-3, AU + 2, 19, 16)) : P(k, `M-8 -2 L8 -2 L7 ${AF - 10} L4 ${AF - 4} L1 ${AF - 11} L-3 ${AF - 3} L-7 ${AF - 9}Z`) },
-  { n: 'Princesa', d: (k, s) => s === 'u' ? P(k, tubeR(-3, AU + 2, 17, 15)) + `<circle cx="0" cy="5" r="12.5" fill="${k.c[0]}" ${ol(k, 2.2)}/>` : P(k, tube(-2, AF, 15, 14)) + P(k, tube(AF - 5, AF + 1, 17, 18), k.c[1]) },
+  { n: 'Curta', d: (k, L) => L.band(k, -.2, .3, 1.8, 1.6) },
+  { n: 'Meia', d: (k, L) => L.band(k, -.2, .5, 1.8, 1.5) },
+  { n: 'Longa', d: (k, L) => L.band(k, -.2, .97, 1.6, 1.3) },
+  { n: 'Bufante', d: (k, L) => puff(k, L, 8.5) + L.line(k, .26, 1.4, k.c[1], 1.2) },
+  { n: 'Sino', d: (k, L) => L.band(k, -.2, .6, 1.6, 1.5) + L.band(k, .56, 1.03, 1.5, 6) + L.line(k, 1, 5.6, k.c[1], 1.2) },
+  { n: 'Com punho', d: (k, L) => L.band(k, -.2, .86, 1.6, 1.4) + L.band(k, .84, .99, 2.2, 2.2, k.c[1]) },
+  { n: 'Listrada', d: (k, L) => L.stripes(k, -.2, .97, 1.6, 1.3, .1, .05) },
+  { n: 'Rasgada', d: (k, L) => L.band(k, -.2, .78, 1.6, 1.4) },
+  { n: 'Princesa', d: (k, L) => L.band(k, -.2, .97, 1.2, 1.1) + puff(k, L, 8) + L.band(k, .88, 1, 2.4, 2.6, k.c[1]) },
 ];
 
+/* ---------- Pernas: calças e meias são faixas da perna contínua ----------
+   d: (k, L) — L é a perna montada pelo rig: L.band(k, t0, t1, folga0, folga1, cor) desenha a faixa entre t0 e t1
+   (0 = quadril, 1 = tornozelo, L.knee = joelho); L.stripes(...) listras; L.line(...) risco transversal; L.pt(t) ponto e ângulo. */
 PARTS.pants = [null,
-  { n: 'Short', d: (k, s) => s === 't' ? P(k, tubeR(-5, 18, 22, 20)) : '' },
-  { n: 'Bermuda', d: (k, s) => s === 't' ? P(k, tubeR(-5, LT + 2, 22, 18)) : '' },
-  { n: 'Calça', d: (k, s) => s === 't' ? P(k, tubeR(-5, LT + 2, 21, 18)) : P(k, tube(-2, LS - 3, 18, 16)) },
-  { n: 'Calça larga', d: (k, s) => s === 't' ? P(k, tubeR(-5, LT + 2, 23, 21)) : P(k, tube(-2, LS, 21, 28)) },
-  { n: 'Legging listrada', d: (k, s) => { const d = s === 't' ? tubeR(-4, LT + 1, 18, 16) : tube(-1, LS - 2, 15, 13); return P(k, d) + stripes(k, k.u + 'lg' + s, d, range(0, 48, 9), 4) + `<path d="${d}" fill="none" ${ol(k, 2.2)}/>`; } },
-  { n: 'Calça com barra', d: (k, s) => s === 't' ? P(k, tubeR(-5, LT + 2, 21, 18)) : P(k, tube(-2, LS - 3, 18, 17)) + P(k, tube(LS - 11, LS - 3, 20, 20), k.c[1]) },
-  { n: 'Short com babado', d: (k, s) => s === 't' ? P(k, tubeR(-5, 16, 22, 21)) + `<path d="M-12 18 q3 5 6 0 q3 5 6 0 q3 5 6 0 q3 5 6 0" fill="${k.c[1]}" ${ol(k, 1.6)}/>` : '' },
-  { n: 'Calça rasgada', d: (k, s) => s === 't' ? P(k, tubeR(-5, LT + 2, 21, 18)) + `<path d="M-5 ${LT - 10} l4 -3 l3 4 l3 -3" stroke="${k.c[2]}" stroke-width="1.5" fill="none"/>` : P(k, tube(-2, LS - 3, 18, 16)) + `<ellipse cx="0" cy="4" rx="5" ry="3" fill="${k.S}"/>` },
+  { n: 'Short', d: (k, L) => L.band(k, 0, .24, 2.2, 2.6) + L.line(k, .2, 2.4, k.c[1], 1.2) },
+  { n: 'Bermuda', d: (k, L) => L.band(k, 0, .5, 2, 2.4) },
+  { n: 'Calça', d: (k, L) => L.band(k, 0, .97, 1.6, 3.2) },
+  { n: 'Calça larga', d: (k, L) => L.band(k, 0, .99, 2.4, 7) },
+  { n: 'Legging listrada', d: (k, L) => L.stripes(k, 0, .96, .6, .6, .07, .035) },
+  { n: 'Calça com barra', d: (k, L) => L.band(k, 0, .97, 1.6, 3.2) + L.band(k, .86, .97, 3.4, 3.6, k.c[1]) },
+  { n: 'Short com babado', d: (k, L) => L.band(k, .16, .27, 3.6, 4.4, k.c[1]) + L.band(k, 0, .2, 2.2, 2.6) },
+  { n: 'Calça rasgada', d: (k, L) => L.band(k, 0, .97, 1.6, 3.2) + L.patch(k, L.knee, 4.2, 2.6, k.S) + L.patch(k, .78, 2.4, 1.4, k.S) },
 ];
 
 PARTS.sock = [null,
-  { n: 'Curta', d: (k, s) => s === 's' ? P(k, tube(LS - 12, LS + 1, 15, 14)) : '' },
-  { n: '3/4', d: (k, s) => s === 's' ? P(k, tube(6, LS + 1, 15, 14)) + `<path d="M-7 10 L7 10" stroke="${k.c[1]}" stroke-width="3"/>` : '' },
-  { n: 'Alta', d: (k, s) => s === 't' ? P(k, tube(22, LT + 2, 17, 16)) + `<path d="M-8 26 L8 26" stroke="${k.c[1]}" stroke-width="3"/>` : P(k, tube(-2, LS + 1, 15, 14)) },
-  { n: 'Listrada alta', d: (k, s) => { const d = s === 't' ? tube(20, LT + 2, 17, 16) : tube(-2, LS + 1, 15, 14); return P(k, d) + stripes(k, k.u + 'sk' + s, d, range(-2, 48, 8), 4) + `<path d="${d}" fill="none" ${ol(k, 2.2)}/>`; } },
-  { n: 'Meia-calça', d: (k, s) => s === 't' ? P(k, tubeR(-4, LT + 2, 17, 15)) : P(k, tube(-2, LS + 1, 14, 13)) },
-  { n: 'Polaina', d: (k, s) => s === 's' ? P(k, `M-9 14 Q-12 ${LS / 2 + 7} -10 ${LS} L10 ${LS} Q12 ${LS / 2 + 7} 9 14Z`) + range(20, LS - 4, 7).map(y => `<path d="M-8 ${y} L8 ${y}" stroke="${k.c[1]}" stroke-width="1.6"/>`).join('') : '' },
-  { n: 'Soquete babado', d: (k, s) => s === 's' ? P(k, tube(LS - 10, LS + 1, 15, 14)) + `<path d="M-10 ${LS - 10} q2.5 -4 5 0 q2.5 -4 5 0 q2.5 -4 5 0 q2.5 -4 5 0" fill="${k.c[1]}" ${ol(k, 1.4)}/>` : '' },
+  { n: 'Curta', d: (k, L) => L.band(k, .86, 1, .7, .8) },
+  { n: '3/4', d: (k, L) => L.band(k, .6, 1, .8, .8) + L.band(k, .6, .66, 1.3, 1.3, k.c[1]) },
+  { n: 'Alta', d: (k, L) => L.band(k, .36, 1, .8, .8) + L.band(k, .36, .42, 1.3, 1.3, k.c[1]) },
+  { n: 'Listrada alta', d: (k, L) => L.stripes(k, .36, 1, .8, .8, .08, .04) },
+  { n: 'Meia-calça', d: (k, L) => L.band(k, 0, 1, .4, .5) },
+  { n: 'Polaina', d: (k, L) => L.band(k, .6, .94, 2.6, 3.2) + [.68, .76, .84].map(t => L.line(k, t, 2.8, k.c[1], .9)).join('') },
+  { n: 'Soquete babado', d: (k, L) => L.band(k, .84, .9, 2.2, 2.4, k.c[1]) + L.band(k, .88, 1, .7, .8) },
 ];
 
-const shoeBase = (k, fill) => P(k, `M-9 ${LS - 5} L9 ${LS - 5} Q14 ${LS + 5} 11 ${LS + 10} L-11 ${LS + 10} Q-14 ${LS + 5} -9 ${LS - 5}Z`, fill);
+const shoeBase = (k, fill) => { const t = G.toe || 0, x = v => (-t * v).toFixed(1);
+  return t ? P(k, `M${x(9)} ${LS - 5} L${x(-8)} ${LS - 5} Q${x(-14)} ${LS + 3} ${x(-13)} ${LS + 7} Q${x(-12)} ${LS + 10} ${x(-9)} ${LS + 10} L${x(10)} ${LS + 10} Q${x(13)} ${LS + 5} ${x(9)} ${LS - 5}Z`, fill)
+    : P(k, `M-9 ${LS - 5} L9 ${LS - 5} Q14 ${LS + 5} 11 ${LS + 10} L-11 ${LS + 10} Q-14 ${LS + 5} -9 ${LS - 5}Z`, fill); };
 PARTS.shoe = [null,
-  { n: 'Tênis', d: k => shoeBase(k) + P(k, `M-12 ${LS + 6} L12 ${LS + 6} L12 ${LS + 11} L-12 ${LS + 11}Z`, k.c[1]) + `<path d="M-4 ${LS - 2} L4 ${LS - 2} M-4 ${LS + 2} L4 ${LS + 2}" stroke="${k.c[1]}" stroke-width="1.6"/>` },
+  { n: 'Tênis', d: k => { const t = G.toe || 0, a = t ? (t < 0 ? -14 : -11) : -12, b = t ? (t < 0 ? 11 : 14) : 12, c = t;
+    return shoeBase(k) + P(k, `M${a} ${LS + 6} L${b} ${LS + 6} Q${b + 1} ${LS + 11} ${b - 2} ${LS + 11} L${a + 2} ${LS + 11} Q${a - 1} ${LS + 11} ${a} ${LS + 6}Z`, k.c[1]) + `<path d="M${c - 4} ${LS - 2} L${c + 4} ${LS - 2} M${c - 4} ${LS + 2} L${c + 4} ${LS + 2}" stroke="${k.c[1]}" stroke-width="1.6"/>`; } },
   { n: 'Bota curta', d: k => P(k, tube(LS - 18, LS - 2, 18, 18)) + shoeBase(k) + `<path d="M-9 ${LS - 16} L9 ${LS - 16}" stroke="${k.c[1]}" stroke-width="3"/>` },
   { n: 'Bota longa', d: k => P(k, tube(4, LS - 2, 19, 17)) + shoeBase(k) + P(k, tube(2, 9, 21, 20), k.c[1]) },
   { n: 'Boneca', d: k => shoeBase(k) + `<path d="M-9 ${LS - 1} L9 ${LS - 1}" stroke="${k.c[1]}" stroke-width="3"/><circle cx="6" cy="${LS - 1}" r="2" fill="${k.c[1]}"/>` },
@@ -135,7 +164,7 @@ PARTS.glove = [null,
 /* Mãos (formato escolhido em Corpo) — desenhadas na ponta do antebraço */
 const HANDS = ['Aberta', 'Punho', 'Apontando', 'Paz', 'Aceno'];
 function drawHand(type, fill, stroke, big) {
-  const y = AF + 6, r = big ? 9.5 : 6.8, s = `stroke="${stroke}" stroke-width="2.2"`;
+  const y = AF + 5, r = big ? 8 : 5.6, s = `stroke="${stroke}" stroke-width="${(3 / G.sf).toFixed(2)}"`;
   switch (type) {
     case 1: return `<circle cx="0" cy="${y}" r="${r - .8}" fill="${fill}" ${s}/>`;
     case 2: return `<ellipse cx="0" cy="${y + 9}" rx="2.6" ry="6" fill="${fill}" ${s}/><circle cx="0" cy="${y}" r="${r - .8}" fill="${fill}" ${s}/>`;

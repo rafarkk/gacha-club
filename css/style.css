@@ -32,6 +32,9 @@ h4 { margin: 14px 0 6px; font-weight: 600; color: var(--muted); letter-spacing: 
 .stage { position: relative; overflow: hidden; z-index: 1; min-height: 0; }
 .stage-char { position: absolute; inset: 0; transform-origin: 50% 88%; transition: transform .25s; }
 .stage-char .rig-svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .35)); }
+/* Profundidade do personagem (rig.js): sem filtros na qualidade baixa */
+.low-quality .rig-svg .fx, .low-quality .portrait .fx, .low-quality .thumb .fx { filter: none; }
+.low-quality .fxs { display: none; }
 .spot { position: absolute; left: 22%; right: 22%; bottom: 5%; height: 7%; border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 255, 255, .35), transparent); pointer-events: none; }
 
 /* ---------- Botões genéricos ---------- */
@@ -108,6 +111,13 @@ h4 { margin: 14px 0 6px; font-weight: 600; color: var(--muted); letter-spacing: 
 .bnav button.off { opacity: .45; }
 .ui-hidden > .ui { display: none !important; }
 .ui-hidden { grid-template-areas: "stage stage stage stage" "stage stage stage stage" "stage stage stage stage"; }
+/* Painéis do menu "na frente" da cena: vidro fosco, sombra projetada e brilho na borda de cima */
+.pcard, .roster { backdrop-filter: blur(8px) saturate(1.2); -webkit-backdrop-filter: blur(8px) saturate(1.2); box-shadow: 0 12px 30px rgba(4, 2, 20, .55), inset 0 1px 0 rgba(255, 255, 255, .16); }
+.tb-frame { box-shadow: 0 18px 44px rgba(4, 2, 20, .65), inset 0 0 0 2px #333, inset 0 2px 0 #4a4a4a; }
+.tb-apps { box-shadow: inset 0 8px 24px rgba(0, 0, 0, .35); }
+.app .ai { background: radial-gradient(120% 90% at 30% 15%, rgba(255, 255, 255, .35), transparent 55%), linear-gradient(160deg, color-mix(in srgb, var(--ac) 80%, #fff), var(--ac) 55%, color-mix(in srgb, var(--ac) 75%, #000)); }
+.side-icons button { box-shadow: 0 6px 14px rgba(4, 2, 20, .45), inset 0 2px 0 rgba(255, 255, 255, .6), inset 0 -3px 0 rgba(60, 60, 140, .35); }
+.low-quality .pcard, .low-quality .roster { backdrop-filter: none; -webkit-backdrop-filter: none; }
 .unhide { position: absolute; right: 16px; bottom: 16px; z-index: 5; width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; background: rgba(20, 16, 44, .7); border: 2px solid #cfd2ff; }
 
 /* ============ EDITOR ============ */

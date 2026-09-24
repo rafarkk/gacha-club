@@ -122,12 +122,64 @@ const Scenery = (() => {
   /* Fundos gerados (usam a cor escolhida) */
   const GEN = {
     solid: (c) => `<rect width="300" height="400" fill="${c}"/>`,
+    /* Palco do clube em planos: cidade distante desfocada, halo de luz, anel de barras com brilho,
+       prédios próximos, piso que reflete a luz e luzes desfocadas na frente (profundidade de campo). */
     club: (c, u) => {
-      const r = rng('club'); let s = sky(u, ['#140b33', '#3b1c6e', '#1a0f3d']);
-      s += `<defs><radialGradient id="${u}cg"><stop offset="0" stop-color="${c}" stop-opacity=".55"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient></defs><circle cx="150" cy="210" r="190" fill="url(#${u}cg)"/>`;
-      for (let i = 0; i < 64; i++) { const a = i / 64 * 360, h = 14 + r() * 34; s += `<rect x="-3" y="${(-78 - h).toFixed(0)}" width="6" height="${h.toFixed(0)}" rx="2" fill="${i % 3 ? '#b9a7ff' : '#ff9df2'}" opacity=".55" transform="translate(150 210) rotate(${a.toFixed(1)})"/>`; }
-      for (let x = -10; x < 300; x += 26 + r() * 20) { const h = 40 + r() * 90; s += `<rect x="${x.toFixed(0)}" y="${(340 - h).toFixed(0)}" width="${(18 + r() * 14).toFixed(0)}" height="${h.toFixed(0)}" fill="#2a1a52" opacity=".7"/>`; }
-      s += `<rect y="340" width="300" height="60" fill="#120a2a"/><ellipse cx="150" cy="352" rx="120" ry="16" fill="${c}" opacity=".35"/>`;
+      const r = rng('club');
+      let s = sky(u, ['#0a0620', '#24124f', '#3b1c6e', '#140a30']);
+      s += `<defs>
+        <filter id="${u}b1" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3.2"/></filter>
+        <filter id="${u}b2" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.2"/></filter>
+        <filter id="${u}b3" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7"/></filter>
+        <filter id="${u}gl" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <radialGradient id="${u}cg"><stop offset="0" stop-color="${shade(c, 35)}" stop-opacity=".75"/><stop offset=".35" stop-color="${c}" stop-opacity=".4"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient>
+        <linearGradient id="${u}fl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1660"/><stop offset=".25" stop-color="#170c38"/><stop offset="1" stop-color="#07041a"/></linearGradient>
+        <linearGradient id="${u}hz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c}" stop-opacity="0"/><stop offset=".5" stop-color="${shade(c, 30)}" stop-opacity=".45"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></linearGradient>
+      </defs>`;
+      /* estrelas bem ao fundo */
+      for (let i = 0; i < 40; i++) s += `<circle cx="${(r() * 300).toFixed(0)}" cy="${(r() * 190).toFixed(0)}" r="${(r() * .9 + .3).toFixed(1)}" fill="#fff" opacity="${(.25 + r() * .4).toFixed(2)}"/>`;
+      /* cidade distante: azulada e desfocada */
+      let far = '';
+      for (let x = -20; x < 320; x += 14 + r() * 16) {
+        const w = 12 + r() * 20, h = 50 + r() * 110, y = 262 - h;
+        far += `<rect x="${x.toFixed(0)}" y="${y.toFixed(0)}" width="${w.toFixed(0)}" height="${h.toFixed(0)}" fill="#3a2f8a"/>`;
+        for (let wy = y + 8; wy < 256; wy += 11) if (r() > .55) far += `<rect x="${(x + 3 + r() * (w - 8)).toFixed(0)}" y="${wy.toFixed(0)}" width="3" height="4" fill="${r() > .6 ? '#ff9df2' : '#9fd8ff'}" opacity=".7"/>`;
+      }
+      s += `<g filter="url(#${u}b1)" opacity=".55">${far}</g>`;
+      /* halo de luz atrás do personagem */
+      s += `<ellipse cx="150" cy="215" rx="200" ry="175" fill="url(#${u}cg)"/>`;
+      /* anel de barras: brilho próprio, mais forte perto do centro */
+      let bars = '';
+      for (let i = 0; i < 64; i++) {
+        const a = i / 64 * 360, h = 14 + r() * 34;
+        bars += `<rect x="-3" y="${(-78 - h).toFixed(0)}" width="6" height="${h.toFixed(0)}" rx="3" fill="${i % 3 ? '#c4b5ff' : '#ff9df2'}" opacity="${(.45 + r() * .35).toFixed(2)}" transform="translate(150 210) rotate(${a.toFixed(1)})"/>`;
+      }
+      s += `<g filter="url(#${u}gl)">${bars}</g>`;
+      /* névoa luminosa no horizonte */
+      s += `<rect y="222" width="300" height="70" fill="url(#${u}hz)"/>`;
+      /* prédios próximos: escuros, com borda iluminada pelo palco */
+      let near = '';
+      for (let x = -10; x < 300; x += 26 + r() * 20) {
+        const w = 18 + r() * 14, h = 22 + r() * 62, y = 264 - h;
+        near += `<rect x="${x.toFixed(0)}" y="${y.toFixed(0)}" width="${w.toFixed(0)}" height="${h.toFixed(0)}" fill="#1a0f3d"/>` +
+          `<rect x="${x.toFixed(0)}" y="${y.toFixed(0)}" width="${w.toFixed(0)}" height="2" fill="${shade(c, 40)}" opacity=".55"/>` +
+          `<rect x="${(x + w / 2 > 150 ? x : x + w - 2).toFixed(0)}" y="${y.toFixed(0)}" width="2" height="${h.toFixed(0)}" fill="${c}" opacity=".35"/>`;
+        for (let wy = y + 8; wy < 258; wy += 12) for (let wx = x + 4; wx < x + w - 4; wx += 7) if (r() > .72) near += `<rect x="${wx.toFixed(0)}" y="${wy.toFixed(0)}" width="3" height="5" fill="${r() > .5 ? '#ffd6fb' : '#b8e4ff'}" opacity="${(.5 + r() * .5).toFixed(2)}"/>`;
+      }
+      s += `<g filter="url(#${u}b2)">${near}</g>`;
+      /* piso refletivo: reflexo do halo, linhas em perspectiva e holofote */
+      s += `<rect y="262" width="300" height="138" fill="url(#${u}fl)"/>`;
+      s += `<ellipse cx="150" cy="272" rx="170" ry="20" fill="${c}" opacity=".4" filter="url(#${u}b3)"/>`;
+      s += [-180, -90, 0, 90, 180, 270, 360, 450].map(x => `<path d="M150 262 L${x} 400" stroke="${shade(c, 30)}" stroke-opacity=".12"/>`).join('');
+      s += [270, 284, 310, 350].map((y, i) => `<path d="M0 ${y} L300 ${y}" stroke="${shade(c, 30)}" stroke-opacity="${(.16 - i * .03).toFixed(2)}"/>`).join('');
+      s += `<ellipse cx="150" cy="270" rx="90" ry="12" fill="${shade(c, 45)}" opacity=".32" filter="url(#${u}b2)"/><ellipse cx="150" cy="270" rx="56" ry="6" fill="#fff" opacity=".14"/>`;
+      /* luzes desfocadas na frente */
+      let bok = '';
+      for (let i = 0; i < 18; i++) {
+        const x = r() * 300, y = 110 + r() * 190, rad = 5 + r() * 14;
+        bok += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${rad.toFixed(1)}" fill="${['#ff9df2', '#9fd8ff', '#c4b5ff', '#ffe29a'][i % 4]}" opacity="${(.12 + r() * .16).toFixed(2)}"/>`;
+      }
+      s += `<g filter="url(#${u}b1)">${bok}</g>`;
       return s;
     },
     gradient: (c, u) => { const r = rng('gs'); let s = sky(u, [shade(c, 30), c, shade(c, -45)]); for (let i = 0; i < 40; i++) s += `<circle cx="${(r() * 300).toFixed(0)}" cy="${(r() * 400).toFixed(0)}" r="${(r() * 1.4 + .4).toFixed(1)}" fill="#fff" opacity=".7"/>`; return s; },
@@ -208,6 +260,7 @@ const Scenery = (() => {
     const sc = st.scale || 1, mx = st.mx || 0, my = st.my || 0;
     if (sc !== 1 || mx || my) s = `<g transform="translate(${150 + mx} ${200 + my}) scale(${sc}) translate(-150 -200)">${s}</g>`;
     if (st.tint) s += `<rect x="-400" y="-400" width="1100" height="1200" fill="${st.tintColor || '#000'}" opacity="${st.tint / 100}"/>`;
+    if (d.g !== 'solid') s += `<defs><radialGradient id="${u}vn" cx=".5" cy=".5" r=".75"><stop offset=".5" stop-color="#05021a" stop-opacity="0"/><stop offset="1" stop-color="#05021a" stop-opacity=".55"/></radialGradient></defs><rect width="300" height="400" fill="url(#${u}vn)"/>`;
     return s;
   }
   function foreground(st, stat) {

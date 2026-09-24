@@ -1,19 +1,58 @@
 /* ============ RIG: monta o personagem em SVG ============
    Camadas (de trás para frente): efeito atrás · [asas, capa, cabelo de trás] · cauda · pernas ·
-   [tronco inclinável: pescoço/tronco, roupas, braços, frente da capa, rosto/cabelo da frente/chapéu] · efeito à frente · mascote */
+   [tronco inclinável: pescoço/tronco, roupas, braços, frente da capa, rosto/cabelo da frente/chapéu] · efeito à frente · mascote
+   Profundidade: cada peça passa pelo filtro "cel" (sombra de dois tons embaixo/direita e luz de borda em cima/esquerda,
+   calculadas a partir da forma, então respeitam qualquer cor). Franja e chapéu projetam sombra no rosto, a cabeça no
+   pescoço, e o cabelo de trás fica mais escuro. Com qualidade baixa, .fx perde o filtro e .fxs (sombras) some. */
 
 const Rig = (() => {
-  const FACE = 'M76 120 C76 70 110 58 150 58 C190 58 224 70 224 120 C224 162 200 196 150 198 C100 196 76 162 76 120Z';
+  /* Rosto largo, bochechas cheias e queixo arredondado (estilo chibi) */
+  const FACE = 'M74 118 C74 66 110 54 150 54 C190 54 226 66 226 118 C227 156 216 180 192 192 C174 201 126 201 108 192 C84 180 73 156 74 118Z';
   const VIEW = '-50 -30 400 480';
-  const FACE_T = 'M80 116 C80 72 112 58 152 58 C194 58 226 72 226 122 C226 166 196 198 138 199 C104 194 82 158 80 116Z';
+  const FACE_T = 'M80 116 C80 68 114 54 154 54 C196 54 228 68 228 120 C229 158 214 184 184 195 C162 203 126 202 108 192 C90 182 79 156 80 116Z';
+  /* Proporção do Gacha Club (medida nas referências): cabeça ~43% da altura, tronco curto com metade da largura
+     da cabeça, braços curtos e grossos (o pulso chega ao quadril), pernas grossas ~33% da altura.
+     Tronco: escala em volta da base do pescoço (BN). Braços e pernas: escala UNIFORME (ARM_F/LEG_F), então as
+     roupas crescem sem deformar; os contornos dividem pela escala (G.sf) para manter a espessura. */
+  const TSX = 1.36, TSY = .88, BN = [150, 206], TORSO_SF = 1.3;
+  const TORSO_T = `translate(${BN[0]} ${BN[1]}) scale(${TSX} ${TSY}) translate(${-BN[0]} ${-BN[1]})`;
+  const BODY_T = `translate(${BN[0]} ${BN[1]}) scale(1.2) translate(${-BN[0]} ${-BN[1]})`;
+  const ARM_F = 1.7, LEG_F = 1.95;
+  const bodyY = y => BN[1] + (y - BN[1]) * TSY;
+  /* o corpo sobe para os pés continuarem no chão (as miniaturas compensam com o mesmo valor) */
+  const SHIFT = 402 - (bodyY(282) + (G.LT + G.LS + 12) * LEG_F);
+  /* 3/4 leve (como no jogo de referência): o tronco é desenhado em duas metades cortadas no meio (x=150);
+     a de longe um pouco mais estreita, a de perto um pouco mais larga, e zíper/botões vão para o lado do olhar.
+     Ombros e quadril usam o mesmo mapeamento, então braços e pernas continuam presos no lugar certo. */
+  /* olho ~22% da largura do rosto (medido nas referências do Gacha Club) */
+  const EYE = .98;
+  const TURN_C = 146, TURN_FAR = .64, TURN_NEAR = 1.1;
+  const turnX = x => TURN_C + (x - 150) * (x < 150 ? TURN_FAR : TURN_NEAR);
 
+  /* recortes das miniaturas do editor (medidos no corpo atual) */
   const CROP = {
-    hairBack: '0 20 300 360', hairBase: '40 10 220 250', ponytail: '10 -10 280 330', bangs: '60 30 180 190', ahoge: '90 -10 120 130',
-    eye: '82 104 136 76', pupil: '82 104 136 76', brow: '82 88 136 76', nose: '112 142 76 56', mouth: '112 154 76 56', blush: '76 130 148 80', faceMark: '70 50 160 170',
-    hat: '20 -40 260 220', glasses: '60 90 180 110', headAcc: '50 10 200 170', faceAcc: '70 100 160 120', neck: '100 180 100 110', logo: '110 200 100 90',
-    shirt: '70 170 160 190', jacket: '70 170 160 230', skirt: '70 240 160 150', sleeve: '40 180 220 160', pants: '80 255 140 210', sock: '80 290 140 170', shoe: '80 350 140 90', glove: '40 210 220 150',
-    cape: '30 150 240 280', tail: '120 180 180 200', wings: '-20 110 340 250', prop: '-60 20 420 390', shield: '40 190 140 150', effect: '-20 -20 340 460',
+    hairBack: '-9 -20 318 382', hairBase: '33 -30 233 265', ponytail: '2 -51 297 350', bangs: '55 -9 191 201', ahoge: '86 -51 127 138',
+    eye: '78 69 144 81', pupil: '78 69 144 81', brow: '78 52 144 81', nose: '110 110 81 59', mouth: '110 122 81 59', blush: '72 97 157 85', faceMark: '65 12 170 180',
+    hat: '12 -83 276 233', glasses: '55 55 191 117', headAcc: '44 -30 212 180', faceAcc: '65 65 170 127', neck: '108 162 84 64', logo: '112 178 76 64',
+    shirt: '85 170 130 95', jacket: '78 170 144 135', skirt: '72 225 156 115', sleeve: '48 168 204 95', pants: '82 232 136 172', sock: '85 290 130 115', shoe: '90 362 120 48', glove: '48 190 204 75',
+    cape: '25 120 250 290', tail: '105 160 205 240', wings: '-20 100 340 230', prop: '-40 40 380 360', shield: '35 160 135 125', effect: '-20 -40 340 460',
   };
+
+  /* Sombra (sh) e luz (hl) de borda: a forma encolhida, deslocada e subtraída de si mesma vira um crescente nítido.
+     dark < 1 escurece a peça inteira (cabelo de trás). */
+  const celFilter = (id, { dark = 1, sh = [-7, -9], hl = [2.5, 3.5], color = '#1c0a3a', op = .22, lop = .16 } = {}) => `<filter id="${id}" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+    <feMorphology in="SourceAlpha" operator="erode" radius="1.4" result="in"/>
+    <feOffset in="in" dx="${sh[0]}" dy="${sh[1]}" result="o1"/><feComposite in="in" in2="o1" operator="out" result="s1"/>
+    <feFlood flood-color="${color}" flood-opacity="${op}"/><feComposite in2="s1" operator="in" result="shade"/>
+    <feOffset in="in" dx="${hl[0]}" dy="${hl[1]}" result="o2"/><feComposite in="in" in2="o2" operator="out" result="s2"/>
+    <feFlood flood-color="#fff" flood-opacity="${lop}"/><feComposite in2="s2" operator="in" result="light"/>
+    ${dark < 1 ? `<feComponentTransfer in="SourceGraphic" result="src"><feFuncR type="linear" slope="${dark}"/><feFuncG type="linear" slope="${dark}"/><feFuncB type="linear" slope="${dark}"/></feComponentTransfer>` : ''}
+    <feMerge><feMergeNode in="${dark < 1 ? 'src' : 'SourceGraphic'}"/><feMergeNode in="shade"/><feMergeNode in="light"/></feMerge></filter>`;
+  /* Silhueta chapada de uma cor (sombra projetada) */
+  const silFilter = (id, color, op = 1) => `<filter id="${id}" color-interpolation-filters="sRGB"><feFlood flood-color="${color}" flood-opacity="${op}"/><feComposite in2="SourceAlpha" operator="in"/></filter>`;
+  /* Peças pequenas do rosto ficam sem filtro */
+  const NO_CEL = new Set(['eye', 'pupil', 'brow', 'nose', 'mouth', 'blush', 'faceMark', 'logo', 'effect', 'glasses']);
+  const DARK = { hairBack: .82, hairBase: .88 };
 
   function adjAttr(a, ax, ay, mirror) {
     if (!a) return '';
@@ -25,8 +64,21 @@ const Rig = (() => {
     const pose = POSES[ch.body.pose] || POSES[0];
     const H = ch.hide || {};
     const T = ch.body.turn ? 1 : 0;
+    const bust = !!ch.body.bust;
+    TORSO = bust ? TORSO_F : TORSO_M; JACKET = bust ? JACKET_F : JACKET_M;
     const S = ch.skin, SO = H.outline ? 'none' : Color.shade(S, -48);
-    const defs = [];
+    const defs = [
+      celFilter(u + 'cel'), celFilter(u + 'celD1', { dark: DARK.hairBack }), celFilter(u + 'celD2', { dark: DARK.hairBase }),
+      /* pele: sombra quente e mais curta, luz fraca */
+      /* membros: desenhados em escala ~2x, então sombra/luz com deslocamento menor */
+      celFilter(u + 'celL', { color: Color.shade(Color.mix(S, '#d8506e', .45), -30), op: .26, sh: [-2.2, -3], hl: [1, 1.4], lop: .12 }),
+      celFilter(u + 'celS', { color: Color.shade(Color.mix(S, '#d8506e', .45), -30), op: .26, sh: [-4, -6], lop: .12 }),
+      silFilter(u + 'sil', Color.shade(S, -24)), silFilter(u + 'silK', '#1c0a3a', .2),
+      /* contorno externo grosso da silhueta inteira (o traço forte do estilo anime) */
+      `<filter id="${u}ol" x="-10%" y="-10%" width="120%" height="120%"><feMorphology in="SourceAlpha" operator="dilate" radius="2.2" result="d"/><feFlood flood-color="#160c2c"/><feComposite in2="d" operator="in" result="o"/><feMerge><feMergeNode in="o"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`,
+      `<radialGradient id="${u}gs"><stop offset="0" stop-color="#000" stop-opacity=".42"/><stop offset=".6" stop-color="#000" stop-opacity=".22"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>`,
+    ];
+    const fx = (svg, f = 'cel') => svg ? `<g class="fx" filter="url(#${u}${f})">${svg}</g>` : '';
 
     const K = slot => {
       const p = ch.parts[slot];
@@ -40,36 +92,119 @@ const Rig = (() => {
       return { c, F, u: u + slot, S, SO };
     };
     const tpl = slot => { const p = ch.parts[slot]; if (!p || !p.i) return null; return (PARTS[SLOT_DEFS[slot].t] || [])[p.i] || null; };
-    const draw = (slot, arg) => {
+    const draw = (slot, arg, raw) => {
       const t = tpl(slot); if (!t) return '';
-      const svg = t.d(K(slot), arg);
+      let svg = t.d(K(slot), arg);
+      if (!raw && !NO_CEL.has(SLOT_DEFS[slot].t)) svg = fx(svg, slot === 'hairBack' ? 'celD1' : slot === 'hairBase' ? 'celD2' : 'cel');
       const a = ch.adj[slot], an = ANCHORS[slot];
       return a && an ? `<g transform="${adjAttr(a, an[0], an[1])}">${svg}</g>` : svg;
     };
-    const limb = (L, w) => `<line x1="0" y1="0" x2="0" y2="${L}" stroke="${SO}" stroke-width="${w + 3.6}" stroke-linecap="round"/><line x1="0" y1="0" x2="0" y2="${L}" stroke="${S}" stroke-width="${w}" stroke-linecap="round"/>`;
+    const limb = (L, w0, w1 = w0, sides, sx = 1) => { const a = w0 / 2, b = w1 / 2, sw = (3.2 / sx).toFixed(2);
+      const l = `M${-a} 0 C${-a} ${L * .45} ${-b - .6} ${L * .7} ${-b} ${L}`, r = `M${b} ${L} C${b + .6} ${L * .7} ${a} ${L * .45} ${a} 0`;
+      const d = `M${-a} 0 C${-a} ${L * .45} ${-b - .6} ${L * .7} ${-b} ${L} A${b} ${b} 0 0 0 ${b} ${L} C${b + .6} ${L * .7} ${a} ${L * .45} ${a} 0 A${a} ${a} 0 0 0 ${-a} 0Z`;
+      return sides ? `<path d="${d}" fill="${S}"/><path d="${l} ${r}" fill="none" stroke="${SO}" stroke-width="${sw}" stroke-linecap="round"/>`
+        : `<path d="${d}" fill="${S}" stroke="${SO}" stroke-width="${sw}"/>`; };
+
+    /* Junta sem costura: repete o membro recortado numa faixa em volta do joelho/cotovelo, sem contornos
+       (a barra da coxa/manga some; o contorno de fora volta pelo contorno da silhueta) */
+    const joint = (id, svg) => `<g class="nostk" clip-path="url(#${u}${id})">${svg}</g>`;
+    defs.push(`<style>.nostk *{stroke:none!important}</style>`,
+      '');
 
     /* ---- Braços (desenhados com a geometria esquerda; o direito é espelhado) ---- */
-    function arm(s, dx = 0) {
-      const X = s ? 'R' : 'L';
+    function arm(s, x) {
+      const X = s ? 'R' : 'L', sf0 = G.sf; G.sf = ARM_F;
       const a1 = pose.a[s * 2], a2 = pose.a[s * 2 + 1];
       const hand = ch.body['hand' + X] || (pose.hd ? pose.hd[s] : 0);
       const gT = tpl('glove' + X), gl = gT ? gT.d(K('glove' + X)) : null;
-      const upper = limb(G.AU, G.AW) + draw('sleeve' + X, 'u');
-      let fore = limb(G.AF, G.AW - 1) + draw('sleeve' + X, 'f') + (gl ? gl.f : '');
-      if (!s) fore += draw('shield');
-      fore += drawHand(hand, gl ? gl.hand : S, SO, gl && gl.big) + (gl && gl.after || '') + draw('prop' + X);
-      const g = `<g transform="translate(${G.SH[0][0] + dx} ${G.SH[0][1]}) rotate(${a1})">${upper}<g transform="translate(0 ${G.AU}) rotate(${a2})">${fore}</g></g>`;
+      /* Cotovelo sem emenda: antebraço primeiro, depois o braço por cima só com os contornos laterais (a ponta
+         arredondada cobre o topo do antebraço). Mão, luva e itens vêm por último, por cima de tudo.
+         O volume (celL) é aplicado no braço inteiro de uma vez. */
+      /* pele do braço inteiro num contorno só (sem emenda no cotovelo) */
+      const ag = legGeo(a2, 1, 1, { L1: G.AU, L2: G.AF, w: (t, tk) => t <= tk ? G.AW - 1.5 * t / tk : (() => { const v = (t - tk) / (1 - tk); return G.AW - 1.5 - 2 * v + .9 * Math.sin(Math.PI * Math.min(v / .8, 1)); })() });
+      const armSkin = `<path d="${ag.capD(0, 1)}" fill="${S}" stroke="${SO}" stroke-width="${(3.2 / ARM_F).toFixed(2)}" stroke-linejoin="round"/>`;
+      const sleeve = draw('sleeve' + X, limbAPI(ag, 'a' + X, ARM_F), 1);
+      const fore = gl ? gl.f : '';
+      /* no 3/4 a mão de longe fica atrás do tronco: o item dela não é desenhado (apareceria atravessando o corpo) */
+      const farHidden = T && !s;
+      let hands = s || farHidden ? '' : draw('shield', undefined, 1);
+      hands += drawHand(hand, gl ? gl.hand : S, SO, gl && gl.big) + (gl && gl.after || '') + (farHidden ? '' : draw('prop' + X, undefined, 1));
+      const inFore = svg => `<g transform="translate(0 ${G.AU}) rotate(${a2})">${svg}</g>`;
+      /* ombro: com o braço abaixado a junta fica logo abaixo da linha do ombro; conforme o braço sobe, ela vai
+         para o canto de cima do tronco (senão o braço levantado parece sair do peito) */
+      const up = clamp((Math.abs(a1) - 25) / 65, 0, 1);
+      const g = `<g transform="translate(${((s ? 300 - x : x) - 5 * up).toFixed(2)} ${(bodyY(G.SH[0][1]) - 6 * up).toFixed(2)}) rotate(${a1}) scale(${ARM_F})">${fx(armSkin + sleeve + inFore(fore) + inFore(hands), 'celL')}</g>`;
+      G.sf = sf0;
       return s ? mir(g) : g;
     }
 
-    /* ---- Pernas ---- */
-    function leg(s, dx = 0) {
-      const X = s ? 'R' : 'L';
-      const h1 = pose.l[s * 2], h2 = pose.l[s * 2 + 1], ls = pose.ls || [1, 1, 1, 1];
-      const thigh = limb(G.LT, G.TW) + draw('sock' + X, 't') + draw('pants' + X, 't');
-      const foot = tpl('shoe' + X) ? draw('shoe' + X) : `<ellipse cx="0" cy="${G.LS + 4}" rx="8" ry="6" fill="${S}" stroke="${SO}" stroke-width="2.2"/>`;
-      const shin = limb(G.LS, G.SW) + draw('sock' + X, 's') + draw('pants' + X, 's') + foot;
-      const g = `<g transform="translate(${G.HIP[0][0] + dx} ${G.HIP[0][1]}) rotate(${h1}) scale(1 ${ls[s * 2]})">${thigh}<g transform="translate(0 ${G.LT}) rotate(${h2}) scale(1 ${ls[s * 2 + 1]})">${shin}</g></g>`;
+    /* ---- Pernas: um contorno contínuo do quadril ao tornozelo (sem emenda no joelho) ----
+       Espaço local da perna (girado pelo quadril e escalado por LEG_F): quadril em (0,0), joelho em K, tornozelo em A.
+       Largura: coxa grossa afinando até o joelho, panturrilha levemente cheia, tornozelo fino. */
+    /* geo (opcional) troca comprimentos e largura: usado também no braço (ombro→cotovelo→pulso) */
+    function legGeo(h2, lsT, lsS, geo) {
+      const lt = (geo ? geo.L1 : G.LT) * lsT, lsn = (geo ? geo.L2 : G.LS) * lsS, tot = lt + lsn, tk = lt / tot, r = h2 * Math.PI / 180;
+      const dir = [-Math.sin(r), Math.cos(r)], n2 = [Math.cos(r), Math.sin(r)];
+      const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+      const width = geo ? t => geo.w(t, tk) : t => t <= tk ? G.TW + (G.SW - .6 - G.TW) * Math.pow(t / tk, 1.15)
+        : (() => { const v = (t - tk) / (1 - tk); return G.SW - .6 + (-3.2 * v) + 1.7 * Math.sin(Math.PI * Math.min(v / .75, 1)); })();
+      const at = t => {
+        const d = t * tot;
+        const c = d <= lt ? [0, d] : [dir[0] * (d - lt), lt + dir[1] * (d - lt)];
+        const m = smooth(tk - .07, tk + .07, t), nx = 1 + (n2[0] - 1) * m, ny = n2[1] * m, nl = Math.hypot(nx, ny);
+        return { x: c[0], y: c[1], nx: nx / nl, ny: ny / nl, w: width(t) };
+      };
+      const pts = (t0, t1, d0, d1) => {
+        const n = Math.max(3, Math.ceil((t1 - t0) * 30)), L = [], Rr = [];
+        for (let i = 0; i <= n; i++) {
+          const t = t0 + (t1 - t0) * i / n, p = at(t), h = p.w / 2 + d0 + (d1 - d0) * i / n;
+          L.push([p.x - p.nx * h, p.y - p.ny * h]); Rr.push([p.x + p.nx * h, p.y + p.ny * h]);
+        }
+        return [L, Rr];
+      };
+      const curve = P => { let d = `${P[0][0].toFixed(2)} ${P[0][1].toFixed(2)}`;
+        for (let i = 1; i < P.length - 1; i++) d += ` Q${P[i][0].toFixed(2)} ${P[i][1].toFixed(2)} ${((P[i][0] + P[i + 1][0]) / 2).toFixed(2)} ${((P[i][1] + P[i + 1][1]) / 2).toFixed(2)}`;
+        return d + ` L${P[P.length - 1][0].toFixed(2)} ${P[P.length - 1][1].toFixed(2)}`; };
+      const bandD = (t0, t1, d0 = 0, d1 = d0) => { const [L, Rr] = pts(t0, t1, d0, d1); return `M${curve(L)} L${curve(Rr.reverse())}Z`; };
+      /* igual a bandD, mas com as pontas arredondadas (ombro e pulso) */
+      const capD = (t0, t1) => { const [L, Rr] = pts(t0, t1, 0, 0), a = at(t0).w / 2, b = at(t1).w / 2, e = Rr[Rr.length - 1], f = L[0];
+        return `M${curve(L)} A${b.toFixed(2)} ${b.toFixed(2)} 0 0 0 ${e[0].toFixed(2)} ${e[1].toFixed(2)} L${curve(Rr.reverse())} A${a.toFixed(2)} ${a.toFixed(2)} 0 0 0 ${f[0].toFixed(2)} ${f[1].toFixed(2)}Z`; };
+      const roundTopD = (t0, t1, d0 = 0, d1 = d0) => { const [L, Rr] = pts(t0, t1, d0, d1), a = at(t0).w / 2 + d0, f = L[0];
+        return `M${curve(L)} L${curve(Rr.reverse())} A${a.toFixed(2)} ${a.toFixed(2)} 0 0 0 ${f[0].toFixed(2)} ${f[1].toFixed(2)}Z`; };
+      return { tk, at, bandD, capD, roundTopD, A: at(1), K: [0, lt], r };
+    }
+    /* Peças que vestem um membro contínuo (calça, meia, manga): faixas ao longo do membro, t = 0 na raiz e 1 na ponta */
+    function limbAPI(g0, tag, F) {
+      return {
+        knee: g0.tk,
+        /* começando no ombro (t0 < 0) a faixa tem a ponta arredondada: manga com ombro redondo */
+        band: (k, t0, t1, d0 = 1.2, d1 = d0, fill) => `<path d="${t0 < 0 ? g0.roundTopD(0, t1, d0, d1) : g0.bandD(t0, t1, d0, d1)}" fill="${fill || k.c[0]}" ${ol(k)}/>`,
+        stripes: (k, t0, t1, d0, d1, step, w) => { const id = k.u + 's' + tag;
+          let b = ''; for (let t = t0 + step / 2; t < t1; t += step) b += `<path d="${g0.bandD(t, Math.min(t + w, t1), d0 + 2, d1 + 2)}" fill="${k.c[1]}"/>`;
+          return `<clipPath id="${id}"><path d="${g0.bandD(t0, t1, d0, d1)}"/></clipPath><path d="${g0.bandD(t0, t1, d0, d1)}" fill="${k.c[0]}"/><g clip-path="url(#${id})">${b}</g><path d="${g0.bandD(t0, t1, d0, d1)}" fill="none" ${ol(k)}/>`; },
+        line: (k, t, d, color, w = 1) => { const p = g0.at(t), h = p.w / 2 + d;
+          return `<path d="M${(p.x - p.nx * h).toFixed(2)} ${(p.y - p.ny * h).toFixed(2)} L${(p.x + p.nx * h).toFixed(2)} ${(p.y + p.ny * h).toFixed(2)}" stroke="${color}" stroke-width="${(w * 3 / F).toFixed(2)}"/>`; },
+        patch: (k, t, rx, ry, fill) => { const p = g0.at(t);
+          return `<ellipse cx="${p.x.toFixed(2)}" cy="${p.y.toFixed(2)}" rx="${rx}" ry="${ry}" fill="${fill}" stroke="${k.c[2]}" stroke-width="${(1.6 / F).toFixed(2)}" transform="rotate(${(Math.atan2(p.ny, p.nx) * 180 / Math.PI).toFixed(1)} ${p.x.toFixed(2)} ${p.y.toFixed(2)})"/>`; },
+        pt: t => g0.at(t),
+      };
+    }
+    function leg(s, x) {
+      const X = s ? 'R' : 'L', sf0 = G.sf; G.sf = LEG_F;
+      /* no 3/4 (como no Gacha Club): perna de longe abre para o lado do olhar, a de perto fica quase vertical */
+      const h1 = pose.l[s * 2] + (T ? (s ? -2 : 5) : 0), h2 = pose.l[s * 2 + 1], ls = pose.ls || [1, 1, 1, 1];
+      const g0 = legGeo(h2, ls[s * 2], ls[s * 2 + 1]), sw = (3.2 / LEG_F).toFixed(2);
+      const L = limbAPI(g0, 'l' + X, LEG_F);
+      const skin = `<path d="${g0.bandD(0, 1)}" fill="${S}" stroke="${SO}" stroke-width="${sw}"/>`;
+      G.toe = T ? (s ? 1 : -1) : 0;
+      let foot = tpl('shoe' + X) ? draw('shoe' + X, undefined, 1) : `<ellipse cx="${-1.5 * G.toe}" cy="${G.LS + 4}" rx="${T ? 8.8 : 8}" ry="6" fill="${S}" stroke="${SO}" stroke-width="${sw}"/>`;
+      G.toe = 0;
+      /* pé com a sola sempre plana no chão (desfaz o giro do quadril); no 3/4 aponta para o lado do olhar */
+      /* no 3/4 o sapato é desenhado de perfil em diagonal (bico para o lado do olhar; o direito é espelhado) */
+      foot = `<g transform="translate(${g0.A.x.toFixed(2)} ${g0.A.y.toFixed(2)}) rotate(${-h1}) scale(.86 ${.78 * ls[s * 2 + 1]}) translate(0 ${-G.LS})">${foot}</g>`;
+      const body = skin + draw('sock' + X, L, 1) + draw('pants' + X, L, 1) + foot;
+      G.sf = sf0;
+      const g = `<g transform="translate(${s ? 300 - x : x} ${bodyY(G.HIP[0][1])}) rotate(${h1}) scale(${LEG_F})">${fx(body, 'celL')}</g>`;
       return s ? mir(g) : g;
     }
 
@@ -81,32 +216,50 @@ const Rig = (() => {
       let body = '';
       if (!r.closed) {
         const pt = tpl('pupil' + X), clip = u + 'ec' + X;
-        body += `<path d="${r.w}" fill="${k.c[0]}"/>`;
-        if (pt) body += `<clipPath id="${clip}"><path d="${r.w}"/></clipPath><g clip-path="url(#${clip})"><g transform="translate(${((pa.x || 0) - 2.5 * T) * (s ? -1 : 1)} ${pa.y || 0}) rotate(${pa.r || 0}) scale(${pa.sx || 1} ${pa.sy || 1})">${pt.d(K('pupil' + X))}</g></g>`;
+        /* sombra da pálpebra no branco (embaixo da íris, para não apagar os brilhos) */
+        body += `<path d="${r.w}" fill="${k.c[0]}"/><clipPath id="${clip}"><path d="${r.w}"/></clipPath><g clip-path="url(#${clip})">`;
+        if (pt) body += `<g transform="translate(${((pa.x || 0) - 2.5 * T) * (s ? -1 : 1)} ${pa.y || 0}) rotate(${pa.r || 0}) scale(${pa.sx || 1} ${pa.sy || 1})">${pt.d(K('pupil' + X))}</g>`;
+        body += `</g>`;
       }
       body += r.lash;
-      const ex = s ? 180 - 8 * T : 120 - 16 * T, far = !s && T ? .74 : 1;
-      return `<g transform="translate(${ex + (a.x || 0)} ${144 + (a.y || 0)}) rotate(${a.r || 0}) scale(${(a.sx || 1) * (s ? -1 : 1) * 1.1 * far} ${(a.sy || 1) * 1.1})"><g class="anim-blink">${body}</g></g>`;
+      const ex = s ? 180 - 8 * T : 120 - 14 * T, far = !s && T ? .8 : 1;
+      return `<g transform="translate(${ex + (a.x || 0)} ${150 + (a.y || 0)}) rotate(${a.r || 0}) scale(${(a.sx || 1) * (s ? -1 : 1) * EYE * far} ${(a.sy || 1) * EYE})"><g class="anim-blink">${body}</g></g>`;
     }
     function brow(s) {
       const X = s ? 'R' : 'L', t = tpl('brow' + X); if (!t) return '';
       const a = ch.adj['brow' + X] || {};
-      const bx = s ? 180 - 8 * T : 120 - 16 * T, far = !s && T ? .76 : 1;
-      return `<g transform="translate(${bx + (a.x || 0)} ${108 + (a.y || 0)}) rotate(${a.r || 0}) scale(${(a.sx || 1) * (s ? -1 : 1) * far} ${a.sy || 1})">${t.d(K('brow' + X))}</g>`;
+      const bx = s ? 181 - 8 * T : 119 - 14 * T, far = !s && T ? .78 : 1;
+      return `<g transform="translate(${bx + (a.x || 0)} ${116 + (a.y || 0)}) rotate(${a.r || 0}) scale(${(a.sx || 1) * (s ? -1 : 1) * far} ${a.sy || 1})">${t.d(K('brow' + X))}</g>`;
     }
 
     /* ---- Montagem ---- */
-    const hs = 0.8 + (ch.body.head || 10) * 0.02;
+    const hs = 0.86 + (ch.body.head || 10) * 0.02;
     const headT = `translate(150 198) rotate(${(ch.body.headRot || 0) + (pose.h || 0)}) scale(${hs}) translate(-150 -198)`;
     const hair = !H.hair && !H.head;
     const headBack = H.head ? '' : `<g transform="${headT}"><g class="anim-hair">${hair ? draw('hairBack') + draw('ponytail') + draw('hairBase') : ''}</g></g>`;
     const emote = EMOTES[ch.chat && ch.chat.emote] || '';
+    /* Sem franja, o cabelo de cima desenha a linha do cabelo na testa (como no Gacha Club), para a testa não ficar enorme */
+    const hairline = () => {
+      const bt = tpl('hairBase'); if (!bt) return '';
+      const svg = drawHair(K('hairBase'), 'M70 138 C60 62 104 38 150 38 C196 38 240 62 230 138',
+        [[230, 138], [218, 110], [196, 94], [172, 90], [158, 100], [146, 90], [118, 92], [94, 102], [80, 116], [70, 138]], { edgeOnly: 1, bulge: .35, lines: 0 });
+      /* acompanha o rosto (no 3/4 o rosto é FACE_T, mais estreito e deslocado) */
+      return `<g transform="${T ? 'translate(154 0) scale(.95 1) translate(-150 0)' : ''}">${fx(svg)}</g>`;
+    };
+    const faceD = T ? FACE_T : FACE;
+    defs.push(`<clipPath id="${u}fc"><path d="${faceD}"/></clipPath>`);
+    const hatOn = tpl('hat');
+    const faceShadow = !hair && !hatOn ? '' : `<g class="fxs" clip-path="url(#${u}fc)">
+      ${hair ? `<g filter="url(#${u}sil)" transform="translate(3 9)"><g class="anim-hair">${draw('bangs', undefined, 1)}</g></g>` : ''}
+      ${hatOn ? `<g filter="url(#${u}sil)" transform="translate(${-4 * T + 3} 11)">${draw('hat', undefined, 1)}</g>` : ''}
+    </g>`;
     const headFront = H.head ? '' : `<g transform="${headT}">
-      ${T ? '' : `<ellipse cx="78" cy="140" rx="9" ry="13" fill="${S}" stroke="${SO}" stroke-width="2.2"/>`}<ellipse cx="${222 + 2 * T}" cy="140" rx="9" ry="13" fill="${S}" stroke="${SO}" stroke-width="2.2"/>
-      <path d="${T ? FACE_T : FACE}" fill="${S}" stroke="${SO}" stroke-width="2.5"/>
-      ${H.face ? '' : `<g transform="translate(${-10 * T} 0)">${draw('blush') + draw('faceMark')}</g>` + eye(0) + eye(1) + brow(0) + brow(1) + `<g transform="translate(${-22 * T} 0)">${draw('nose')}</g><g transform="translate(${-14 * T} 0)">${draw('mouth')}</g>`}
-      <g transform="translate(${-12 * T} 0)">${draw('faceAcc') + draw('glasses')}</g>
-      ${hair ? `<g transform="translate(${-7 * T} 0)"><g class="anim-hair">${draw('bangs')}</g>${draw('ahoge')}</g>` : ''}
+      ${fx((T ? '' : `<ellipse cx="77" cy="146" rx="7" ry="10" fill="${S}" stroke="${SO}" stroke-width="3"/>`) + `<ellipse cx="${223 + 2 * T}" cy="146" rx="7" ry="10" fill="${S}" stroke="${SO}" stroke-width="3"/>
+      <path d="${faceD}" fill="${S}" stroke="${SO}" stroke-width="3"/>`, 'celS')}
+      ${faceShadow}
+      ${H.face ? '' : `<g transform="translate(${-10 * T} 8) translate(150 166) scale(.94 1) translate(-150 -166)">${draw('blush')}</g><g transform="translate(${-10 * T} 4)">${draw('faceMark')}</g>` + eye(0) + eye(1) + brow(0) + brow(1) + `<g transform="translate(${-18 * T} 3)">${draw('nose')}</g><g transform="translate(${-13 * T} 1) translate(150 184) scale(.9) translate(-150 -184)">${draw('mouth')}</g>`}
+      <g transform="translate(${-12 * T} 6)">${draw('faceAcc') + draw('glasses')}</g>
+      ${hair ? `<g class="anim-hair">${draw('bangs') || hairline()}</g>${draw('ahoge')}` : ''}
       <g transform="translate(${-4 * T} 0)">${draw('headAcc') + draw('headAcc2') + draw('hat')}</g>
       ${emote ? `<text x="214" y="40" font-size="40" text-anchor="middle" class="anim-bob" font-family="'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif">${emote}</text>` : ''}
     </g>`;
@@ -114,23 +267,44 @@ const Rig = (() => {
     const capeT = tpl('cape'), cape = capeT ? capeT.d(K('cape')) : null;
     const capeAdj = s => { const a = ch.adj.cape; return a ? `<g transform="${adjAttr(a, 150, 212)}">${s}</g>` : s; };
     const pantsOn = ['pantsL', 'pantsR'].find(s => ch.parts[s].i);
+    const NECK_R = `<rect x="144" y="184" width="12" height="32" rx="5"/>`;
+    defs.push(`<linearGradient id="${u}tmg" gradientUnits="userSpaceOnUse" x1="146.5" y1="0" x2="150.5" y2="0"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient><mask id="${u}tm" maskUnits="userSpaceOnUse" x="-300" y="-300" width="900" height="1100"><rect x="-300" y="-300" width="900" height="1100" fill="url(#${u}tmg)"/></mask><clipPath id="${u}tg"><rect x="143" y="-300" width="600" height="1100"/></clipPath>`);
+    defs.push(`<clipPath id="${u}nk">${NECK_R}</clipPath><clipPath id="${u}tr">${NECK_R}<path d="${TORSO}"/></clipPath>`);
+    const headSil = (f, dy) => H.head ? '' : `<g filter="url(#${u}${f})"><g transform="${headT} translate(0 ${dy})"><path d="${faceD}"/></g></g>`;
+    G.sf = TORSO_SF;
+    /* linha curta embaixo do busto, na cor do contorno da camisa (ou da pele) */
+    const shirtOn = ['shirt', 'jacket'].find(k => ch.parts[k].i);
+    const bustLine = bust ? `<path d="M153 239 Q163 244 171 239" stroke="${shirtOn ? (H.outline ? 'none' : ch.parts.shirt.i ? ch.parts.shirt.c[2] : ch.parts.jacket.c[2]) : SO}" stroke-width="1.8" fill="none" stroke-linecap="round" opacity=".8"/>` : '';
+    /* Decote: a pele do pescoço entra na gola (sem a linha da camisa atravessando o pescoço) */
+    const neckCut = () => {
+      const sh = ch.parts.shirt; if (!sh.i || [3, 5, 15].includes(sh.i)) return '';
+      const oc = H.outline ? 'none' : sh.c[2];
+      return `<path d="M144.5 198 L155.5 198 L155.5 211 Q150 215.5 144.5 211Z" fill="${Color.shade(S, -8)}"/>` +
+        `<path d="M144 198 L144 210.5 M156 198 L156 210.5" stroke="${SO}" stroke-width="2.3" stroke-linecap="round"/>` +
+        `<path d="M141.5 208.5 Q150 218 158.5 208.5" stroke="${oc}" stroke-width="2.3" fill="none" stroke-linecap="round"/>`;
+    };
     const torso = H.body ? '' :
-      `<rect x="142" y="184" width="16" height="32" rx="6" fill="${Color.shade(S, -8)}" stroke="${SO}" stroke-width="2.2"/>` +
-      `<path d="${TORSO}" fill="${S}" stroke="${SO}" stroke-width="2.2"/>` +
-      (pantsOn ? `<path d="M119 264 L181 264 L184 293 Q150 303 116 293Z" fill="${ch.parts[pantsOn].c[0]}" stroke="${H.outline ? 'none' : ch.parts[pantsOn].c[2]}" stroke-width="2.2"/>` : '') +
-      draw('shirt') + draw('skirt') + draw('jacket') + draw('neck') + draw('logo');
+      `<rect x="144" y="184" width="12" height="32" rx="5" fill="${Color.shade(S, -8)}" stroke="${SO}" stroke-width="2.3"/>` +
+      `<g class="fxs" clip-path="url(#${u}nk)">${headSil('sil', 10)}</g>` +
+      fx(`<path d="${TORSO}" fill="${S}" stroke="${SO}" stroke-width="2.3"/>`, 'celS') +
+      (pantsOn ? fx(`<path d="${bust ? 'M130.5 262 L169.5 262 C179 271 184 281 184 293 Q150 303 116 293 C116 281 121 271 130.5 262Z' : 'M125.5 260 L174.5 260 L184 293 Q150 303 116 293Z'}" fill="${ch.parts[pantsOn].c[0]}" stroke="${H.outline ? 'none' : ch.parts[pantsOn].c[2]}" stroke-width="2.2"/>`) : '') +
+      draw('shirt') + neckCut() + draw('skirt') + draw('jacket') + draw('neck') + draw('logo') +
+      `<g class="fxs" clip-path="url(#${u}tr)">${headSil('silK', 18)}</g>`;
+    G.sf = 1;
 
-    const lean = `rotate(${pose.t || 0} 150 282)`;
+    /* x de um ponto do tronco na tela (escala do tronco + 3/4) */
+    const bodyX = x => { const v = 150 + (x - 150) * TSX; return T ? turnX(v) : v; };
+    const lean = `rotate(${pose.t || 0} 150 ${bodyY(282)})`;
     const behind = `<g transform="${lean}">
-      <g class="anim-wing">${draw('wings')}</g>
-      ${cape ? `<g class="anim-cape">${capeAdj(cape.back)}</g>` : ''}
+      <g transform="${BODY_T}"><g class="anim-wing">${draw('wings')}</g>
+      ${cape ? `<g class="anim-cape">${capeAdj(cape.back)}</g>` : ''}</g>
       ${headBack}
     </g>`;
     const upper = `<g transform="${lean}">
-      ${H.arms || !T ? '' : arm(0, 10)}
-      ${torso}
-      ${H.arms ? '' : (T ? '' : arm(0)) + arm(1)}
-      ${cape && cape.front ? capeAdj(cape.front) : ''}
+      ${H.arms || !T ? '' : arm(0, bodyX(126))}
+      ${T ? [[TURN_NEAR, 'tg'], [TURN_FAR, 'tl']].map(([k, id]) => `<g transform="translate(${TURN_C} 0) scale(${k} 1) translate(-150 0)"><g ${id === 'tl' ? `mask="url(#${u}tm)"` : `clip-path="url(#${u}${id})"`}><g transform="${TORSO_T}">${torso}</g></g></g>`).join('') : `<g transform="${TORSO_T}">${torso}</g>`}
+      ${H.arms ? '' : (T ? '' : arm(0, bodyX(126))) + arm(1, bodyX(174))}
+      ${cape && cape.front ? `<g transform="${BODY_T}">${capeAdj(cape.front)}</g>` : ''}
       ${headFront}
     </g>`;
 
@@ -143,16 +317,18 @@ const Rig = (() => {
     const A = ch.anim || {};
     const cls = ['rig', !A.blink && 'na-blink', !A.hair && 'na-hair', !A.wings && 'na-wing', !A.cape && 'na-cape', !A.tail && 'na-tail', !A.effects && 'na-fx'].filter(Boolean).join(' ');
 
-    const body = `<g transform="${rootT}">
+    const body = `<g transform="${rootT} translate(0 ${SHIFT})">
       <g class="fx-back">${draw('effBack')}</g>
+      <g${H.outline ? '' : ` class="fx" filter="url(#${u}ol)"`}>
       ${behind}
-      <g class="anim-tail">${H.body ? '' : draw('tail')}</g>
-      ${H.legs ? '' : leg(0, 5 * T) + leg(1)}
+      <g class="anim-tail"><g transform="${TORSO_T}">${H.body ? '' : draw('tail')}</g></g>
+      ${H.legs ? '' : leg(0, bodyX(bust ? 135.5 : 137)) + leg(1, bodyX(bust ? 164.5 : 163))}
       ${upper}
+      </g>
       <g class="fx-front">${draw('effFront')}</g>
       ${pet}
     </g>`;
-    const shadow = ch.body.shadow && !o.noShadow ? `<ellipse cx="150" cy="${G.FEET_Y + 12}" rx="${62 * sz}" ry="${10 * sz}" fill="#000" opacity=".22"/>` : '';
+    const shadow = ch.body.shadow && !o.noShadow ? `<ellipse cx="150" cy="${G.FEET_Y - 2}" rx="${64 * sz}" ry="${11 * sz}" fill="url(#${u}gs)"/>` : '';
     return `<defs>${defs.join('')}</defs><g class="${cls}">${shadow}${body}</g>`;
   }
 

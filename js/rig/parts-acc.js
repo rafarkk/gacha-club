@@ -17,7 +17,9 @@ PARTS.hat = [null,
   { n: 'Chapéu de palha', d: k => P(k, 'M30 80 Q150 56 270 80 Q262 96 150 96 Q38 96 30 80Z') + P(k, 'M94 78 Q98 30 150 28 Q202 30 206 78Z') + P(k, 'M96 66 Q150 58 204 66 L205 76 Q150 68 95 76Z', k.c[1]) },
   { n: 'Boina', d: k => P(k, 'M66 84 Q60 36 140 30 Q230 28 240 70 Q236 88 206 86 Q150 78 66 84Z') + `<path d="M148 30 L150 20" stroke="${k.c[2]}" stroke-width="4" stroke-linecap="round"/>` },
   { n: 'Capuz de urso', d: k => `<circle cx="84" cy="48" r="20" fill="${k.c[0]}" ${ol(k)}/><circle cx="216" cy="48" r="20" fill="${k.c[0]}" ${ol(k)}/><circle cx="84" cy="48" r="10" fill="${k.c[1]}"/><circle cx="216" cy="48" r="10" fill="${k.c[1]}"/>` + P(k, 'M64 110 Q60 34 150 32 Q240 34 236 110 L224 104 Q220 60 150 58 Q80 60 76 104Z') },
-  { n: 'Viseira', d: k => P(k, 'M70 84 Q150 64 230 84 L230 92 Q150 74 70 92Z') + P(k, 'M86 88 Q150 76 214 88 Q200 116 150 112 Q100 116 86 88Z', k.c[1]) },
+  { n: 'Viseira', d: k => P(k, 'M66 102 C66 74 108 60 150 60 C192 60 234 74 234 102 L234 110 C200 92 100 92 66 110Z') +
+    P(k, 'M56 106 C96 84 204 84 246 106 C254 116 250 130 238 132 C200 114 100 114 62 132 C50 126 48 114 56 106Z') +
+    `<path d="M170 64 C176 80 180 100 184 124" stroke="${k.c[1]}" stroke-width="9" fill="none"/><path d="M58 108 C98 88 202 88 244 108" stroke="#fff" stroke-opacity=".25" stroke-width="3" fill="none"/>` },
 ];
 
 PARTS.glasses = [null,
@@ -68,6 +70,7 @@ PARTS.prop = [null,
   { n: 'Leque', d: k => held(P(k, 'M0 6 L-34 -30 Q0 -52 34 -30Z') + range(-26, 26, 13).map(x => `<path d="M0 6 L${x} ${-40 + Math.abs(x) * .3}" stroke="${k.c[1]}" stroke-width="1.4"/>`).join(''), -10) },
   { n: 'Balão', d: k => held(`<path d="M0 8 Q-6 -30 0 -70" stroke="${k.c[2]}" stroke-width="1.4" fill="none"/><ellipse cx="0" cy="-90" rx="18" ry="22" fill="${k.c[0]}" ${ol(k, 2)} class="anim-bob"/><ellipse cx="-6" cy="-98" rx="4" ry="6" fill="#fff" opacity=".5"/>`, 10) },
   { n: 'Ursinho', d: k => held(`<circle cx="-9" cy="-30" r="6" fill="${k.c[0]}" ${ol(k, 1.8)}/><circle cx="9" cy="-30" r="6" fill="${k.c[0]}" ${ol(k, 1.8)}/><ellipse cx="0" cy="-4" rx="13" ry="15" fill="${k.c[0]}" ${ol(k, 2)}/><circle cx="0" cy="-22" r="12" fill="${k.c[0]}" ${ol(k, 2)}/><circle cx="-4" cy="-24" r="1.6" fill="${k.c[2]}"/><circle cx="4" cy="-24" r="1.6" fill="${k.c[2]}"/><ellipse cx="0" cy="-18" rx="4" ry="3" fill="${k.c[1]}"/>`, 0) },
+  { n: 'Batata', d: k => held(`<path d="M-11 -16 C-2 -22 12 -18 14 -6 C16 6 14 18 4 22 C-6 26 -16 18 -15 6 C-14 -2 -18 -10 -11 -16Z" fill="${k.c[0]}" ${ol(k, 2.6)}/>` + [[-5, -8], [6, -4], [-3, 6], [7, 10], [-8, 14]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.5" fill="${k.c[1]}"/>`).join(''), 0) },
 ];
 
 PARTS.shield = [null,
