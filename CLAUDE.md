@@ -11,7 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Running
 
 - Open `index.html` directly in a browser, or serve the folder statically (e.g. `npx serve .` / `python -m http.server`). The service worker only registers over http(s).
-- **When publishing a change, bump `CACHE` in `sw.js`.** If you add/rename a JS/CSS file, also add it to `ASSETS` in `sw.js` and to the `<script>` list in `index.html`.
+- **When publishing a change, bump `CACHE` in `sw.js` and `APP_VERSION` in `js/core/core.js` (shown on the menu tablet) to the same version.** If you add/rename a JS/CSS file, also add it to `ASSETS` in `sw.js` and to the `<script>` list in `index.html`.
 
 ## Architecture
 

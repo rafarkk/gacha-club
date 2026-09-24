@@ -95,6 +95,7 @@ h4 { margin: 14px 0 6px; font-weight: 600; color: var(--muted); letter-spacing: 
 .tb-frame { flex: 1; display: flex; flex-direction: column; background: #111; border-radius: 34px; padding: 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, .5), inset 0 0 0 2px #333; }
 .tb-head { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; font-size: 1.35em; background: linear-gradient(180deg, #2a2656, #221f47); border-radius: 20px 20px 0 0; color: #e8e6ff; }
 .tb-status { display: flex; gap: 8px; align-items: center; font-size: .8em; }
+.tb-ver { font-size: .78em; letter-spacing: .04em; color: #a7a4d0; padding: 1px 6px; border: 1px solid #4a4580; border-radius: 6px; background: rgba(0, 0, 0, .25); }
 .batt { display: inline-block; width: 34px; height: 16px; border: 2px solid #6ee7a8; border-radius: 4px; padding: 2px; }
 .batt b { display: block; height: 100%; width: 80%; background: #6ee7a8; border-radius: 1px; }
 .tb-apps { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 1fr; gap: 10px; padding: 18px; background: linear-gradient(160deg, #4a3a8a, #6d4a9a 50%, #3a2f70); border-radius: 0 0 20px 20px; min-height: 0; container-type: size; }

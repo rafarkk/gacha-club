@@ -1,5 +1,8 @@
 /* ============ NÚCLEO: utilitários, cores, som e componentes de interface ============ */
 
+/* Versão do app (aparece no tablet do menu). Mantenha igual ao CACHE de sw.js. */
+const APP_VERSION = 'v39';
+
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

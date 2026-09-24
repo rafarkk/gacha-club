@@ -80,7 +80,7 @@ const Menu = (() => {
       </div>
       <div class="tablet ui">
         <div class="tb-frame">
-          <div class="tb-head"><span>✚ Tablet do Ateliê</span><span class="tb-status">📶 <i class="batt"><b></b></i></span></div>
+          <div class="tb-head"><span>✚ Tablet do Ateliê</span><span class="tb-status"><small class="tb-ver">OS ${APP_VERSION}</small>📶 <i class="batt"><b></b></i></span></div>
           <div class="tb-apps">${APPS.map(a => `<button class="app" data-app="${a.k}"><span class="ai" style="--ac:${a.c}">${ICON[a.i]}</span><b>${a.n}</b></button>`).join('')}</div>
         </div>
       </div>
