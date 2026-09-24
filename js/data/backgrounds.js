@@ -584,6 +584,233 @@ const Scenery = (() => {
       s += `<g class="tw">${Array.from({ length: 10 }, () => `<path d="${star(r() * 960, r() * 400, 5, 1, 4)}" fill="#fff"/>`).join('')}</g>`;
       return wide(s);
     },
+    /* ================= rodada de 20 cenários ================= */
+    /* Sala rosa: parede com galhos pintados, prateleiras, sofá, luminárias pendentes, tapete e piso */
+    pinkroom: (c, u) => {
+      const r = rng('wpink');
+      let s = wdefs(u) + `<defs>${lg(u + 'w', [[0, '#f08a90'], [1, '#e87880']])}${lg(u + 'f', [[0, '#d8a878'], [1, '#e8c098']])}</defs>`;
+      s += `<rect x="-60" y="-420" width="1080" height="800" fill="url(#${u}w)"/>` + [[240, 100], [480, 60], [720, 110]].map(([x, y]) => `<g opacity=".8" stroke="#fff" stroke-width="3" fill="none"><path d="M${x} 340 Q${x - 10} ${y + 120} ${x} ${y}"/>${[0, 1, 2, 3].map(i => `<path d="M${x} ${y + 40 + i * 50} q${i % 2 ? 30 : -30} -20 ${i % 2 ? 44 : -44} -10"/><circle cx="${x + (i % 2 ? 44 : -44)}" cy="${y + 30 + i * 50}" r="6" fill="#fff"/>`).join('')}</g>`).join('');
+      s += [[120, -40], [480, -30], [840, -40]].map(([x]) => `<path d="M${x} -420 L${x} 20" stroke="#fff" stroke-width="2"/><path d="M${x - 20} 20 L${x + 20} 20 L${x + 12} 44 L${x - 12} 44Z" fill="#fff"/><ellipse cx="${x}" cy="60" rx="40" ry="30" fill="#fff6d0" opacity=".3" filter="url(#${u}w2)" class="bg-glow"/>`).join('');
+      s += [[40, 160], [40, 230]].map(([x, y]) => `<rect x="${x}" y="${y}" width="150" height="8" fill="#fff"/>` + Array.from({ length: 5 }, (_, i) => `<rect x="${x + 10 + i * 26}" y="${y - 24 + (i % 2) * 6}" width="16" height="${24 - (i % 2) * 6}" fill="${['#ffd23f', '#5ac8a8', '#fff', '#8a5cff', '#ff8ab8'][i]}"/>`).join('')).join('');
+      s += `<rect x="-60" y="360" width="1080" height="12" fill="#fff"/><rect x="-60" y="372" width="1080" height="190" fill="url(#${u}f)"/>` + Array.from({ length: 13 }, (_, i) => `<path d="M${f1(480 + (-600 + i * 100 - 480) * .35)} 372 L${-600 + i * 100} 560" stroke="#c8966a" stroke-width="2"/>`).join('');
+      s += `<ellipse cx="480" cy="408" rx="300" ry="16" fill="#000" opacity=".12" filter="url(#${u}w1)"/><rect x="240" y="270" width="480" height="70" rx="26" fill="#5ac8c0"/><rect x="220" y="310" width="520" height="70" rx="18" fill="#6ad8d0"/><rect x="220" y="360" width="520" height="30" fill="#48b0a8"/>` + [300, 420, 540].map((x, i) => `<rect x="${x}" y="286" width="90" height="46" rx="14" fill="${['#ffd23f', '#ff8ab8', '#fff'][i]}"/>`).join('') + `<rect x="236" y="390" width="10" height="14" fill="#8a5a3a"/><rect x="714" y="390" width="10" height="14" fill="#8a5a3a"/>`;
+      s += `<rect x="780" y="300" width="150" height="80" rx="4" fill="#ffe8a0"/><rect x="790" y="312" width="130" height="26" fill="#f0d070"/><rect x="790" y="344" width="130" height="26" fill="#f0d070"/>` + potPlant(90, 380, 2.2);
+      s += `<ellipse cx="480" cy="470" rx="300" ry="40" fill="#e84a5f"/><ellipse cx="480" cy="466" rx="260" ry="32" fill="#ff6a7a"/>` + dust(r, 10, 200, 760, 100, 440) + `<rect x="-60" y="540" width="1080" height="460" fill="#e8c098"/>`;
+      return wide(s);
+    },
+    /* Apartamento com vista: janelão com a cidade desfocada, sofás, tapete e luminária */
+    apartment: (c, u) => {
+      const r = rng('wapt');
+      let s = wdefs(u) + `<defs>${lg(u + 's', [[0, '#8ad0f8'], [1, '#e8f6ff']])}</defs><rect x="-60" y="-420" width="1080" height="800" fill="#e8d0a8"/>`;
+      s += `<rect x="0" y="-40" width="960" height="340" fill="url(#${u}s)"/><g filter="url(#${u}w1)">${(() => { let o = '', x = 0; while (x < 960) { const w = 40 + r() * 60, h = 120 + r() * 200; o += `<rect x="${f1(x)}" y="${f1(300 - h)}" width="${f1(w)}" height="${f1(h)}" fill="${['#f8b050', '#f0c070', '#e89040', '#ffd080'][Math.floor(r() * 4)]}"/>` + Array.from({ length: 6 }, (_, j) => `<rect x="${f1(x + 8)}" y="${f1(310 - h + j * 26)}" width="${f1(w - 16)}" height="10" fill="#fff" opacity=".35"/>`).join(''); x += w + 6; } return o; })()}</g>`;
+      s += [0, 240, 480, 720, 960].map(x => `<rect x="${x - 8}" y="-40" width="16" height="340" fill="#f8b030"/>`).join('') + `<rect x="-60" y="296" width="1080" height="14" fill="#f8b030"/>`;
+      s += `<path d="M480 -40 L480 30" stroke="#6a4020" stroke-width="3"/><path d="M430 30 L530 30 L500 70 L460 70Z" fill="#a8743a"/><ellipse cx="480" cy="90" rx="80" ry="30" fill="#fff6d0" opacity=".35" filter="url(#${u}w2)"/>`;
+      s += `<rect x="-60" y="310" width="1080" height="250" fill="#c8303a"/><path d="M-60 310 L1020 310" stroke="#8a1e2a" stroke-width="4"/>` + Array.from({ length: 11 }, (_, i) => `<path d="M${f1(480 + (-520 + i * 100 - 480) * .4)} 310 L${-520 + i * 100} 560" stroke="#a82030" stroke-width="2"/>`).join('');
+      const sofa = (x, w) => `<ellipse cx="${x + w / 2}" cy="392" rx="${w * .55}" ry="12" fill="#000" opacity=".2" filter="url(#${u}w1)"/><rect x="${x}" y="296" width="${w}" height="56" rx="18" fill="#2a8a9a"/><rect x="${x - 10}" y="334" width="${w + 20}" height="54" rx="14" fill="#3aa8b8"/><rect x="${x - 10}" y="370" width="${w + 20}" height="18" fill="#1e6a78"/>`;
+      s += sofa(60, 220) + sofa(620, 280) + `<rect x="320" y="370" width="300" height="80" rx="10" fill="#8a1e2a"/><rect x="370" y="350" width="200" height="16" rx="6" fill="#a8743a"/><rect x="380" y="366" width="8" height="40" fill="#6a4020"/><rect x="552" y="366" width="8" height="40" fill="#6a4020"/>` + potPlant(900, 330, 2.4);
+      s += `<rect x="-60" y="540" width="1080" height="460" fill="#c8303a"/>`;
+      return wide(s);
+    },
+    /* Cozinha: armários superiores, coifa, fogão, geladeira, bancada com banquetas e piso */
+    kitchen: (c, u) => {
+      let s = wdefs(u) + `<rect x="-60" y="-420" width="1080" height="800" fill="#f4ecdc"/>`;
+      s += `<rect x="-60" y="-420" width="1080" height="440" fill="#e8dcc4"/>` + [60, 200, 600, 740].map(x => `<rect x="${x}" y="-40" width="130" height="150" rx="4" fill="#f8f0e0" stroke="#d8c8a8" stroke-width="4"/><rect x="${x + 55}" y="80" width="20" height="5" rx="2" fill="#a89878"/>`).join('');
+      s += `<path d="M380 -40 L580 -40 L600 110 L360 110Z" fill="#e8e0d0" stroke="#c8b898" stroke-width="4"/><rect x="360" y="104" width="240" height="14" fill="#c8b898"/>`;
+      s += `<rect x="-60" y="240" width="1080" height="16" fill="#8a7050"/><rect x="-60" y="256" width="1080" height="110" fill="#f0e4cc"/>` + [0, 1, 2, 3, 4, 5].map(i => `<rect x="${-40 + i * 160}" y="266" width="140" height="92" rx="4" fill="#f8f0e0" stroke="#d8c8a8" stroke-width="3"/><rect x="${20 + i * 160}" y="276" width="24" height="5" rx="2" fill="#a89878"/>`).join('');
+      s += `<rect x="400" y="200" width="160" height="42" rx="4" fill="#3a3a44"/>` + [430, 470, 510].map(x => `<ellipse cx="${x}" cy="210" rx="14" ry="4" fill="#1a1a22"/>`).join('') + `<rect x="410" y="256" width="140" height="100" fill="#3a3a44"/><rect x="424" y="276" width="112" height="60" rx="6" fill="#1a1a22"/><rect x="430" y="282" width="100" height="10" fill="#fff" opacity=".15"/>`;
+      s += `<rect x="-40" y="40" width="130" height="330" rx="8" fill="#e8e8f0" stroke="#b8b8c8" stroke-width="4"/><path d="M-40 160 L90 160" stroke="#b8b8c8" stroke-width="4"/><rect x="70" y="80" width="8" height="50" rx="3" fill="#8a8a9a"/><rect x="70" y="200" width="8" height="70" rx="3" fill="#8a8a9a"/>`;
+      s += `<rect x="-60" y="366" width="1080" height="200" fill="#e0d4bc"/>` + Array.from({ length: 12 }, (_, i) => `<path d="M${f1(480 + (-600 + i * 110 - 480) * .35)} 366 L${-600 + i * 110} 560" stroke="#c8b898" stroke-width="2"/>`).join('') + [400, 450, 520].map(y => `<path d="M-60 ${y} L1020 ${y}" stroke="#c8b898" stroke-width="2"/>`).join('');
+      s += `<g filter="url(#${u}w2)"><rect x="620" y="380" width="360" height="60" rx="6" fill="#f0e4cc"/><rect x="620" y="370" width="360" height="16" fill="#8a7050"/>` + [680, 780, 880].map(x => `<rect x="${x - 24}" y="440" width="48" height="12" rx="4" fill="#3a3a44"/><path d="M${x} 452 L${x} 560" stroke="#8a8a9a" stroke-width="6"/>`).join('') + `</g>`;
+      return wide(s + `<rect x="-60" y="540" width="1080" height="460" fill="#e0d4bc"/>`);
+    },
+    /* Biblioteca: estantes de madeira em perspectiva, janela em arco com luz, piso de tábuas e poeira */
+    library: (c, u) => {
+      const r = rng('wlib');
+      let s = wdefs(u) + `<defs>${lg(u + 'f', [[0, '#a8743a'], [1, '#d8a060']])}${lg(u + 'ray', [[0, '#fff6d0', .5], [1, '#fff6d0', 0]])}</defs><rect x="-60" y="-420" width="1080" height="800" fill="#6a4020"/>`;
+      const shelf = (x, w, y0, y1) => `<rect x="${x}" y="${y0}" width="${w}" height="${y1 - y0}" fill="#8a5a2a" stroke="#4a2a10" stroke-width="4"/>` + Array.from({ length: Math.floor((y1 - y0 - 20) / 50) }, (_, j) => { const y = y0 + 12 + j * 50; return `<rect x="${x + 6}" y="${y + 38}" width="${w - 12}" height="6" fill="#4a2a10"/>` + Array.from({ length: Math.floor((w - 16) / 12) }, (_, i) => `<rect x="${x + 8 + i * 12}" y="${y + 6 + (i % 3) * 4}" width="10" height="${32 - (i % 3) * 4}" fill="${['#8a1e2a', '#2a5a8a', '#c8a040', '#3a7a4a', '#6a3a8a'][Math.floor(r() * 5)]}"/>`).join(''); }).join('');
+      s += `<g filter="url(#${u}w1)">${shelf(260, 440, 40, 330)}</g>`;
+      s += `<path d="M420 40 L420 -80 Q480 -130 540 -80 L540 40Z" fill="#fff6d0"/><path d="M480 -118 L480 40 M420 -20 L540 -20" stroke="#6a4020" stroke-width="6"/>` + `<path d="M420 40 L540 40 L700 560 L260 560Z" fill="url(#${u}ray)" class="bg-rays"/>`;
+      s += shelf(-40, 260, -60, 350) + shelf(740, 260, -60, 350);
+      s += `<rect x="-60" y="346" width="1080" height="220" fill="url(#${u}f)"/>` + Array.from({ length: 13 }, (_, i) => `<path d="M${f1(480 + (-600 + i * 100 - 480) * .3)} 346 L${-600 + i * 100} 560" stroke="#8a5a2a" stroke-width="2.4"/>`).join('');
+      s += `<ellipse cx="480" cy="470" rx="220" ry="30" fill="#8a1e2a"/><ellipse cx="480" cy="466" rx="190" ry="24" fill="#a82838"/>` + dust(r, 18, 300, 700, 60, 480);
+      return wide(s + `<rect x="-60" y="540" width="1080" height="460" fill="#d8a060"/>`);
+    },
+    /* Muro de grafite: céu noturno, prédios ao fundo, muro com pichação neon, calçada e poste */
+    graffiti: (c, u) => {
+      const r = rng('wgraf');
+      let s = wdefs(u) + `<defs>${lg(u + 's', [[0, '#0a0a2a'], [1, '#3a2a6a']])}</defs><rect x="-60" y="-420" width="1080" height="800" fill="url(#${u}s)"/>`;
+      for (let i = 0; i < 40; i++) s += `<circle cx="${f1(r() * 960)}" cy="${f1(-100 + r() * 200)}" r="1" fill="#fff" opacity=".6"/>`;
+      s += `<g filter="url(#${u}w1)" opacity=".8">${(() => { let o = '', x = -40; while (x < 1000) { const w = 60 + r() * 80, h = 100 + r() * 140; o += `<rect x="${f1(x)}" y="${f1(160 - h)}" width="${f1(w)}" height="${f1(h + 40)}" fill="#1a1a3a"/>`; for (let j = 0; j < 8; j++) if (r() > .4) o += `<rect x="${f1(x + 10 + r() * (w - 20))}" y="${f1(170 - h + r() * h)}" width="6" height="8" fill="#ffd070" opacity=".7"/>`; x += w + 8; } return o; })()}</g>`;
+      s += `<rect x="-60" y="130" width="1080" height="250" fill="#2a2a44"/>` + Array.from({ length: 22 }, (_, i) => `<path d="M${-60 + i * 50} 130 L${-60 + i * 50} 380" stroke="#1e1e34" stroke-width="3"/>`).join('') + `<rect x="-60" y="126" width="1080" height="10" fill="#3a3a58"/>`;
+      s += `<g filter="url(#${u}wg)" class="pulse"><text x="480" y="300" text-anchor="middle" font-size="140" font-weight="700" font-family="'Fredoka',sans-serif" fill="none" stroke="#6ae8ff" stroke-width="6">GRAFFITI</text></g><path d="M120 200 Q180 160 240 210 M700 180 l40 60 l40 -60" stroke="#ff5ad8" stroke-width="10" fill="none" stroke-linecap="round" opacity=".8"/><circle cx="880" cy="220" r="36" fill="none" stroke="#ffd23f" stroke-width="8"/>`;
+      s += `<rect x="-60" y="380" width="1080" height="60" fill="#5a5a70"/><rect x="-60" y="380" width="1080" height="6" fill="#8a8aa0"/><rect x="-60" y="440" width="1080" height="120" fill="#3a3a4a"/><path d="M-60 500 L1020 500" stroke="#f0e070" stroke-width="5" stroke-dasharray="50 30"/>`;
+      s += `<path d="M60 380 L60 -60 Q60 -80 90 -80 L130 -80" stroke="#1a1a2a" stroke-width="10" fill="none"/><ellipse cx="140" cy="-70" rx="20" ry="8" fill="#ffd070"/><path d="M120 -70 L60 380 L220 380Z" fill="#ffd070" opacity=".12"/>`;
+      return wide(s + `<rect x="-60" y="540" width="1080" height="460" fill="#3a3a4a"/>`);
+    },
+    /* Metrô: vagão por dentro em perspectiva, janelas com túnel passando, bancos e barras */
+    subway: (c, u) => {
+      let s = wdefs(u) + `<rect x="-60" y="-420" width="1080" height="800" fill="#dfe6ee"/>`;
+      s += `<rect x="-60" y="-420" width="1080" height="440" fill="#c8d0dc"/>` + [120, 480, 840].map(x => `<rect x="${x - 60}" y="0" width="120" height="10" rx="4" fill="#fff"/><rect x="${x - 60}" y="10" width="120" height="30" fill="#fffbe6" opacity=".4" filter="url(#${u}w2)"/>`).join('');
+      s += `<path d="M-60 60 L1020 60" stroke="#9aa4b0" stroke-width="6"/>` + Array.from({ length: 12 }, (_, i) => `<path d="M${-40 + i * 90} 60 L${-40 + i * 90} 90" stroke="#9aa4b0" stroke-width="3"/><ellipse cx="${-40 + i * 90}" cy="96" rx="8" ry="6" fill="none" stroke="#9aa4b0" stroke-width="3"/>`).join('');
+      s += [80, 320, 560, 800].map(x => `<rect x="${x}" y="120" width="160" height="110" rx="10" fill="#2a3a5a"/><g class="bg-streak" style="animation-duration:1.2s">${[0, 1, 2].map(i => `<rect x="${x + 10}" y="${140 + i * 30}" width="140" height="4" fill="#ffd070" opacity=".6"/>`).join('')}</g><rect x="${x}" y="120" width="160" height="110" rx="10" fill="none" stroke="#9aa4b0" stroke-width="6"/>`).join('');
+      s += `<rect x="-60" y="256" width="1080" height="16" fill="#4a7ac8"/><rect x="-60" y="272" width="1080" height="70" fill="#3a6ab8"/><rect x="-60" y="336" width="1080" height="14" fill="#2a4a8a"/>` + [100, 400, 700].map(x => `<path d="M${x} 60 L${x} 350" stroke="#c8d0dc" stroke-width="10"/><path d="M${x} 60 L${x} 350" stroke="#fff" stroke-width="3" transform="translate(-2 0)"/>`).join('');
+      s += `<rect x="-60" y="350" width="1080" height="210" fill="#b8c0cc"/>` + Array.from({ length: 11 }, (_, i) => `<path d="M${f1(480 + (-520 + i * 100 - 480) * .35)} 350 L${-520 + i * 100} 560" stroke="#a0a8b4" stroke-width="2"/>`).join('') + `<path d="M-60 460 L1020 460" stroke="#ffd23f" stroke-width="8" stroke-dasharray="30 20"/>`;
+      return wide(s + `<rect x="-60" y="540" width="1080" height="460" fill="#b8c0cc"/>`);
+    },
+    /* Terraço da escola: céu com nuvens, grade, prédio da escada, piso de concreto em perspectiva */
+    rooftop: (c, u) => {
+      let s = wdefs(u) + `<defs>${lg(u + 's', [[0, '#2a8ae0'], [1, '#bfe8ff']])}</defs><rect x="-60" y="-420" width="1080" height="760" fill="url(#${u}s)"/>` + sunW(u, 820, 40, 60);
+      s += cloudW(200, 60, 1.4) + cloudW(620, 120, 1, 'bg-drift-w2') + cloudW(900, 180, .8);
+      s += `<g filter="url(#${u}w1)" opacity=".7">${[[40, 220, 60, 80], [140, 200, 50, 100], [760, 210, 70, 90], [860, 190, 60, 110]].map(([x, y, w, h]) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#9ab8d0"/>`).join('')}</g>`;
+      s += `<rect x="-60" y="240" width="1080" height="8" fill="#6a7a8a"/>` + Array.from({ length: 44 }, (_, i) => `<path d="M${-60 + i * 25} 248 L${-60 + i * 25} 330" stroke="#6a7a8a" stroke-width="3"/>`).join('') + `<rect x="-60" y="326" width="1080" height="6" fill="#6a7a8a"/>`;
+      s += `<rect x="-60" y="60" width="200" height="290" fill="#e8ecf0"/><rect x="140" y="60" width="30" height="290" fill="#c8ccd4"/><rect x="0" y="180" width="80" height="170" fill="#8a9aaa"/><rect x="60" y="260" width="8" height="14" rx="2" fill="#dde"/><rect x="-60" y="52" width="230" height="12" fill="#b8bcc4"/>`;
+      s += `<rect x="-60" y="332" width="1080" height="230" fill="#c8ccd0"/>` + Array.from({ length: 12 }, (_, i) => `<path d="M${f1(480 + (-600 + i * 110 - 480) * .3)} 332 L${-600 + i * 110} 560" stroke="#b0b4b8" stroke-width="2"/>`).join('') + [360, 400, 460].map(y => `<path d="M-60 ${y} L1020 ${y}" stroke="#b0b4b8" stroke-width="2"/>`).join('');
+      s += `<ellipse cx="300" cy="400" rx="140" ry="16" fill="#6a7a8a" opacity=".25"/>`;
+      return wide(s + `<rect x="-60" y="540" width="1080" height="460" fill="#c8ccd0"/>`);
+    },
+    /* Sala de aula (lousa): lousa verde com contas, mesa do professor, carteiras em primeiro plano desfocadas */
+    classroom: (c, u) => {
+      let s = wdefs(u) + `<rect x="-60" y="-420" width="1080" height="800" fill="#f0e0c0"/><rect x="-60" y="320" width="1080" height="20" fill="#c8a878"/>`;
+      s += `<rect x="60" y="-20" width="840" height="300" rx="6" fill="#7a5030"/><rect x="76" y="-6" width="808" height="272" fill="#2e6a4a"/><path d="M76 -6 L884 -6 L884 266 L800 266 L200 -6Z" fill="#fff" opacity=".04"/>`;
+      s += `<g stroke="#eaf6ee" stroke-width="3" fill="none" opacity=".85"><path d="M140 60 L240 60 L140 160Z"/><text x="300" y="80" font-size="30" fill="#eaf6ee" stroke="none" font-family="'Fredoka',sans-serif">a² + b² = c²</text><text x="300" y="140" font-size="26" fill="#eaf6ee" stroke="none" font-family="'Fredoka',sans-serif">sen x = ?</text><circle cx="760" cy="80" r="44"/><path d="M760 36 L760 124 M716 80 L804 80"/><path d="M620 200 L700 170 L780 200" /></g>`;
+      s += `<rect x="60" y="278" width="840" height="12" fill="#a87a50"/><rect x="200" y="272" width="30" height="8" rx="2" fill="#fff"/><rect x="240" y="272" width="20" height="8" rx="2" fill="#ffb3c7"/><path d="M620 250 L700 270 L640 280Z" fill="#ffd23f" stroke="#a87a30" stroke-width="3"/>`;
+      s += `<rect x="-60" y="340" width="1080" height="220" fill="#d8b888"/>` + Array.from({ length: 13 }, (_, i) => `<path d="M${f1(480 + (-600 + i * 100 - 480) * .3)} 340 L${-600 + i * 100} 560" stroke="#b89868" stroke-width="2"/>`).join('');
+      s += `<rect x="360" y="290" width="240" height="18" rx="3" fill="#b8844a"/><rect x="370" y="308" width="220" height="70" fill="#a8743a"/>`;
+      s += `<g filter="url(#${u}w2)">${[80, 800].map(x => `<rect x="${x - 70}" y="440" width="140" height="18" rx="3" fill="#c8945a"/><rect x="${x - 60}" y="458" width="10" height="100" fill="#6a6a7a"/><rect x="${x + 50}" y="458" width="10" height="100" fill="#6a6a7a"/>`).join('')}</g>`;
+      return wide(s + `<rect x="-60" y="540" width="1080" height="460" fill="#d8b888"/>`);
+    },
+    /* Frente da escola: prédio com janelas azuis, relógio, portão, árvores e calçada */
+    schoolfront: (c, u) => {
+      let s = wdefs(u) + `<defs>${lg(u + 's', [[0, '#5ab8f0'], [1, '#dff4ff']])}</defs><rect x="-60" y="-420" width="1080" height="760" fill="url(#${u}s)"/>` + cloudW(160, 20, 1) + cloudW(760, 0, .9, 'bg-drift-w2');
+      s += `<rect x="60" y="40" width="840" height="300" fill="#f4f0e8"/><rect x="60" y="40" width="840" height="14" fill="#c84a3a"/><rect x="400" y="0" width="160" height="340" fill="#e8e0d0"/><rect x="400" y="-6" width="160" height="14" fill="#c84a3a"/><circle cx="480" cy="50" r="30" fill="#fff" stroke="#6a6a7a" stroke-width="5"/><path d="M480 50 L480 32 M480 50 L494 56" stroke="#2b2140" stroke-width="3" stroke-linecap="round"/>`;
+      s += [80, 160, 240, 320, 580, 660, 740, 820].map(x => [80, 170, 260].map(y => `<rect x="${x}" y="${y}" width="60" height="60" fill="#6ab0e0" stroke="#fff" stroke-width="4"/><path d="M${x + 4} ${y + 4} L${x + 30} ${y + 4} L${x + 4} ${y + 40}Z" fill="#fff" opacity=".35"/>`).join('')).join('');
+      s += `<rect x="430" y="240" width="100" height="100" fill="#4a6a8a"/><path d="M480 240 L480 340" stroke="#fff" stroke-width="3"/>`;
+      s += `<g filter="url(#${u}w1)">${treeR(40, 340, 1.4, '#3a9a48', '#7ad060')}${treeR(920, 340, 1.4, '#3a9a48', '#7ad060')}</g>`;
+      s += `<rect x="-60" y="336" width="1080" height="20" fill="#9aa4b0"/>` + Array.from({ length: 44 }, (_, i) => `<path d="M${-60 + i * 25} 356 L${-60 + i * 25} 400" stroke="#6a7480" stroke-width="3"/>`).join('') + `<rect x="-60" y="352" width="1080" height="6" fill="#6a7480"/>`;
+      s += `<rect x="-60" y="400" width="1080" height="160" fill="#d8d0c0"/>` + Array.from({ length: 12 }, (_, i) => `<path d="M${f1(480 + (-600 + i * 110 - 480) * .3)} 400 L${-600 + i * 110} 560" stroke="#c0b8a8" stroke-width="2"/>`).join('') + bush(120, 420, 30, '#3a9a48', '#7ad060') + bush(840, 420, 30, '#3a9a48', '#7ad060');
+      return wide(s + `<rect x="-60" y="540" width="1080" height="460" fill="#d8d0c0"/>`);
+    },
+    /* Estrada na montanha: montanhas nevadas em planos, pinheiros, campo e estrada com faixas */
+    mountainroad: (c, u) => {
+      let s = wdefs(u) + `<defs>${lg(u + 's', [[0, '#5ab0e8'], [1, '#dff4ff']])}</defs><rect x="-60" y="-420" width="1080" height="760" fill="url(#${u}s)"/>` + cloudW(700, 30, 1.2);
+      const peak = (x, y, w, h, col, snow) => `<path d="M${x - w} ${y} L${x} ${y - h} L${x + w} ${y}Z" fill="${col}"/><path d="M${x} ${y - h} L${x + w * .3} ${y - h * .65} L${x + w * .1} ${y - h * .7} L${x - w * .1} ${y - h * .6} L${x - w * .3} ${y - h * .68}Z" fill="${snow}"/><path d="M${x} ${y - h} L${x + w} ${y} L${x + w * .2} ${y}Z" fill="#000" opacity=".15"/>`;
+      s += `<g opacity=".75" filter="url(#${u}w1)">${peak(160, 260, 200, 240, '#8aa8c8', '#fff')}${peak(520, 260, 240, 280, '#8aa8c8', '#fff')}${peak(860, 260, 200, 220, '#8aa8c8', '#fff')}</g>` + haze(u, 200, 80);
+      s += peak(300, 290, 180, 200, '#6a8ab0', '#f4f8ff') + peak(740, 290, 200, 230, '#6a8ab0', '#f4f8ff');
+      s += `<g filter="url(#${u}w2)" opacity=".9">${Array.from({ length: 16 }, (_, i) => pineW(i * 64 - 20, 300, 80 + (i % 3) * 20, '#2a6a4a', '#1a4a30')).join('')}</g>`;
+      s += `<path d="M-60 290 Q480 270 1020 290 L1020 560 L-60 560Z" fill="#8ad060"/><path d="M-60 290 Q480 270 1020 290" stroke="#c0f080" stroke-width="4" fill="none"/>`;
+      s += `<path d="M-60 420 Q480 380 1020 420 L1020 520 Q480 490 -60 520Z" fill="#6a6a78"/><path d="M-60 470 Q480 436 1020 470" stroke="#fff" stroke-width="5" fill="none" stroke-dasharray="40 30"/><path d="M-60 520 Q480 490 1020 520 L1020 560 L-60 560Z" fill="#6ac048"/>`;
+      return wide(s + `<rect x="-60" y="540" width="1080" height="460" fill="#6ac048"/>`);
+    },
+    /* Floresta encantada: troncos escuros em 3 planos, névoa verde, cogumelos brilhando e vaga-lumes */
+    darkforest: (c, u) => {
+      const r = rng('wdf');
+      let s = wdefs(u) + `<defs>${lg(u + 's', [[0, '#051a10'], [1, '#1a4a2a']])}</defs><rect x="-60" y="-420" width="1080" height="980" fill="url(#${u}s)"/>`;
+      const trunks = (n, y, w, col, blur) => `<g ${blur ? `filter="url(#${u}${blur})"` : ''}>${Array.from({ length: n }, () => { const x = r() * 1000 - 20; return `<path d="M${f1(x)} ${y} Q${f1(x + 10)} -100 ${f1(x - 6)} -420 L${f1(x + w)} -420 Q${f1(x + w + 14)} -100 ${f1(x + w)} ${y}Z" fill="${col}"/>`; }).join('')}</g>`;
+      s += trunks(14, 340, 30, '#123a22', 'w2') + haze(u, 180, 160, '#6aff9a');
+      s += trunks(8, 380, 50, '#0a2a16', 'w1');
+      s += `<path d="M-60 360 Q480 330 1020 360 L1020 560 L-60 560Z" fill="#0e2a18"/>` + Array.from({ length: 30 }, () => `<ellipse cx="${f1(r() * 960)}" cy="${f1(370 + r() * 160)}" rx="${f1(10 + r() * 30)}" ry="${f1(4 + r() * 8)}" fill="#1e5a30"/>`).join('');
+      s += [[160, 420], [320, 460], [700, 440], [820, 480]].map(([x, y]) => `<ellipse cx="${x}" cy="${y - 10}" rx="30" ry="20" fill="#6affc8" opacity=".3" filter="url(#${u}w3)" class="bg-glow"/><rect x="${x - 4}" y="${y - 14}" width="8" height="16" fill="#dff"/><path d="M${x - 16} ${y - 12} Q${x} ${y - 32} ${x + 16} ${y - 12}Z" fill="#3affb0"/>`).join('');
+      s += trunks(3, 560, 90, '#051a0c');
+      for (let i = 0; i < 26; i++) s += `<circle class="w-wander" style="animation-delay:-${f1(r() * 5)}s;animation-duration:${f1(4 + r() * 4)}s" cx="${f1(r() * 960)}" cy="${f1(r() * 480)}" r="${f1(2 + r() * 3)}" fill="#eaff80" filter="url(#${u}wg)"/>`;
+      return wide(s);
+    },
+    /* Ilha tropical: sol, céu claro, mar com ondas, ilha de areia com coqueiros */
+    island: (c, u) => {
+      const r = rng('wisl');
+      let s = wdefs(u) + `<defs>${lg(u + 's', [[0, '#8ad8f8'], [1, '#e8f8ff']])}${lg(u + 'sea', [[0, '#3ac8e8'], [1, '#1a8ac8']])}</defs><rect x="-60" y="-420" width="1080" height="700" fill="url(#${u}s)"/>` + sunW(u, 480, 0, 50, '#fff0a0') + cloudW(160, 60, .8) + cloudW(800, 40, 1, 'bg-drift-w2');
+      s += `<rect x="-60" y="220" width="1080" height="340" fill="url(#${u}sea)"/><g class="bg-shimmer">${Array.from({ length: 24 }, () => `<rect x="${f1(r() * 960)}" y="${f1(230 + r() * 300)}" width="${f1(20 + r() * 40)}" height="3" rx="1.5" fill="#fff" opacity=".6"/>`).join('')}</g>`;
+      s += `<ellipse cx="480" cy="340" rx="420" ry="60" fill="#7ae8f0" opacity=".6"/><ellipse cx="480" cy="330" rx="380" ry="46" fill="#f4e0a8"/><ellipse cx="480" cy="322" rx="340" ry="32" fill="#fff0c0"/>`;
+      const palm = (x, y, sc, fl) => `<g transform="translate(${x} ${y}) scale(${sc * fl} ${sc})"><path d="M0 0 Q-10 -80 20 -160" stroke="#8a5a2a" stroke-width="12" fill="none" stroke-linecap="round"/>${[-150, -110, -70, -30, 10].map(a => { const rr = a * Math.PI / 180; return `<path d="M20 -160 Q${f1(20 + Math.cos(rr) * 40)} ${f1(-180 + Math.sin(rr) * 30)} ${f1(20 + Math.cos(rr) * 80)} ${f1(-150 + Math.sin(rr) * 60 + 30)}" stroke="#2a9a3a" stroke-width="12" fill="none" stroke-linecap="round"/>`; }).join('')}</g>`;
+      s += `<g class="bg-plant" style="animation-duration:6s">${palm(260, 320, 1, 1)}${palm(700, 320, 1.1, -1)}</g>`;
+      s += `<g class="bg-wave">${[380, 430, 490].map((y, i) => `<path d="M-80 ${y} q30 -10 60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0" stroke="#fff" stroke-width="3" fill="none" opacity="${.6 - i * .15}"/>`).join('')}</g>`;
+      return wide(s + `<rect x="-60" y="540" width="1080" height="460" fill="#1a8ac8"/>`);
+    },
+    /* Iglu: céu e montanhas de gelo, iglu com blocos, neve caindo e montinhos de neve */
+    igloo: (c, u) => {
+      const r = rng('wigl');
+      let s = wdefs(u) + `<defs>${lg(u + 's', [[0, '#3ac0d8'], [1, '#bff0f8']])}</defs><rect x="-60" y="-420" width="1080" height="760" fill="url(#${u}s)"/>`;
+      s += `<g opacity=".7" filter="url(#${u}w1)">${ridgeW([[-60, 250], [120, 150], [260, 230], [420, 140], [600, 240], [760, 160], [1020, 230]], '#dff6fb')}</g>`;
+      s += `<path d="M-60 300 Q480 250 1020 300 L1020 560 L-60 560Z" fill="#f4fbff"/><path d="M480 290 Q480 250 1020 300 L1020 380 Q700 330 480 330Z" fill="#c8e8f4" opacity=".6"/>`;
+      s += `<path d="M300 400 A180 170 0 0 1 660 400Z" fill="#e8f6fb" stroke="#9ac8dc" stroke-width="4"/>` + [340, 300, 260].map((y, i) => `<path d="M${320 + i * 30} ${y} L${640 - i * 30} ${y}" stroke="#9ac8dc" stroke-width="3"/>`).join('') + Array.from({ length: 12 }, (_, i) => `<path d="M${330 + i * 28} ${400 - (i % 2) * 30} l0 -30" stroke="#9ac8dc" stroke-width="3"/>`).join('') + `<path d="M430 400 L430 340 A50 50 0 0 1 530 340 L530 400Z" fill="#2a6a8a"/><path d="M430 400 L430 340 A50 50 0 0 1 530 340" fill="none" stroke="#9ac8dc" stroke-width="6"/>`;
+      s += `<path d="M300 400 A180 170 0 0 1 480 230 L480 400Z" fill="#fff" opacity=".35"/>`;
+      s += [[120, 470, 90], [820, 470, 100], [480, 510, 140]].map(([x, y, w]) => `<ellipse cx="${x}" cy="${y}" rx="${w}" ry="24" fill="#fff"/><ellipse cx="${x + 10}" cy="${y + 6}" rx="${w * .9}" ry="18" fill="#d8eef6"/>`).join('');
+      for (let i = 0; i < 50; i++) s += `<g class="w-fall-sway" style="animation-duration:${f1(6 + r() * 6)}s;animation-delay:-${f1(r() * 10)}s"><circle cx="${f1(r() * 960)}" cy="-10" r="${f1(2 + r() * 3)}" fill="#fff"/></g>`;
+      return wide(s + `<rect x="-60" y="540" width="1080" height="460" fill="#f4fbff"/>`);
+    },
+    /* Natal: sala com árvore iluminada, meias na janela, sofá, presentes e piso */
+    christmas: (c, u) => {
+      let s = wdefs(u) + `<rect x="-60" y="-420" width="1080" height="800" fill="#f4ead8"/><rect x="-60" y="340" width="1080" height="14" fill="#c8a878"/>`;
+      s += `<rect x="200" y="-40" width="360" height="180" fill="#2a3a6a"/>` + Array.from({ length: 14 }, (_, i) => `<circle cx="${210 + i * 26}" cy="${-20 + (i % 3) * 50}" r="2" fill="#fff"/>`).join('') + `<rect x="200" y="-40" width="360" height="180" fill="none" stroke="#6a4020" stroke-width="10"/><path d="M380 -40 L380 140" stroke="#6a4020" stroke-width="8"/>` + [240, 320, 440, 520].map((x, i) => `<path d="M${x} 140 L${x} 160 L${x + 20} 160 L${x + 26} 184 L${x - 2} 184Z" fill="${['#e84a5f', '#3a9a48', '#e84a5f', '#3a9a48'][i]}"/><rect x="${x - 4}" y="138" width="28" height="8" fill="#fff"/>`).join('');
+      s += `<rect x="-60" y="354" width="1080" height="210" fill="#a8743a"/>` + Array.from({ length: 12 }, (_, i) => `<path d="M${f1(480 + (-600 + i * 110 - 480) * .3)} 354 L${-600 + i * 110} 560" stroke="#8a5a2a" stroke-width="2"/>`).join('');
+      s += `<ellipse cx="300" cy="400" rx="220" ry="14" fill="#000" opacity=".15"/><rect x="100" y="260" width="400" height="70" rx="20" fill="#6a6a78"/><rect x="80" y="300" width="440" height="80" rx="16" fill="#7a7a88"/><rect x="80" y="360" width="440" height="20" fill="#5a5a68"/>`;
+      const tr = 780;
+      s += `<rect x="${tr - 16}" y="360" width="32" height="40" fill="#6a4020"/>` + [0, 1, 2].map(i => `<path d="M${tr} ${40 + i * 80} L${tr - 90 - i * 30} ${180 + i * 80} L${tr + 90 + i * 30} ${180 + i * 80}Z" fill="#2a8a3a"/><path d="M${tr} ${40 + i * 80} L${tr + 90 + i * 30} ${180 + i * 80} L${tr} ${180 + i * 80}Z" fill="#1a6a2a"/>`).reverse().join('');
+      s += Array.from({ length: 18 }, (_, i) => { const x = tr - 90 + (i * 37) % 180, y = 100 + (i * 53) % 250; return `<circle class="tw" style="animation-delay:-${(i * .3).toFixed(1)}s" cx="${x}" cy="${y}" r="6" fill="${['#ffd23f', '#e84a5f', '#5ac8ff'][i % 3]}" filter="url(#${u}wg)"/>`; }).join('') + `<path d="${star(tr, 34, 26, 11)}" fill="#ffd23f" filter="url(#${u}wg)"/>`;
+      s += [[680, 380, '#e84a5f'], [730, 390, '#3a8ae0'], [870, 384, '#ffd23f']].map(([x, y, col]) => `<rect x="${x - 26}" y="${y - 30}" width="52" height="40" fill="${col}" stroke="#2b2140" stroke-width="3"/><rect x="${x - 4}" y="${y - 30}" width="8" height="40" fill="#fff"/><path d="M${x} ${y - 30} l-12 -10 l0 10 M${x} ${y - 30} l12 -10 l0 10" stroke="#fff" stroke-width="3" fill="none"/>`).join('');
+      return wide(s + `<rect x="-60" y="540" width="1080" height="460" fill="#a8743a"/>`);
+    },
+    /* Planeta alienígena: céu roxo com planetas, crateras em planos e meteoros */
+    alien: (c, u) => {
+      const r = rng('walien');
+      let s = wdefs(u) + `<defs>${lg(u + 's', [[0, '#1a0a3a'], [1, '#6a2a8a']])}<radialGradient id="${u}pl" cx=".35" cy=".3"><stop offset="0" stop-color="#ff9ae0"/><stop offset="1" stop-color="#8a2a8a"/></radialGradient></defs><rect x="-60" y="-420" width="1080" height="800" fill="url(#${u}s)"/>`;
+      for (let i = 0; i < 90; i++) s += `<circle cx="${f1(r() * 960)}" cy="${f1(-200 + r() * 460)}" r="${f1(.6 + r() * 1.6)}" fill="#fff" ${i % 5 ? '' : 'class="tw"'}/>`;
+      s += `<circle cx="760" cy="80" r="90" fill="url(#${u}pl)"/><path d="M680 60 Q760 30 840 70" stroke="#ffc8f0" stroke-width="6" fill="none" opacity=".6"/><circle cx="160" cy="40" r="30" fill="#8a6ad8"/>`;
+      s += `<defs><linearGradient id="${u}mt" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>` + [0, 1, 2].map(i => `<path class="w-meteor" style="animation-duration:${4 + i}s;animation-delay:-${i * 1.6}s" d="M${700 - i * 200} ${20 + i * 40} l140 -70" stroke="url(#${u}mt)" stroke-width="4" stroke-linecap="round"/>`).join('');
+      s += `<g opacity=".7" filter="url(#${u}w1)">${ridgeW([[-60, 330], [160, 290], [360, 320], [560, 280], [800, 320], [1020, 300]], '#8a3a5a')}</g>`;
+      s += `<path d="M-60 380 Q480 330 1020 380 L1020 560 L-60 560Z" fill="#e8703a"/><path d="M-60 380 Q480 330 1020 380" stroke="#ffb070" stroke-width="5" fill="none"/>` + [[160, 430, 70], [520, 480, 100], [840, 440, 60], [340, 400, 40]].map(([x, y, w]) => `<ellipse cx="${x}" cy="${y}" rx="${w}" ry="${w * .28}" fill="#b04a2a"/><ellipse cx="${x}" cy="${y - 4}" rx="${w * .8}" ry="${w * .2}" fill="#8a3018"/><path d="M${x - w} ${y} Q${x} ${y - w * .4} ${x + w} ${y}" stroke="#ffa060" stroke-width="3" fill="none"/>`).join('');
+      return wide(s + `<rect x="-60" y="540" width="1080" height="460" fill="#e8703a"/>`);
+    },
+    /* Pirâmides: céu, dunas em planos, pirâmides com face iluminada e sombreada, sol forte */
+    pyramids: (c, u) => {
+      let s = wdefs(u) + `<defs>${lg(u + 's', [[0, '#5ab8f0'], [1, '#e8f6ff']])}</defs><rect x="-60" y="-420" width="1080" height="760" fill="url(#${u}s)"/>` + sunW(u, 180, 30, 60, '#fff4b0') + cloudW(540, 40, .8) + cloudW(860, 90, .6, 'bg-drift-w2');
+      const pyr = (x, y, w, h, blur) => `<g ${blur ? `filter="url(#${u}${blur})" opacity=".8"` : ''}><path d="M${x - w} ${y} L${x} ${y - h} L${x + w} ${y}Z" fill="#f0c070"/><path d="M${x} ${y - h} L${x + w} ${y} L${x + w * .15} ${y}Z" fill="#c8904a"/>${Array.from({ length: 6 }, (_, i) => `<path d="M${x - w + (w * i / 6)} ${y - h * i / 6} L${x + w * .15 - w * .15 * i / 6} ${y - h * i / 6}" stroke="#d8a060" stroke-width="2"/>`).join('')}</g>`;
+      s += pyr(820, 290, 120, 140, 'w1') + pyr(560, 300, 200, 240) + pyr(820, 320, 150, 170);
+      s += haze(u, 250, 80, '#fff0c0');
+      s += `<path d="M-60 300 Q300 270 600 300 Q800 320 1020 290 L1020 560 L-60 560Z" fill="#f4d890"/><path d="M-60 380 Q400 340 800 390 Q920 400 1020 380 L1020 560 L-60 560Z" fill="#ecc878"/><path d="M-60 460 Q300 430 700 470 L1020 450 L1020 560 L-60 560Z" fill="#e0b860"/>`;
+      s += `<g class="bg-shimmer" opacity=".25"><rect x="-60" y="290" width="1080" height="16" fill="#fff4d0" filter="url(#${u}w2)"/></g>`;
+      return wide(s + `<rect x="-60" y="540" width="1080" height="460" fill="#e0b860"/>`);
+    },
+    /* Salão do castelo: janelões em arco, armaduras, brasão, trono e tapete vermelho em perspectiva */
+    throneroom: (c, u) => {
+      let s = wdefs(u) + `<rect x="-60" y="-420" width="1080" height="800" fill="#d88a6a"/><rect x="-60" y="-420" width="1080" height="440" fill="#c87858"/>`;
+      s += [160, 800].map(x => `<path d="M${x - 70} 260 L${x - 70} 30 Q${x} -50 ${x + 70} 30 L${x + 70} 260Z" fill="#fff6e0"/><path d="M${x} -20 L${x} 260 M${x - 70} 130 L${x + 70} 130" stroke="#8a4a3a" stroke-width="8"/><path d="M${x - 70} 260 L${x + 70} 260 L${x + 160} 560 L${x - 160} 560Z" fill="#fff6e0" opacity=".2"/>`).join('');
+      s += `<path d="M430 -20 L530 -20 L530 60 L480 90 L430 60Z" fill="#8a1e2a" stroke="#ffd23f" stroke-width="5"/><path d="M455 0 L505 50 M505 0 L455 50" stroke="#ffd23f" stroke-width="5"/>`;
+      s += [340, 620].map(x => `<ellipse cx="${x}" cy="330" rx="40" ry="8" fill="#000" opacity=".2"/><circle cx="${x}" cy="150" r="22" fill="#c8ccd8" stroke="#6a6a7a" stroke-width="3"/><rect x="${x - 12}" y="146" width="24" height="5" fill="#2b2140"/><path d="M${x - 30} 176 L${x + 30} 176 L${x + 24} 260 L${x - 24} 260Z" fill="#c8ccd8" stroke="#6a6a7a" stroke-width="3"/><path d="M${x - 24} 260 L${x - 20} 330 M${x + 24} 260 L${x + 20} 330" stroke="#9aa0b0" stroke-width="12"/><path d="M${x + 36} 120 L${x + 36} 330" stroke="#8a8a9a" stroke-width="4"/>`).join('');
+      s += `<rect x="440" y="170" width="80" height="120" rx="10" fill="#e84a5f" stroke="#ffd23f" stroke-width="5"/><path d="M430 170 L480 130 L530 170" fill="#ffd23f"/><rect x="430" y="280" width="100" height="50" rx="6" fill="#c8303a" stroke="#ffd23f" stroke-width="4"/>`;
+      s += `<rect x="-60" y="330" width="1080" height="230" fill="#e8dcd0"/>` + Array.from({ length: 12 }, (_, i) => `<path d="M${f1(480 + (-600 + i * 110 - 480) * .3)} 330 L${-600 + i * 110} 560" stroke="#c8bcb0" stroke-width="2"/>`).join('') + `<path d="M430 330 L530 330 L620 560 L340 560Z" fill="#c8303a"/><path d="M430 330 L440 330 L360 560 L340 560Z M530 330 L520 330 L600 560 L620 560Z" fill="#ffd23f"/>`;
+      return wide(s + `<rect x="-60" y="540" width="1080" height="460" fill="#e8dcd0"/>`);
+    },
+    /* Campo de futebol: arquibancada desfocada, gol com rede, gramado listrado em perspectiva */
+    soccer: (c, u) => {
+      const r = rng('wsoc');
+      let s = wdefs(u) + `<defs>${lg(u + 's', [[0, '#5ab8f0'], [1, '#e0f4ff']])}</defs><rect x="-60" y="-420" width="1080" height="760" fill="url(#${u}s)"/>` + cloudW(200, 10, 1) + cloudW(760, 40, .8, 'bg-drift-w2');
+      s += `<g filter="url(#${u}w1)"><rect x="-60" y="120" width="1080" height="130" fill="#4a5a7a"/>${Array.from({ length: 160 }, () => `<circle cx="${f1(r() * 1080 - 60)}" cy="${f1(130 + r() * 110)}" r="5" fill="${['#e84a5f', '#ffd23f', '#5ac8ff', '#fff'][Math.floor(r() * 4)]}"/>`).join('')}</g>`;
+      s += `<rect x="-60" y="246" width="1080" height="10" fill="#2a3a5a"/><path d="M-60 256 L1020 256 L1400 560 L-440 560Z" fill="#4aa848"/>` + Array.from({ length: 9 }, (_, i) => `<path d="M${f1(480 + (-400 + i * 110 - 480) * .35)} 256 L${f1(480 + (-290 + i * 110 - 480) * .35)} 256 L${-290 + i * 110} 560 L${-400 + i * 110} 560Z" fill="${i % 2 ? '#5ac058' : '#4aa848'}"/>`).join('');
+      s += `<path d="M-60 300 L1020 300" stroke="#fff" stroke-width="4"/><ellipse cx="480" cy="480" rx="180" ry="40" fill="none" stroke="#fff" stroke-width="4"/>`;
+      s += `<g><path d="M340 300 L340 160 L620 160 L620 300" stroke="#fff" stroke-width="8" fill="none"/><path d="M340 160 L370 140 L590 140 L620 160 M370 140 L370 280 M590 140 L590 280" stroke="#e0e8f0" stroke-width="4" fill="none"/>${Array.from({ length: 14 }, (_, i) => `<path d="M${350 + i * 19} 160 L${370 + i * 16} 290" stroke="#fff" stroke-width="1.2" opacity=".6"/>`).join('')}${Array.from({ length: 7 }, (_, i) => `<path d="M340 ${170 + i * 18} L620 ${170 + i * 18}" stroke="#fff" stroke-width="1.2" opacity=".6"/>`).join('')}</g>`;
+      return wide(s + `<rect x="-60" y="540" width="1080" height="460" fill="#4aa848"/>`);
+    },
+    /* Estúdio de foto: fundo infinito branco, holofotes com feixes, tripé e cabos */
+    photostudio: (c, u) => {
+      let s = wdefs(u) + `<defs>${lg(u + 'b', [[0, '#d8dce4'], [.6, '#f4f6fa'], [1, '#e0e4ea']])}${lg(u + 'beam', [[0, '#fff', .5], [1, '#fff', 0]])}</defs><rect x="-60" y="-420" width="1080" height="1000" fill="#3a3a44"/>`;
+      s += Array.from({ length: 20 }, (_, i) => `<rect x="${-60 + i * 56}" y="-420" width="54" height="800" fill="#44444e"/>`).join('');
+      s += `<path d="M160 -40 L800 -40 L800 340 Q800 420 900 440 L60 440 Q160 420 160 340Z" fill="url(#${u}b)"/><path d="M160 340 Q160 420 60 440 L900 440 Q800 420 800 340" fill="#fff" opacity=".4"/>`;
+      s += [[180, -20, 30], [480, -40, 0], [780, -20, -30]].map(([x, y, a]) => `<g transform="rotate(${a} ${x} ${y})"><path d="M${x} ${y} L${x - 110} 560 L${x + 110} 560Z" fill="url(#${u}beam)" class="bg-rays"/></g><rect x="${x - 26}" y="${y - 30}" width="52" height="30" rx="4" fill="#2a2a34" transform="rotate(${a} ${x} ${y})"/><ellipse cx="${x}" cy="${y}" rx="22" ry="6" fill="#fffbe0" transform="rotate(${a} ${x} ${y})"/>`).join('');
+      s += `<rect x="-60" y="440" width="1080" height="120" fill="#2a2a34"/><g filter="url(#${u}w2)"><path d="M900 560 L940 380 L980 560 M940 380 L940 300" stroke="#1a1a22" stroke-width="8" fill="none"/><rect x="908" y="270" width="64" height="40" rx="6" fill="#1a1a22"/><circle cx="940" cy="290" r="12" fill="#6a8ab8"/></g><path d="M40 560 Q120 480 60 440" stroke="#1a1a22" stroke-width="5" fill="none"/>`;
+      return wide(s + `<rect x="-60" y="540" width="1080" height="460" fill="#2a2a34"/>`);
+    },
+    /* Teatro: plateia desfocada com poltronas vermelhas, camarotes dourados, luz dos holofotes e palco de madeira */
+    theater: (c, u) => {
+      const r = rng('wthe');
+      let s = wdefs(u) + `<defs>${lg(u + 'p', [[0, '#a8743a'], [1, '#6a4020']])}${lg(u + 'beam', [[0, '#fff0c0', .45], [1, '#fff0c0', 0]])}</defs><rect x="-60" y="-420" width="1080" height="800" fill="#3a1010"/>`;
+      s += `<g filter="url(#${u}w2)">${Array.from({ length: 3 }, (_, j) => Array.from({ length: 16 }, (_, i) => `<rect x="${-40 + i * 66}" y="${-30 + j * 50}" width="56" height="34" rx="6" fill="#c8a040"/><rect x="${-36 + i * 66}" y="${-26 + j * 50}" width="48" height="24" fill="#6a1a1a"/><circle cx="${-12 + i * 66}" cy="${-34 + j * 50}" r="4" fill="#ffe070"/>`).join('')).join('')}</g>`;
+      s += `<g filter="url(#${u}w1)">${Array.from({ length: 5 }, (_, j) => Array.from({ length: 22 }, (_, i) => `<path d="M${-60 + i * 50 + j * 6} ${150 + j * 40} q20 -24 40 0 l0 20 l-40 0Z" fill="#a81e2a"/>`).join('')).join('')}</g>`;
+      s += [200, 480, 760].map(x => `<path d="M${x} -40 L${x - 90} 460 L${x + 90} 460Z" fill="url(#${u}beam)" class="bg-rays"/>`).join('');
+      s += `<rect x="-60" y="340" width="1080" height="24" fill="#2a1a0a"/><rect x="-60" y="364" width="1080" height="200" fill="url(#${u}p)"/>` + Array.from({ length: 22 }, (_, i) => `<path d="M${-60 + i * 50} 364 L${-80 + i * 52} 560" stroke="#5a3418" stroke-width="2"/>`).join('') + `<rect x="-60" y="360" width="1080" height="6" fill="#ffd070" opacity=".6"/>`;
+      s += `<ellipse cx="480" cy="440" rx="200" ry="30" fill="#fff0c0" opacity=".25" filter="url(#${u}w2)"/>`;
+      return wide(s + `<rect x="-60" y="540" width="1080" height="460" fill="#6a4020"/>`);
+    },
+
   };
 
   /* Clima: partículas animadas (ou estáticas, para exportar imagem) */
@@ -668,6 +895,7 @@ const Scenery = (() => {
     { n: 'Templo oriental', w: 'oriental' }, { n: 'Deserto', w: 'desert' }, { n: 'Fundo do mar', w: 'ocean' },
     { n: 'Corredor da escola', w: 'hallway' }, { n: 'Aurora', w: 'aurora' }, { n: 'Céu', w: 'skyview' },
     { n: 'Balada', w: 'club' }, { n: 'Shopping', w: 'mall' }, { n: 'Trilha', w: 'trail' }, { n: 'Sala de estar', w: 'living' },
+    { n: 'Sala rosa', w: 'pinkroom' }, { n: 'Apartamento', w: 'apartment' }, { n: 'Cozinha', w: 'kitchen' }, { n: 'Biblioteca', w: 'library' }, { n: 'Muro de grafite', w: 'graffiti' }, { n: 'Metrô', w: 'subway' }, { n: 'Terraço da escola', w: 'rooftop' }, { n: 'Sala de aula', w: 'classroom' }, { n: 'Frente da escola', w: 'schoolfront' }, { n: 'Estrada na montanha', w: 'mountainroad' }, { n: 'Floresta encantada', w: 'darkforest' }, { n: 'Ilha tropical', w: 'island' }, { n: 'Iglu', w: 'igloo' }, { n: 'Natal', w: 'christmas' }, { n: 'Planeta alienígena', w: 'alien' }, { n: 'Pirâmides', w: 'pyramids' }, { n: 'Salão do castelo', w: 'throneroom' }, { n: 'Campo de futebol', w: 'soccer' }, { n: 'Estúdio de foto', w: 'photostudio' }, { n: 'Teatro', w: 'theater' },
   ];
   const FG_LIST = [
     { n: 'Nenhum' }, { n: 'Chuva', tpl: 'rain', a: '#bfe9ff' }, { n: 'Neve', tpl: 'snow' }, { n: 'Pétalas', tpl: 'petals' }, { n: 'Folhas', tpl: 'leaves', a: '#9bd46a' },

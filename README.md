@@ -21,7 +21,7 @@ Jogo de vestir e criar personagens no estilo gacha, feito em **HTML, CSS e JavaS
 
 **Reservas:** 90 vagas para guardar personagens. Dá para trocar, clonar e copiar tudo, só as roupas, só o cabelo ou as cores.
 
-**Fundos:** 22 cenários e padrões (com profundidade e animações) mais 15 sobreposições (chuva, neve, pétalas, cortina de palco...). Também é possível mover, mudar a escala, aplicar tom e trocar a cor.
+**Fundos:** 46 fundos (38 cenários com profundidade e animações, mais padrões) mais 15 sobreposições (chuva, neve, pétalas, cortina de palco...). Também é possível mover, mudar a escala, aplicar tom e trocar a cor.
 
 **Editor**
 - **Predefinidos:** 18 personagens prontos, organizados em clubes. Dá para copiar tudo, só as roupas ou só o cabelo, com ou sem as cores.
