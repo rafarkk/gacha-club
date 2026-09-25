@@ -1,7 +1,7 @@
 /* ============ NÚCLEO: utilitários, cores, som e componentes de interface ============ */
 
 /* Versão do app (aparece no tablet do menu). Mantenha igual ao CACHE de sw.js. */
-const APP_VERSION = 'v46';
+const APP_VERSION = 'v47';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];

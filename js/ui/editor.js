@@ -62,7 +62,6 @@ const Editor = (() => {
         <div class="ed-foot">
           <button data-act="stand">${ICON.stand}<b>Em pé</b></button>
           <button data-act="png"><b>Salvar<br>.PNG</b></button>
-          <button data-act="studio" class="wide">${ICON.camera}<b>Estúdio</b></button>
         </div>
       </div>
       <div class="ed-right">

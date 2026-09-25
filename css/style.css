@@ -133,14 +133,15 @@ h4 { margin: 14px 0 6px; font-weight: 600; color: var(--muted); letter-spacing: 
 .ed-who { display: flex; align-items: center; gap: 8px; padding: 2px 12px 2px 2px; background: rgba(20, 16, 44, .8); border: 2px solid var(--line2); border-radius: 8px; height: 52px; }
 .ed-who svg { width: 46px; height: 46px; flex: none; }
 .ed-who b { font-size: 1.3em; font-weight: 600; max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-/* fica na mesma célula do palco (entre o nome e os botões de baixo); se não couberem em coluna, viram duas */
-.ed-left .side-icons { grid-area: 2 / 1; justify-self: end; align-self: stretch; margin: 6px 10px 6px 0; width: 108px; min-height: 0; flex-wrap: wrap-reverse; justify-content: center; align-content: flex-start; pointer-events: none; }
+/* fica na mesma célula do palco (entre o nome e os botões de baixo); os botões encolhem para caber os 4 em coluna */
+.ed-left .side-icons { grid-area: 2 / 1; justify-self: end; align-self: stretch; margin: 6px 10px 6px 0; width: 50px; min-height: 0; justify-content: center; container-type: size; pointer-events: none; }
 .ed-left .stage { grid-area: 2 / 1; }
 .ed-left .side-icons button { pointer-events: auto; }
-.ed-left .side-icons button { width: 50px; height: 50px; }
+.ed-left .side-icons button { width: min(50px, calc((100cqh - 18px) / 4)); height: min(50px, calc((100cqh - 18px) / 4)); align-self: flex-end; }
+.ed-left .side-icons .ico { width: 60%; height: 60%; }
+.ed-left .side-icons { gap: 6px; }
 .ed-foot { display: flex; gap: 8px; padding: 8px 10px calc(10px + var(--safe-b)); }
 .ed-foot button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 64px; height: 62px; padding: 4px 8px; border-radius: 8px; background: rgba(44, 40, 90, .92); border: 2px solid var(--line2); line-height: 1.05; }
-.ed-foot button.wide { margin-left: auto; min-width: 100px; }
 .ed-foot b { font-weight: 600; }
 .ed-right { display: flex; flex-direction: column; min-height: 0; min-width: 0; background: var(--panel); border-left: 2px solid var(--line2); }
 .ed-left { min-width: 0; }
@@ -500,11 +501,10 @@ svg .bg-bat { animation: wWander 6s ease-in-out infinite; }
   .ed-who-bar { padding-top: calc(6px + var(--safe-t)); }
   .nav-arrow { width: 34px; height: 42px; font-size: 24px; }
   .ed-who { height: 42px; } .ed-who svg { width: 38px; height: 38px; } .ed-who b { font-size: 1.1em; }
-  .ed-left .side-icons { position: absolute; right: 6px; top: 50%; width: auto; margin: 0; transform: translateY(-50%); }
+  .ed-left .side-icons { position: absolute; right: 6px; top: 50%; width: auto; margin: 0; transform: translateY(-50%); container-type: normal; }
   .ed-left .side-icons button { width: 40px; height: 40px; }
   .ed-foot { position: absolute; left: 0; bottom: 0; padding: 6px; gap: 6px; }
   .ed-foot button { min-width: 54px; height: 50px; font-size: .85em; }
-  .ed-foot button.wide { display: none; }
   .ed-right { border-left: 0; border-top: 2px solid var(--line2); }
   .ed-tabs { padding: 4px; gap: 3px; }
   .ed-tabs button[data-tab] { padding: 4px 1px; }
