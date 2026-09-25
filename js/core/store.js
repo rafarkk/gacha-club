@@ -1,7 +1,7 @@
 /* ============ ESTADO E PERSISTÊNCIA ============ */
 
 const SAVE_KEY = 'atelieEstelar.clube.v2';
-const SAVE_VERSION = 3;
+const SAVE_VERSION = 4;
 const BACKUP_SLOTS = 90;
 
 const Store = (() => {
@@ -52,8 +52,8 @@ const Store = (() => {
     while (d.chars.length < 10) d.chars.push(MAIN_CHARS()[d.chars.length]);
     d.backups = Array.from({ length: BACKUP_SLOTS }, (_, i) => d.backups && d.backups[i] ? fixChar(d.backups[i]) : null);
     d.chars.forEach(c => { if (c.name === 'Básica') c.name = 'Menina Padrão'; if (c.name === 'Básico') c.name = 'Menino Padrão'; });
-    /* v3: os padrões passaram a seguir o visual dos padrões do Gacha Club */
-    if ((d.v || 0) < 3) d.chars.forEach((c, i) => {
+    /* v3/v4: os padrões passaram a seguir o visual dos padrões do Gacha Club */
+    if ((d.v || 0) < 4) d.chars.forEach((c, i) => {
       const n = c.name === 'Menina Padrão' ? DEFAULT_GIRL() : c.name === 'Menino Padrão' ? DEFAULT_BOY() : null;
       if (n) d.chars[i] = Object.assign(n, { id: c.id });
     });

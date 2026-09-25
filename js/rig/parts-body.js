@@ -340,6 +340,8 @@ PARTS.sock = [null,
   { n: 'Caneleira', d: (k, L) => L.band(k, L.knee + .04, .9, 1.6, 1.6) + L.line(k, L.knee + .1, 1.6, k.c[1], .8) + L.line(k, .84, 1.6, k.c[1], .8) },
   { n: 'Meia-calça degradê', d: (k, L) => { const id = k.u + 'mg'; return `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${k.c[1]}"/><stop offset="1" stop-color="${k.c[0]}"/></linearGradient></defs>` + L.band(k, 0, 1, .4, .5).replace(`fill="${k.c[0]}"`, `fill="url(#${id})"`); } },
   { n: 'Meia com estrela', d: (k, L) => { const p = L.pt(.7); return L.band(k, .55, 1, .8, .8) + `<path d="${Shape.star(p.x, p.y, 3, 1.2)}" fill="${k.c[1]}"/>`; } },
+  /* ---- padrões do Gacha Club ---- */
+  { n: 'Até o joelho com borda', d: (k, L) => L.band(k, L.knee - .02, 1, .8, .8) + L.band(k, L.knee - .02, L.knee + .05, 1.2, 1.2, k.c[1]) },
 ];
 
 const shoeBase = (k, fill) => { const t = G.toe || 0, x = v => (-t * v).toFixed(1);

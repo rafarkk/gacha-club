@@ -194,7 +194,7 @@ PARTS.ponytail = [null,
   { n: 'Coque baixo', d: k => `<circle cx="150" cy="206" r="24" fill="${k.F}" ${ol(k, 2.8)}/><path d="M132 204 Q150 194 168 204" stroke="${k.c[2]}" stroke-width="1.6" fill="none" opacity=".45"/>` },
   { n: 'Chiquinhas com laços', d: k => [0, 1].map(m => { const p = hair(Object.assign({}, k, { u: k.u + 'l' + m }), 'M88 86 C58 78 42 104 44 150', [[44, 150], [48, 176], [58, 160], [66, 172], [70, 130], [80, 110], [92, 98]], { top: 96, bulge: .4, shine: 0 }) + P(k, 'M86 90 L72 80 L72 100Z M86 90 L100 80 L100 100Z', k.c[1]); return m ? `<g transform="translate(300 0) scale(-1 1)">${p}</g>` : p; }).join('') },
   /* ---- padrões do Gacha Club ---- */
-  { n: 'Rabo alto de lado', d: k => hair(k, 'M128 46 C108 4 56 6 46 60', [[46, 60], [36, 102], [52, 94], [52, 132], [64, 108], [72, 140], [76, 100], [92, 72], [114, 60]], { top: 36, bulge: .3, shine: 0, sw: 2 }) + `<ellipse cx="120" cy="54" rx="8" ry="11" fill="#ff4f86" ${ol(k, 2.2)} transform="rotate(-40 120 54)"/>` },
+  { n: 'Rabo alto de lado', d: k => hair(k, 'M120 40 C104 2 56 6 46 60', [[46, 60], [36, 102], [52, 94], [52, 132], [64, 108], [72, 140], [76, 100], [92, 72], [114, 60]], { top: 36, bulge: .3, shine: 0, sw: 2 }) + `<ellipse cx="106" cy="44" rx="7" ry="11" fill="#ff4f86" ${ol(k, 2.2)} transform="rotate(-50 106 44)"/>` },
 ];
 
 /* Cabelo frontal (franja) — mechas pontudas sobre a testa, laterais emoldurando o rosto */
