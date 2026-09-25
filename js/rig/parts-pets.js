@@ -29,7 +29,7 @@ function petDepth(k, svg) {
     <feFlood flood-color="#fff" flood-opacity=".22"/><feComposite in2="hl0" operator="in" result="glow"/>
     <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="shade"/><feMergeNode in="glow"/><feMergeNode in="rim"/></feMerge></filter>
     <radialGradient id="${id}g"><stop offset="0" stop-color="#000" stop-opacity=".38"/><stop offset=".65" stop-color="#000" stop-opacity=".16"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient></defs>` +
-    `<ellipse cx="26" cy="54" rx="18" ry="4" fill="#0a0620" opacity=".6"/><g class="fx" filter="url(#${id})">${svg}</g>`;
+    (k.shOp === 0 ? '' : `<ellipse cx="26" cy="54" rx="18" ry="4" fill="#0a0620" opacity="${k.shOp == null ? .6 : k.shOp}"/>`) + `<g class="fx" filter="url(#${id})">${svg}</g>`;
 }
 
 PARTS.pet = [null,

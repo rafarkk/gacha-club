@@ -35,9 +35,24 @@ const SLOT_DEFS = {
   kneeL: { t: 'knee', n: 'Joelho' }, kneeR: { t: 'knee', n: 'Joelho direito' },
 };
 const HAIR_SLOTS = ['hairBack', 'hairBase', 'ponytail', 'bangs', 'ahoge'];
+const PET_SLOTS = 20, OBJ_SLOTS = 30;
+const petColorsFor = i => { const c = OBJ_COLORS[i % OBJ_COLORS.length]; return [Color.mix(c[0], '#ffffff', .45), c[1], OUTLINE]; };
+const objColorsFor = i => { const c = OBJ_COLORS[i % OBJ_COLORS.length]; return [c[0], c[1], OUTLINE]; };
 /* Pares: o cartão do lado esquerdo muda os dois lados; o do direito, só o direito */
 const PAIRS = { eyeL: 'eyeR', pupilL: 'pupilR', browL: 'browR', sleeveL: 'sleeveR', pantsL: 'pantsR', sockL: 'sockR', shoeL: 'shoeR', gloveL: 'gloveR',
   wings: 'wingsR', shoulderL: 'shoulderR', wristL: 'wristR', kneeL: 'kneeR' };
+/* Rosto (Cabeça › Rosto), como no Gacha Club */
+const FACE_HL = ['Nenhum', 'Nariz', 'Bochechas', 'Testa e nariz', 'Bochechas e nariz'];
+const CHINS = ['Nenhum', 'Linha curta', 'Covinha', 'Arredondado', 'Pontudo', 'Duplo', 'Barba rala', 'Cavanhaque', 'Sombra', 'Pinta'];
+const LOOKS = ['Automático', 'Para a câmera', 'Esquerda', 'Direita', 'Cima', 'Baixo'];
+const LOOK_XY = [null, [0, 0], [-3.5, 0], [3.5, 0], [0, -3], [0, 3]];
+/* 15 posições do corado: [dx, dy, largura] */
+const BLUSH_POS = [[0, 0, 1], [0, -6, 1], [0, 6, 1], [0, -12, 1], [0, 0, .82], [0, 0, 1.15], [0, -6, .86], [0, 6, 1.14],
+  [0, 10, .9], [0, -4, 1.26], [0, 4, .76], [0, -10, .9], [0, 12, 1], [0, -2, 1.08], [0, 8, .8]];
+/* Tipos de sombra no chão (Corpo) */
+const SHADOWS = ['Padrão', 'Suave', 'Pequena', 'Grande', 'Clara', 'Escura', 'Contorno', 'Dupla', 'Brilho', 'Holofote', 'Quadrada',
+  'Coração', 'Estrela', 'Poça', 'Pontilhada', 'Alvo', 'Longa', 'Diagonal', 'Nuvem', 'Portal'];
+
 /* 16 posições da estampa no tronco: [dx, dy, escala] a partir do peito direito */
 const LOGO_POS = [[0, 0, 1], [-20, 0, 1], [-10, 0, 1], [-10, 4, 1.3], [-10, 18, 1], [0, -8, .8], [-20, -8, .8], [-10, -10, .7],
   [-10, 8, 1.7], [0, 18, .9], [-20, 18, .9], [-10, 30, .8], [4, 6, .7], [-24, 6, .7], [-10, 6, 2.2], [-10, 20, 1.4]];
@@ -48,7 +63,7 @@ const ANCHORS = {
   eyeL: [0, 0], eyeR: [0, 0], pupilL: [0, 0], pupilR: [0, 0], browL: [0, 0], browR: [0, 0],
   mouth: [150, 184], nose: [150, 168], blush: [150, 166], faceMark: [150, 160],
   hat: [150, 60], glasses: [150, 142], headAcc: [150, 80], headAcc2: [150, 80], headAcc3: [150, 80], headAcc4: [150, 80], faceAcc: [150, 160], faceAcc2: [150, 160], faceAcc3: [150, 160], neck2: [150, 210], wingsR: [150, 230],
-  neck: [150, 210], logo: [160, 240], wings: [150, 230], tail: [170, 280], cape: [150, 212],
+  neck: [150, 210], logo: [160, 240], wings: [150, 230], tail: [170, 280], cape: [150, 212], effBack: [150, 230], effFront: [150, 230],
   propL: [0, 36], propR: [0, 36], shield: [0, 15],
 };
 const ADJ_HEAD = ['bangs', 'hairBack', 'hairBase', 'ponytail', 'ahoge', 'eyeL', 'eyeR', 'pupilL', 'pupilR', 'browL', 'browR', 'mouth', 'nose', 'blush', 'faceMark'];
@@ -94,14 +109,22 @@ function look(o) {
 function baseChar() {
   return {
     id: newId(), name: 'Personagem', skin: '#fde0cc',
+    /* espaço do mascote ligado a este personagem (Store.s.petSlots), -1 = nenhum */
+    petSlot: -1,
     parts: blankParts(),
-    body: { size: 10, head: 10, pose: 0, headRot: 0, rot: 0, flip: 0, turn: 1, handL: 0, handR: 0, shadow: 1, bust: 0 },
+    body: { tint: 0, tintCol: '#ff4f86', size: 10, head: 10, w: 10, pose: 0, headRot: 0, rot: 0, flip: 0, turn: 1, handL: 0, handR: 0, shadow: 1, shType: 0, shCol: '#0a0620', bust: 0 },
+    /* hl: brilho do rosto · chin: queixo · eyeHl: brilho dos olhos · look: olhar · blushPos: posição do corado · shade: sombra do rosto */
+    /* over: olhos e sobrancelhas por cima da franja */
+    face: { hl: 0, chin: 0, eyeHl: 1, look: 0, blushPos: 0, shade: 0, over: 0 },
+    /* cores do brilho e dos acessórios do cabelo ('' = automática) */
+    hairFx: { hl: '', acc: '' },
     adj: {},
-    hide: { head: 0, face: 0, hair: 0, body: 0, arms: 0, legs: 0, outline: 0 },
-    anim: { blink: 1, hair: 1, wings: 1, cape: 1, tail: 1, effects: 1 },
+    hide: { head: 0, face: 0, hair: 0, hairB: 0, body: 0, arms: 0, hands: 0, legs: 0, feet: 0, wings: 0, cape: 0, tail: 0, outline: 0 },
+    /* nível de 0 (parado) a 10 (rápido); 5 = normal. v: versão (antes eram só liga/desliga) */
+    anim: { v: 2, blink: 5, hair: 5, hairB: 5, wings: 5, cape: 5, tail: 5, effects: 5 },
     pet: { x: 0, y: 0, s: 1, name: 'Bichinho' },
-    chat: { text: 'Olá! Bem-vindo ao Ateliê!', emote: 0, bubble: 0, font: 0, nameColor: '#ffffff', textColor: '#2b2140', bubbleColor: '#ffffff' },
-    profile: { title: 0, birthday: '01/01', age: '16', bio: '', creator: '', favChar: '', club: 0, color: '', food: '', place: '', personality: '', job: '' },
+    chat: { text: 'Olá! Bem-vindo ao Ateliê!', emote: 0, bubble: 0, style: 0, font: 0, nameFont: 0, nameColor: '#ffffff', textColor: '#2b2140', bubbleColor: '#ffffff', lineColor: '#2b2140' },
+    profile: { fav: '', title: 0, birthday: '01/01', age: '16', bio: '', creator: '', favChar: '', club: 0, color: '', food: '', place: '', personality: '', job: '' },
   };
 }
 
@@ -134,6 +157,15 @@ const CLUBS = [
   { n: 'Clube Estelar', ic: '🌟', c: '#ffe66d' }, { n: 'Clube Fogo', ic: '🔥', c: '#ff5a1f' }, { n: 'Clube Água', ic: '💧', c: '#2f9fd8' },
   { n: 'Clube Floresta', ic: '🌿', c: '#3fa34d' }, { n: 'Clube Cosmos', ic: '🪐', c: '#6b4cff' }, { n: 'Clube Doce', ic: '🍭', c: '#ff8fc4' },
   { n: 'Clube Sombra', ic: '🦇', c: '#8e1b3a' }, { n: 'Clube Neon', ic: '⚡', c: '#00e5ff' }, { n: 'Clube Sakura', ic: '🌸', c: '#ffb7c9' }, { n: 'Padrão', ic: '👤', c: '#8a94a6' },
+  /* só para o perfil (clube favorito), como a galeria de 40 clubes do Gacha Club */
+  { n: 'Clube Vento', ic: '🍃', c: '#5fe0b0' }, { n: 'Clube Sol', ic: '☀️', c: '#ffb300' }, { n: 'Clube Lua', ic: '🌙', c: '#b9a7ff' }, { n: 'Clube Chá', ic: '🧋', c: '#e0a47a' },
+  { n: 'Clube Campeões', ic: '🏆', c: '#ffd23f' }, { n: 'Clube Doces', ic: '🍬', c: '#ff7ab8' }, { n: 'Clube Ciano', ic: '🔷', c: '#22d3ee' }, { n: 'Clube Gamer', ic: '🎮', c: '#7c6cff' },
+  { n: 'Clube Pato', ic: '🦆', c: '#ffe066' }, { n: 'Clube Sonhos', ic: '💤', c: '#c084fc' }, { n: 'Clube Falha', ic: '📺', c: '#34d399' }, { n: 'Clube Coelho', ic: '🐰', c: '#fbcfe8' },
+  { n: 'Clube Cavaleiro', ic: '🛡️', c: '#a3a3a3' }, { n: 'Clube Coroa', ic: '👑', c: '#fcd34d' }, { n: 'Clube Histórias', ic: '📖', c: '#d6b48a' }, { n: 'Clube Magia', ic: '🔮', c: '#a855f7' },
+  { n: 'Clube Gato', ic: '🐱', c: '#fda4af' }, { n: 'Clube Praia', ic: '🌴', c: '#fb923c' }, { n: 'Clube Fantasma', ic: '👻', c: '#e5e7eb' }, { n: 'Clube Coração', ic: '💜', c: '#9333ea' },
+  { n: 'Clube Batata', ic: '🥔', c: '#b08050' }, { n: 'Clube Arco-íris', ic: '🌈', c: '#f472b6' }, { n: 'Clube Ritmo', ic: '🎵', c: '#38bdf8' }, { n: 'Clube Rosa', ic: '🌹', c: '#e11d48' },
+  { n: 'Clube Fofura', ic: '🧸', c: '#d4a373' }, { n: 'Clube Disco', ic: '💿', c: '#ef4444' }, { n: 'Clube Baleia', ic: '🐳', c: '#60a5fa' }, { n: 'Clube Rebelde', ic: '❌', c: '#dc2626' },
+  { n: 'Clube Diamante', ic: '💎', c: '#67e8f9' }, { n: 'Clube Uwu', ic: '🥺', c: '#f9a8d4' },
 ];
 const PRESETS = () => [
   { club: 1, ch: look({ name: 'Brasa', s: '#f6c9a3', h: [0, 4, 0, 4, 4], hc: ['#ff5a1f', '#ffd23f'], e: 5, p: 1, ic: ['#ffb300', '#ff5a1f'], b: 4, m: 11, shirt: [1, '#2a0a05', '#ff5a1f'], sleeve: [3, '#8a1c0e'], jacket: [5, '#8a1c0e', '#ffd23f'], pants: [3, '#2a0a05'], shoe: [2, '#2a0a05', '#ff5a1f'], effBack: [2, '#ffd23f', '#ff5a1f'], pose: 38 }) },
@@ -180,6 +212,8 @@ const EXPRESSIONS = [
 
 const EMOTES = ['', '❤️', '‼️', '❓', '💢', '💧', '🎵', '💤', '✨', '💡', '💬', '⭐'];
 const BUBBLES = ['Redondo', 'Pensamento', 'Grito', 'Sussurro'];
+const BUBBLE_STYLES = ['Simples', 'Sombra', 'Borda dupla', 'Degradê', 'Estrelinhas', 'Corações', 'Pontilhado', 'Borda grossa', 'Pixel',
+  'Nuvem', 'Espinhos', 'Brilho', 'Cantos cortados', 'Listrado', 'Neon'];
 const FONTS = [
   { n: 'Padrão', f: "'Fredoka', system-ui, sans-serif" },
   { n: 'Condensada', f: "'Barlow Condensed', system-ui, sans-serif" },

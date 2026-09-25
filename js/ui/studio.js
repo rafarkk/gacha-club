@@ -9,6 +9,9 @@ const Studio = (() => {
   const st = () => Store.s.studio;
   const list = k => k === 'c' ? st().chars : k === 'p' ? st().pets : st().objs;
   const selEnt = () => sel && list(sel.k)[sel.i];
+  /* dados de um mascote/objeto da cena: o espaço personalizado (ps/os) ou, em cenas antigas, a própria entrada */
+  const petData = e => e.ps >= 0 ? Store.s.petSlots[e.ps] : { i: e.pi, c: e.c, name: e.name, chat: e.chat, r: 0 };
+  const objData = e => e.os >= 0 ? Store.s.objSlots[e.os] : { i: e.oi, c: e.c };
   const nextZ = () => 1 + Math.max(0, ...['c', 'p', 'o'].flatMap(k => list(k).map(e => e.z || 0)));
 
   function open(p = null) {
@@ -27,19 +30,36 @@ const Studio = (() => {
     if (cur) out.push(cur);
     return out.slice(0, 6);
   }
+  /* Balão de fala: tipo (BUBBLES) muda o formato e a letra; estilo (BUBBLE_STYLES) a decoração.
+     o: { bubble, style, font, bg, color, line, fs, w } — w: largura da área (clampa o balão dentro dela) */
   function bubbleSVG(x, y, text, o) {
     const fs = o.fs || 17, lines = wrap(text, 24); if (!lines.length) return '';
+    const AW = o.w || W, id = 'bb' + uid();
     const w = Math.max(70, Math.max(...lines.map(l => l.length)) * fs * .55 + 30), h = lines.length * fs * 1.25 + 20;
-    const bx = clamp(x - w / 2, 4, W - w - 4), by = Math.max(4, y - h - 16);
-    const kind = o.bubble || 0, stroke = '#2b2140';
-    let shape;
-    if (kind === 1) shape = `<rect x="${bx}" y="${by}" width="${w}" height="${h}" rx="${h / 2}" fill="${o.bg}" stroke="${stroke}" stroke-width="3"/><circle cx="${x - 6}" cy="${by + h + 7}" r="5" fill="${o.bg}" stroke="${stroke}" stroke-width="2"/><circle cx="${x - 2}" cy="${by + h + 15}" r="3" fill="${o.bg}" stroke="${stroke}" stroke-width="2"/>`;
-    else {
-      const tail = `<path d="M${x - 9} ${by + h - 2} L${x} ${by + h + 14} L${x + 9} ${by + h - 2}Z" fill="${o.bg}" stroke="${stroke}" stroke-width="3" stroke-linejoin="round"/>`;
-      shape = tail + `<rect x="${bx}" y="${by}" width="${w}" height="${h}" rx="${kind === 2 ? 3 : 14}" fill="${o.bg}" stroke="${stroke}" stroke-width="${kind === 2 ? 4 : 3}" ${kind === 3 ? 'stroke-dasharray="7 5"' : ''}/><path d="M${x - 7} ${by + h - 1.5} L${x + 7} ${by + h - 1.5}" stroke="${o.bg}" stroke-width="3"/>`;
-    }
+    const bx = clamp(x - w / 2, 4, AW - w - 4), by = Math.max(4, y - h - 16);
+    const kind = o.bubble || 0, sty = o.style || 0, stroke = o.line || '#2b2140', bg = o.bg || '#ffffff';
+    const sw = sty === 7 ? 6 : kind === 2 ? 4 : 3, rx = sty === 8 ? 0 : kind === 1 ? h / 2 : kind === 2 ? 3 : 14;
+    let defs = '', fill = bg, under = '', over = '';
+    if (sty === 3) { defs += `<linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${Color.mix(bg, '#ffffff', .6)}"/><stop offset="1" stop-color="${Color.shade(bg, -14)}"/></linearGradient>`; fill = `url(#${id}g)`; }
+    if (sty === 13) { defs += `<pattern id="${id}p" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><rect width="10" height="10" fill="${bg}"/><rect width="5" height="10" fill="${Color.shade(bg, -9)}"/></pattern>`; fill = `url(#${id}p)`; }
+    const dash = sty === 6 ? 'stroke-dasharray="2 5" stroke-linecap="round"' : kind === 3 ? 'stroke-dasharray="7 5"' : '';
+    const box = (dx = 0, dy = 0, f = fill, st = stroke, w2 = sw, extra = '') => sty === 12
+      ? `<path d="M${bx + 10 + dx} ${by + dy} L${bx + w - 10 + dx} ${by + dy} L${bx + w + dx} ${by + 10 + dy} L${bx + w + dx} ${by + h - 10 + dy} L${bx + w - 10 + dx} ${by + h + dy} L${bx + 10 + dx} ${by + h + dy} L${bx + dx} ${by + h - 10 + dy} L${bx + dx} ${by + 10 + dy}Z" fill="${f}" stroke="${st}" stroke-width="${w2}" stroke-linejoin="round" ${extra}/>`
+      : `<rect x="${bx + dx}" y="${by + dy}" width="${w}" height="${h}" rx="${rx}" fill="${f}" stroke="${st}" stroke-width="${w2}" ${extra}/>`;
+    if (sty === 1) under += box(5, 5, Color.shade(stroke, 0), 'none', 0, 'opacity=".35"');
+    if (sty === 9) for (let t = 0; t <= 1.001; t += 1 / Math.max(3, Math.round(w / 26))) for (const yy of [by, by + h]) under += `<circle cx="${bx + 8 + (w - 16) * t}" cy="${yy}" r="11" fill="${bg}" stroke="${stroke}" stroke-width="${sw}"/>`;
+    if (sty === 10) { let d = ''; const n = Math.max(6, Math.round(w / 18)); for (let i = 0; i < n; i++) { const a = bx + w * i / n, b = bx + w * (i + .5) / n; d += `M${a} ${by + 2} L${b} ${by - 10} L${a + w / n} ${by + 2} M${a} ${by + h - 2} L${b} ${by + h + 10} L${a + w / n} ${by + h - 2} `; } under += `<path d="${d}" fill="${bg}" stroke="${stroke}" stroke-width="${sw - .5}" stroke-linejoin="round"/>`; }
+    if (sty === 11) under += box(0, 0, 'none', Color.mix(bg, '#ffffff', .4), sw + 10, 'opacity=".45"');
+    if (sty === 14) under += box(0, 0, 'none', stroke, sw + 9, 'opacity=".35"') + box(0, 0, 'none', stroke, sw + 4, 'opacity=".5"');
+    if (sty === 2) over += box(0, 0, 'none', stroke, 1.5, `transform="translate(${bx + w / 2} ${by + h / 2}) scale(${((w - 10) / w).toFixed(3)} ${((h - 10) / h).toFixed(3)}) translate(${-bx - w / 2} ${-by - h / 2})"`);
+    if (sty === 4 || sty === 5) for (const [cx, cy] of [[bx + 2, by + 2], [bx + w - 2, by + 2], [bx + w - 2, by + h - 2], [bx + 2, by + h - 2]])
+      over += `<path d="${sty === 4 ? Shape.star(cx, cy, 7, 3) : Shape.heart(cx, cy, 5)}" fill="${sty === 4 ? '#ffd23f' : '#ff5a8a'}" stroke="${stroke}" stroke-width="1.5"/>`;
+    let tail;
+    if (kind === 1) tail = `<circle cx="${x - 6}" cy="${by + h + 7}" r="5" fill="${bg}" stroke="${stroke}" stroke-width="2"/><circle cx="${x - 2}" cy="${by + h + 15}" r="3" fill="${bg}" stroke="${stroke}" stroke-width="2"/>`;
+    else tail = `<path d="M${x - 9} ${by + h - 2} L${x} ${by + h + 14} L${x + 9} ${by + h - 2}${sty === 8 ? '' : 'Z'}" fill="${bg}" stroke="${stroke}" stroke-width="${sw}" stroke-linejoin="${sty === 8 ? 'miter' : 'round'}"/>`;
+    const seam = kind === 1 ? '' : `<path d="M${x - 7} ${by + h - sw / 2} L${x + 7} ${by + h - sw / 2}" stroke="${bg}" stroke-width="${sw}"/>`;
     const t = lines.map((l, i) => `<text x="${bx + w / 2}" y="${by + 14 + fs * .95 + i * fs * 1.25}" text-anchor="middle" font-size="${fs}" font-family="${esc(FONTS[o.font || 0].f)}" fill="${o.color}" ${kind === 2 ? 'font-weight="700"' : ''} ${kind === 3 ? 'font-style="italic"' : ''}>${esc(l)}</text>`).join('');
-    return `<g class="st-bubble">${shape}${t}</g>`;
+    return `<g class="st-bubble">${defs ? `<defs>${defs}</defs>` : ''}${under}${tail}${box(0, 0, fill, stroke, sw, dash)}${seam}${over}${t}</g>`;
   }
 
   function narratorSVG() {
@@ -63,11 +83,11 @@ const Studio = (() => {
       const ch = Store.s.chars[e.ci]; if (!ch) return '';
       inner = `<svg x="-133.5" y="-292.4" width="267" height="320.4" viewBox="${Rig.VIEW}" overflow="visible">${Rig.inner(ch, uid(), { noShadow: false })}</svg>`; box = CH_BOX;
     } else if (k === 'p') {
-      const t = PARTS.pet[e.pi]; if (!t) return '';
-      inner = `<g transform="rotate(${e.r || 0} 0 -60)"><g transform="translate(-59 -123) scale(2.2)"><g class="anim-bob">${t.d({ c: e.c, F: e.c[0], u: uid() })}</g></g></g>`; box = [-66, -132, 132, 136];
+      const P = petData(e); if (!P || !PARTS.pet[P.i]) return '';
+      inner = `<g transform="rotate(${e.r || 0} 0 -60)"><g transform="translate(-59 -123) scale(2.2)"><g class="anim-bob">${Rig.petSVG(P, uid())}</g></g></g>`; box = [-66, -132, 132, 136];
     } else {
-      const t = PARTS.object[e.oi]; if (!t) return '';
-      inner = `<g transform="rotate(${e.r || 0} 0 ${t.box[1] / 2})">${t.d({ c: e.c, F: e.c[0], u: uid() })}</g>`; box = t.box;
+      const O = objData(e), t = O && PARTS.object[O.i]; if (!t) return '';
+      inner = `<g transform="rotate(${e.r || 0} 0 ${t.box[1] / 2})">${Rig.objSVG(O, uid())}</g>`; box = O.dy ? [t.box[0], t.box[1] + O.dy * 4, t.box[2], t.box[3]] : t.box;
     }
     const isSel = !o.export && !viewMode && sel && sel.k === k && sel.i === i;
     return `<g class="ent${isSel ? ' sel' : ''}" data-k="${k}" data-i="${i}" transform="${tr}">${isSel ? `<rect x="${box[0] - 6}" y="${box[1] - 6}" width="${box[2] + 12}" height="${box[3] + 12}" rx="10" class="st-selbox"/>` : ''}${inner}<rect x="${box[0]}" y="${box[1]}" width="${box[2]}" height="${box[3]}" fill="transparent"/></g>`;
@@ -80,9 +100,10 @@ const Studio = (() => {
     for (const { k, e } of ents) {
       if (k === 'c') {
         const ch = Store.s.chars[e.ci]; if (!ch) continue;
-        if (S.names && !viewMode && !o.export) over += `<text x="${e.x}" y="${e.y - 286 * e.s}" class="st-name" text-anchor="middle">${esc(ch.name)}</text>`;
-        if (e.b && ch.chat.text) over += bubbleSVG(e.x, e.y - 286 * e.s - (S.names && !viewMode && !o.export ? 18 : 0), ch.chat.text, { bubble: ch.chat.bubble, font: ch.chat.font, bg: ch.chat.bubbleColor, color: ch.chat.textColor });
-      } else if (k === 'p' && e.chat) over += bubbleSVG(e.x, e.y - 128 * e.s, e.chat, { bg: '#ffffff', color: '#2b2140' });
+        const C = ch.chat;
+        if (S.names && !viewMode && !o.export) over += `<text x="${e.x}" y="${e.y - 286 * e.s}" class="st-name" text-anchor="middle" style="fill:${C.nameColor || '#fff'};font-family:${esc(FONTS[C.nameFont || 0].f)}">${esc(ch.name)}</text>`;
+        if (e.b && C.text) over += bubbleSVG(e.x, e.y - 286 * e.s - (S.names && !viewMode && !o.export ? 18 : 0), C.text, { bubble: C.bubble, style: C.style, font: C.font, bg: C.bubbleColor, color: C.textColor, line: C.lineColor });
+      } else if (k === 'p') { const P = petData(e); if (P && P.chat) over += bubbleSVG(e.x, e.y - 128 * e.s, P.chat, { bg: '#ffffff', color: '#2b2140' }); }
     }
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" class="${o.cls || 'st-svg'}" preserveAspectRatio="xMidYMid meet">
       <svg x="0" y="0" width="${W}" height="${H}" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice">${Scenery.background(S.bg)}</svg>
@@ -140,8 +161,8 @@ const Studio = (() => {
       return head('Rosto · ' + esc(ch.name)) + `<div class="expr-grid">${EXPRESSIONS.map((x, i) => { const t = clone(ch); Panels.applyExpr(t, x); Object.assign(t.body, { pose: 0, rot: 0, flip: 0, headRot: 0 }); t.chat.emote = 0; return `<button class="pz" data-expr="${i}">${Rig.render(t, { viewBox: '70 56 160 150', cls: 'thumb still', noPet: true, noShadow: true })}<small>${x.n}</small></button>`; }).join('')}</div>
         <h4>Emote</h4><div class="emotes">${EMOTES.map((m, i) => `<button class="${ch.chat.emote === i ? 'on' : ''}" data-emote="${i}">${m || '∅'}</button>`).join('')}</div>`;
     }
-    if (panel === 'pets') return head(`Mascotes <small class="muted">${S.pets.length}/${MAX_PETS}</small>`) + `<p class="hint">Toque para colocar na cena. Toque no mascote na cena para editar.</p><div class="pick-grid">${PARTS.pet.map((t, i) => i ? `<button class="pz" data-addpet="${i}"><svg viewBox="-6 -6 66 66" class="thumb still">${t.d({ c: petColors(i), F: petColors(i)[0], u: uid() })}</svg><small>${esc(t.n)}</small></button>` : '').join('')}</div>`;
-    if (panel === 'objects') return head(`Objetos <small class="muted">${S.objs.length}/${MAX_OBJS}</small>`) + `<p class="hint">Toque para colocar na cena e arraste para posicionar.</p><div class="pick-grid">${PARTS.object.map((t, i) => i ? `<button class="pz" data-addobj="${i}"><svg viewBox="${t.box[0] - 10} ${t.box[1] - 10} ${t.box[2] + 20} ${t.box[3] + 20}" class="thumb still">${t.d({ c: objColors(i), F: objColors(i)[0], u: uid() })}</svg><small>${esc(t.n)}</small></button>` : '').join('')}</div>`;
+    if (panel === 'pets') return head(`Mascotes <small class="muted">${S.pets.length}/${MAX_PETS}</small>`) + `<p class="hint">Seus 20 mascotes (personalize em Editar › Outros › Mascote). Toque para colocar na cena.</p><div class="pick-grid">${Store.s.petSlots.map((P, i) => P.i ? `<button class="pz" data-addpet="${i}">${petThumb(P)}<small>${esc(P.name)}</small></button>` : '').join('')}</div>`;
+    if (panel === 'objects') return head(`Objetos <small class="muted">${S.objs.length}/${MAX_OBJS}</small>`) + `<p class="hint">Seus 30 objetos (personalize em Editar › Outros › Objetos). Toque para colocar na cena.</p><div class="pick-grid">${Store.s.objSlots.map((O, i) => O.i ? `<button class="pz" data-addobj="${i}">${objThumb(O)}<small>${esc(PARTS.object[O.i].n)}</small></button>` : '').join('')}</div>`;
     if (panel === 'narr') {
       const N = S.narr;
       const who = [[-2, 'Nenhum'], [-1, '"Narrador"'], [-3, 'Personalizado']];
@@ -164,6 +185,8 @@ const Studio = (() => {
     return '';
   }
   const toggleHTML = (k, label, on) => `<button class="tgl${on ? ' on' : ''}" data-stgl="${k}"><span>${label}</span><i>${on ? 'ON' : 'OFF'}</i></button>`;
+  const petThumb = P => `<svg viewBox="-8 -8 70 70" class="thumb still">${Rig.petSVG(P, uid())}</svg>`;
+  const objThumb = O => { const b = PARTS.object[O.i].box; return `<svg viewBox="${b[0] - 10} ${b[1] - 10 + (O.dy || 0) * 4} ${b[2] + 20} ${b[3] + 20}" class="thumb still">${Rig.objSVG(O, uid())}</svg>`; };
   const petColors = i => { const c = OBJ_COLORS[i % OBJ_COLORS.length]; return [Color.mix(c[0], '#ffffff', .45), c[1], OUTLINE]; };
   const objColors = i => { const c = OBJ_COLORS[i % OBJ_COLORS.length]; return [c[0], c[1], OUTLINE]; };
 
@@ -204,8 +227,8 @@ const Studio = (() => {
     if (d.pose != null && e) { Store.s.chars[e.ci].body.pose = +d.pose; Sfx.play('pick'); Store.save(); drawStage(); $$('.st-panel .pz').forEach(x => x.classList.toggle('on', x === b)); return; }
     if (d.expr != null && e) { Panels.applyExpr(Store.s.chars[e.ci], EXPRESSIONS[+d.expr]); Sfx.play('pick'); return change(() => { }, 'stage'); }
     if (d.emote != null && e) { Store.s.chars[e.ci].chat.emote = +d.emote; Sfx.play('pick'); return change(() => { }); }
-    if (d.addpet) return addEnt('p', { pi: +d.addpet, c: petColors(+d.addpet), name: PARTS.pet[+d.addpet].n, chat: '' });
-    if (d.addobj) return addEnt('o', { oi: +d.addobj, c: objColors(+d.addobj) });
+    if (d.addpet) return addEnt('p', { ps: +d.addpet });
+    if (d.addobj) return addEnt('o', { os: +d.addobj });
     // Narrador
     const N = S.narr;
     if (d.who != null) {
@@ -243,12 +266,12 @@ const Studio = (() => {
         const ch = Store.s.chars[e.ci];
         return UI.prompt(ch.chat.text, { max: 120, multiline: true, placeholder: 'O que ' + ch.name + ' diz?' }).then(t => { if (t != null) change(() => { ch.chat.text = t.trim(); e.b = t.trim() ? 1 : 0; }); });
       }
-      case 'pchat': return UI.prompt(e.chat, { max: 80, placeholder: 'Fala do mascote' }).then(t => { if (t != null) change(() => { e.chat = t.trim(); }); });
-      case 'pname': return UI.prompt(e.name, { max: 16 }).then(t => { if (t != null && t.trim()) change(() => { e.name = t.trim(); }); });
+      case 'pchat': { const P = e.ps >= 0 ? petData(e) : e; return UI.prompt(P.chat, { max: 80, placeholder: 'Fala do mascote' }).then(t => { if (t != null) change(() => { P.chat = t.trim(); }); }); }
+      case 'pname': { const P = e.ps >= 0 ? petData(e) : e; return UI.prompt(P.name, { max: 16 }).then(t => { if (t != null && t.trim()) change(() => { P.name = t.trim(); }); }); }
       case 'face': case 'pose': panel = panel === a ? null : a; break;
       case 'colors':
         panel = 'colors'; refresh();
-        return ColorPicker.open($('#stPanel'), { title: 'Cores', targets: ['Principal', 'Secundária', 'Contorno'].map((n, i) => ({ label: n, get: () => e.c[i], set: v => { e.c[i] = v; Store.save(); drawStage(); } })), onClose: () => { panel = null; refresh(); } });
+        return ColorPicker.open($('#stPanel'), { title: 'Cores', targets: ['Principal', 'Secundária', 'Contorno'].map((n, i) => ({ label: n, get: () => (k === 'p' ? petData(e) : objData(e)).c[i], set: v => { (k === 'p' ? petData(e) : objData(e)).c[i] = v; Store.save(); drawStage(); } })), onClose: () => { panel = null; refresh(); } });
       case 'dup': list(k).push(Object.assign(clone(e), { x: e.x + 30, y: e.y + 4, z: nextZ() })); sel = { k, i: list(k).length - 1 }; break;
       case 'flip': e.f = e.f ? 0 : 1; break;
       case 'sup': e.s = clamp(Math.round((e.s + .1) * 10) / 10, .3, 3); break;
@@ -373,7 +396,7 @@ const Studio = (() => {
     return false;
   }
 
-  return { open, key, exportPNG, get view() { return viewMode; }, set view(v) { viewMode = v; render(); } };
+  return { open, key, exportPNG, bubbleSVG, get view() { return viewMode; }, set view(v) { viewMode = v; render(); } };
 })();
 
 function defaultStudio() {

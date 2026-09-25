@@ -192,6 +192,7 @@ const Modals = (() => {
   }
 
   /* ---------- Perfil completo ---------- */
+  const favName = v => { if (!v) return ''; const i = +v.slice(1); return v[0] === 'm' ? (Store.s.chars[i] || {}).name || '' : ((PRESETS()[i] || {}).ch || {}).name || ''; };
   function profileCard(ch) {
     const P = ch.profile, cl = CLUBS[P.club || 0];
     const row = (l, v) => `<div class="pf-row"><small>${l}</small><b>${esc(v || '—')}</b></div>`;
@@ -201,9 +202,9 @@ const Modals = (() => {
         <div class="pf-art">${Rig.render(ch, { cls: 'rig-svg' })}</div>
         <div class="pf-info">
           <div class="pf-title" style="--tc:${cl.c}">${esc(TITLES[P.title] || TITLES[0])}</div>
-          <div class="pf-grid">${row('Aniversário', P.birthday)}${row('Idade', P.age)}${row('Criado por', P.creator)}${row('Clube favorito', cl.ic + ' ' + cl.n)}</div>
+          <div class="pf-grid">${row('Aniversário', P.birthday)}${row('Idade', P.age)}${row('Criado por', P.creator)}${row('Clube favorito', cl.ic + ' ' + cl.n)}${row('Personagem favorito', favName(P.fav))}</div>
           <div class="pf-bio"><small>Perfil</small><p>${esc(P.bio || 'Sem descrição ainda.')}</p></div>
-          <div class="pf-grid">${row('Cor favorita', P.color)}${row('Comida favorita', P.food)}${row('Localização', P.place)}${row('Personalidade', P.personality)}${row('Ocupação', P.job)}${row('Mascote', ch.parts.pet.i ? ch.pet.name : '')}</div>
+          <div class="pf-grid">${row('Cor favorita', P.color)}${row('Comida favorita', P.food)}${row('Localização', P.place)}${row('Personalidade', P.personality)}${row('Ocupação', P.job)}${row('Mascote', ch.petSlot >= 0 && Store.s.petSlots[ch.petSlot].i ? Store.s.petSlots[ch.petSlot].name : ch.parts.pet.i ? ch.pet.name : '')}</div>
         </div></div>`,
     });
   }

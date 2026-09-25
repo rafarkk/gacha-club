@@ -1,7 +1,7 @@
 /* ============ ESTADO E PERSISTÊNCIA ============ */
 
 const SAVE_KEY = 'atelieEstelar.clube.v2';
-const SAVE_VERSION = 4;
+const SAVE_VERSION = 5;
 const BACKUP_SLOTS = 90;
 
 const Store = (() => {
@@ -21,7 +21,30 @@ const Store = (() => {
       tutorialSeen: false,
       studio: defaultStudio(),
       scenes: Array(15).fill(null),
+      petSlots: Array.from({ length: PET_SLOTS }, () => blankPet()),
+      objSlots: Array.from({ length: OBJ_SLOTS }, (_, i) => blankObj(i + 1)),
     };
+  }
+  /* ---------- 20 mascotes e 30 objetos personalizáveis (como no Gacha Club) ----------
+     Mascote: { i, c: [principal, secundária, contorno], tint, tc, back, shadow 0-10, x, y, sx, sy, r, ol, name, chat }
+     Objeto: { i, c, tint, tc, dy (profundidade), shadow 0-10, ol } */
+  function blankPet(i = 0) { return { i, c: petColorsFor(i), tint: 0, tc: '#ff4f86', back: 0, shadow: 6, x: 0, y: 0, sx: 1, sy: 1, r: 0, ol: 1, name: i && PARTS.pet[i] ? PARTS.pet[i].n : 'Bichinho', chat: '' }; }
+  function blankObj(i = 0) { return { i: PARTS.object[i] ? i : 0, c: objColorsFor(i), tint: 0, tc: '#ff4f86', dy: 0, shadow: 6, ol: 1 }; }
+  /* guarda o mascote antigo de um personagem (parts.pet + pet) num espaço livre e liga o personagem a ele */
+  function adoptPet(c, slots) {
+    if (!c.parts.pet || !c.parts.pet.i || c.petSlot >= 0) { if (c.parts.pet) c.parts.pet.i = 0; return; }
+    let k = slots.findIndex(p => !p.i && !p.used); if (k < 0) k = slots.findIndex(p => !p.used); if (k < 0) return;
+    const P = c.pet || {};
+    slots[k] = Object.assign(blankPet(c.parts.pet.i), { c: c.parts.pet.c.slice(0, 3), x: P.x || 0, y: P.y || 0, sx: P.s || 1, sy: P.s || 1, name: P.name && P.name !== 'Bichinho' ? P.name : PARTS.pet[c.parts.pet.i].n, used: 1 });
+    c.petSlot = k; c.parts.pet.i = 0;
+  }
+  /* completa os espaços: os livres ganham um mascote diferente cada */
+  function fillPets(d) {
+    d.petSlots = Array.from({ length: PET_SLOTS }, (_, i) => Object.assign(blankPet(), (d.petSlots || [])[i] || {}));
+    d.chars.forEach(c => adoptPet(c, d.petSlots));
+    const used = new Set(d.petSlots.map(p => p.i)); let n = 1;
+    d.petSlots.forEach(p => { delete p.used; if (!p.i) { while (used.has(n) && n < PARTS.pet.length - 1) n++; Object.assign(p, blankPet(n)); used.add(n); } });
+    d.objSlots = Array.from({ length: OBJ_SLOTS }, (_, i) => Object.assign(blankObj(i + 1), (d.objSlots || [])[i] || {}));
   }
 
   /* Completa campos que faltam em personagens antigos/importados */
@@ -37,9 +60,12 @@ const Store = (() => {
       const max = (PARTS[SLOT_DEFS[k].t] || []).length - 1;
       if (!(p.i >= 0 && p.i <= max)) p.i = 0;
     }
-    for (const k of ['body', 'hide', 'anim', 'pet', 'chat', 'profile']) c[k] = Object.assign(baseChar()[k], ch[k] || {});
+    for (const k of ['body', 'hide', 'anim', 'pet', 'chat', 'profile', 'face', 'hairFx']) c[k] = Object.assign(baseChar()[k], ch[k] || {});
     if (!(c.body.pose >= 0 && c.body.pose < POSES.length)) c.body.pose = 0;
+    /* animações viraram níveis de 0 a 10 (antes 1 = ligada) */
+    if (!(ch.anim && ch.anim.v >= 2)) { const a = ch.anim || {}; for (const k of ['blink', 'hair', 'wings', 'cape', 'tail', 'effects']) c.anim[k] = a[k] === 0 ? 0 : 5; c.anim.hairB = c.anim.hair; c.anim.v = 2; }
     c.adj = ch.adj || {};
+    if (!(c.petSlot >= 0 && c.petSlot < PET_SLOTS)) c.petSlot = -1;
     c.id = ch.id || newId();
     return c;
   }
@@ -63,9 +89,10 @@ const Store = (() => {
     const ds = defaultStudio(), st = d.studio || {};
     d.studio = Object.assign(ds, st, { bg: Object.assign(ds.bg, st.bg), narr: Object.assign(ds.narr, st.narr) });
     d.studio.chars = (d.studio.chars || []).filter(e => e.ci >= 0 && e.ci < 10);
-    d.studio.pets = (d.studio.pets || []).filter(e => PARTS.pet[e.pi]);
-    d.studio.objs = (d.studio.objs || []).filter(e => PARTS.object[e.oi]);
+    d.studio.pets = (d.studio.pets || []).filter(e => e.ps >= 0 || PARTS.pet[e.pi]);
+    d.studio.objs = (d.studio.objs || []).filter(e => e.os >= 0 || PARTS.object[e.oi]);
     d.scenes = Array.from({ length: 15 }, (_, i) => (d.scenes || [])[i] || null);
+    fillPets(d);
     d.v = SAVE_VERSION;
     return d;
   }
@@ -74,6 +101,7 @@ const Store = (() => {
     try {
       const raw = localStorage.getItem(SAVE_KEY);
       S = raw ? migrate(JSON.parse(raw)) : fresh();
+      if (!raw) fillPets(S);
     } catch (e) {
       console.warn('Save inválido; começando do zero', e);
       try { localStorage.setItem(SAVE_KEY + '.corrompido', localStorage.getItem(SAVE_KEY) || ''); } catch (_) { }
@@ -105,7 +133,8 @@ const Store = (() => {
   /* ---------- Cópias entre personagens ---------- */
   const CLOTHES = ['hat', 'glasses', 'headAcc', 'headAcc2', 'headAcc3', 'headAcc4', 'faceAcc', 'faceAcc2', 'faceAcc3', 'neck', 'neck2', 'logo', 'shirt', 'jacket', 'skirt', 'skirt2', 'sleeveL', 'sleeveR', 'pantsL', 'pantsR', 'sockL', 'sockR', 'shoeL', 'shoeR', 'gloveL', 'gloveR', 'shoulderL', 'shoulderR', 'wristL', 'wristR', 'kneeL', 'kneeR', 'cape', 'tail', 'wings', 'wingsR', 'propL', 'propR', 'shield', 'effBack', 'effFront'];
   function copyInto(dst, src, mode = 'all', colors = true) {
-    const slots = mode === 'hair' ? HAIR_SLOTS : mode === 'clothes' ? CLOTHES : Object.keys(SLOT_DEFS);
+    if (mode !== 'clothes' && colors) dst.hairFx = clone(src.hairFx);
+    const slots = mode === 'hair' ? HAIR_SLOTS : mode === 'clothes' ? CLOTHES : Object.keys(SLOT_DEFS).filter(k => k !== 'pet');
     for (const s of slots) {
       const p = src.parts[s]; if (!p) continue;
       dst.parts[s] = colors ? clone(p) : { i: p.i, c: dst.parts[s].c.slice() };
@@ -114,7 +143,7 @@ const Store = (() => {
     if (mode === 'all') {
       if (colors) dst.skin = src.skin;
       dst.body = Object.assign(dst.body, clone(src.body));
-      dst.anim = clone(src.anim); dst.hide = clone(src.hide);
+      dst.anim = clone(src.anim); dst.hide = clone(src.hide); dst.face = clone(src.face);
       dst.pet = Object.assign(dst.pet, { x: src.pet.x, y: src.pet.y, s: src.pet.s });
     }
   }
@@ -122,7 +151,7 @@ const Store = (() => {
   /* ---------- Exportar / importar ---------- */
   const toCode = o => btoa(unescape(encodeURIComponent(JSON.stringify(o))));
   const fromCode = t => { t = String(t).trim(); return JSON.parse(t.startsWith('{') ? t : decodeURIComponent(escape(atob(t)))); };
-  function exportChar(ch) { return 'AE1:' + toCode(ch); }
+  function exportChar(ch) { const o = clone(ch); if (ch.petSlot >= 0) o._pet = clone(S.petSlots[ch.petSlot]); delete o.petSlot; return 'AE1:' + toCode(o); }
   /* Código de exportação do Gacha Club: 10 textos | números | cores hex.
      O formato não é documentado; importamos nome, perfil e cores e aproximamos o visual. */
   function isGachaCode(code) { const f = String(code).trim().split('|'); return f.length > 60 && f.some(x => /^[0-9a-f]{6}$/i.test(x) && /[a-f]/i.test(x)); }
@@ -167,7 +196,10 @@ const Store = (() => {
     if (isGachaCode(code)) return importGacha(code, base);
     const d = fromCode(String(code).trim().replace(/^AE1:/, ''));
     if (!d || !d.parts) throw new Error('Código de personagem inválido');
-    const c = fixChar(d); c.id = newId(); return c;
+    const c = fixChar(d); c.id = newId();
+    if (d._pet && d._pet.i) { delete c._pet; c.petSlot = -1; c.parts.pet = { i: d._pet.i, c: (d._pet.c || []).slice(0, 3), _full: d._pet }; }
+    if (c.parts.pet.i) { const full = c.parts.pet._full; delete c.parts.pet._full; adoptPet(c, S.petSlots); if (full && c.petSlot >= 0) Object.assign(S.petSlots[c.petSlot], full); }
+    return c;
   }
   function exportAll() { saveNow(); return toCode(S); }
   function importAll(code) {
@@ -175,7 +207,7 @@ const Store = (() => {
     if (!d || !d.chars) throw new Error('Backup inválido');
     S = migrate(d); saveNow(); listeners.forEach(f => f(S));
   }
-  function reset() { S = fresh(); saveNow(); listeners.forEach(f => f(S)); }
+  function reset() { S = fresh(); fillPets(S); saveNow(); listeners.forEach(f => f(S)); }
 
   function addRecent(c) {
     const r = S.recentColors.filter(x => x !== c); r.unshift(c); S.recentColors = r.slice(0, 16); save();
@@ -183,7 +215,7 @@ const Store = (() => {
 
   return {
     load, save, saveNow, reset, get s() { return S; }, on: f => listeners.add(f),
-    get cur() { return S.chars[S.cur]; }, fixChar,
+    get cur() { return S.chars[S.cur]; }, fixChar, blankPet, blankObj, adoptPet,
     xpNeed, addXp, copyInto, CLOTHES,
     exportChar, importChar, isGachaCode, exportAll, importAll, addRecent,
     backup: i => S.backups[i] || genericDefault(i),

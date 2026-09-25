@@ -67,6 +67,7 @@ const Rig = (() => {
     const bust = !!ch.body.bust;
     TORSO = bust ? TORSO_F : TORSO_M; JACKET = bust ? JACKET_F : JACKET_M;
     const S = ch.skin, SO = H.outline ? 'none' : Color.shade(S, -48);
+    const FC = Object.assign({ hl: 0, chin: 0, eyeHl: 1, look: 0, blushPos: 0, shade: 0 }, ch.face || {}), HF = ch.hairFx || {};
     const defs = [
       celFilter(u + 'cel'), celFilter(u + 'celD1', { dark: DARK.hairBack }), celFilter(u + 'celD2', { dark: DARK.hairBase }),
       /* só o tom do cabelo posterior, sem borda (linha do cabelo sem franja: não pode ter emenda) */
@@ -81,6 +82,10 @@ const Rig = (() => {
       `<radialGradient id="${u}gs"><stop offset="0" stop-color="#000" stop-opacity=".42"/><stop offset=".6" stop-color="#000" stop-opacity=".22"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>`,
     ];
     const fx = (svg, f = 'cel') => svg ? `<g class="fx" filter="url(#${u}${f})">${svg}</g>` : '';
+    /* Tingimento: cobre a forma com a cor na força pedida (0 a 100) */
+    const tintF = (key, col, amt) => { const id = u + 'tn' + key;
+      defs.push(`<filter id="${id}" color-interpolation-filters="sRGB"><feFlood flood-color="${col}" flood-opacity="${(amt / 100).toFixed(2)}"/><feComposite in2="SourceAlpha" operator="in" result="t"/><feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="t"/></feMerge></filter>`);
+      return id; };
 
     const K = slot => {
       const p = ch.parts[slot];
@@ -91,13 +96,17 @@ const Rig = (() => {
         defs.push(`<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="${SLOT_DEFS[slot].hair ? .35 : .25}" stop-color="${c[0]}"/><stop offset="1" stop-color="${c[1]}"/></linearGradient>`);
         F = `url(#${id})`;
       }
-      return { c, F, u: u + slot, S, SO };
+      const k = { c, F, u: u + slot, S, SO };
+      if (SLOT_DEFS[slot].hair) { k.HL = HF.hl || ''; k.ACC = HF.acc || ''; }
+      return k;
     };
     const tpl = slot => { const p = ch.parts[slot]; if (!p || !p.i) return null; return (PARTS[SLOT_DEFS[slot].t] || [])[p.i] || null; };
     const draw = (slot, arg, raw) => {
       const t = tpl(slot); if (!t) return '';
       let svg = t.d(K(slot), arg);
       if (!raw && !NO_CEL.has(SLOT_DEFS[slot].t)) svg = fx(svg, slot === 'hairBack' ? 'celD1' : slot === 'hairBase' ? 'celD2' : 'cel');
+      const pp = ch.parts[slot];
+      if (pp.tint) svg = `<g filter="url(#${tintF(slot, pp.tc || '#ff4f86', pp.tint)})">${svg}</g>`;
       const a = ch.adj[slot], an = ANCHORS[slot];
       return a && an ? `<g transform="${adjAttr(a, an[0], an[1])}">${svg}</g>` : svg;
     };
@@ -132,7 +141,7 @@ const Rig = (() => {
       /* no 3/4 a mão de longe fica atrás do tronco: o item dela não é desenhado (apareceria atravessando o corpo) */
       const farHidden = T && !s;
       let hands = s || farHidden ? '' : draw('shield', undefined, 1);
-      hands += drawHand(hand, gl ? gl.hand : S, SO, gl && gl.big) + (gl && gl.after || '') + (farHidden ? '' : draw('prop' + X, undefined, 1));
+      hands += (H.hands ? '' : drawHand(hand, gl ? gl.hand : S, SO, gl && gl.big) + (gl && gl.after || '')) + (farHidden ? '' : draw('prop' + X, undefined, 1));
       const inFore = svg => `<g transform="translate(0 ${G.AU}) rotate(${a2})">${svg}</g>`;
       /* ombro: com o braço abaixado a junta fica logo abaixo da linha do ombro; conforme o braço sobe, ela vai
          para o canto de cima do tronco (senão o braço levantado parece sair do peito) */
@@ -201,7 +210,7 @@ const Rig = (() => {
       const L = limbAPI(g0, 'l' + X, LEG_F);
       const skin = `<path d="${g0.bandD(0, 1)}" fill="${S}" stroke="${SO}" stroke-width="${sw}"/>`;
       G.toe = T ? (s ? 1 : -1) : 0;
-      let foot = tpl('shoe' + X) ? draw('shoe' + X, undefined, 1) : `<ellipse cx="${-1.5 * G.toe}" cy="${G.LS + 4}" rx="${T ? 8.8 : 8}" ry="6" fill="${S}" stroke="${SO}" stroke-width="${sw}"/>`;
+      let foot = H.feet ? '' : tpl('shoe' + X) ? draw('shoe' + X, undefined, 1) : `<ellipse cx="${-1.5 * G.toe}" cy="${G.LS + 4}" rx="${T ? 8.8 : 8}" ry="6" fill="${S}" stroke="${SO}" stroke-width="${sw}"/>`;
       G.toe = 0;
       /* pé com a sola sempre plana no chão (desfaz o giro do quadril); no 3/4 aponta para o lado do olhar */
       /* no 3/4 o sapato é desenhado de perfil em diagonal (bico para o lado do olhar; o direito é espelhado) */
@@ -222,7 +231,12 @@ const Rig = (() => {
         const pt = tpl('pupil' + X), clip = u + 'ec' + X;
         /* sombra da pálpebra no branco (embaixo da íris, para não apagar os brilhos) */
         body += `<path d="${r.w}" fill="${k.c[0]}"/><clipPath id="${clip}"><path d="${r.w}"/></clipPath><g clip-path="url(#${clip})">`;
-        if (pt) body += `<g transform="translate(${((pa.x || 0) - 2.5 * T) * (s ? -1 : 1)} ${pa.y || 0}) rotate(${pa.r || 0}) scale(${pa.sx || 1} ${pa.sy || 1})">${pt.d(K('pupil' + X))}</g>`;
+        /* olhar: automático = para o lado do rosto no 3/4; o resto em coordenadas da tela (o olho direito é espelhado) */
+        const lk = LOOK_XY[FC.look] || [-2.5 * T, 0];
+        let psvg = pt ? pt.d(K('pupil' + X)) : '';
+        /* sem brilho nos olhos: tira os reflexos brancos da pupila */
+        if (!FC.eyeHl) psvg = psvg.replace(/<(?:ellipse|circle|path)\b[^>]*fill="#fff"[^>]*\/>/g, '');
+        if (pt) body += `<g transform="translate(${((pa.x || 0) + lk[0]) * (s ? -1 : 1)} ${(pa.y || 0) + lk[1]}) rotate(${pa.r || 0}) scale(${pa.sx || 1} ${pa.sy || 1})">${psvg}</g>`;
         body += `</g>`;
       }
       body += r.lash;
@@ -240,7 +254,7 @@ const Rig = (() => {
     const hs = 0.86 + (ch.body.head || 10) * 0.02;
     const headT = `translate(150 198) rotate(${(ch.body.headRot || 0) + (pose.h || 0)}) scale(${hs}) translate(-150 -198)`;
     const hair = !H.hair && !H.head;
-    const headBack = H.head ? '' : `<g transform="${headT}"><g class="anim-hair">${hair ? draw('hairBack') + draw('ponytail') + draw('hairBase') : ''}</g></g>`;
+    const headBack = H.head ? '' : `<g transform="${headT}"><g class="anim-hairb">${hair && !H.hairB ? draw('hairBack') + draw('ponytail') : ''}</g><g class="anim-hair">${hair ? draw('hairBase') : ''}</g></g>`;
     const emote = EMOTES[ch.chat && ch.chat.emote] || '';
     /* Sem franja, o cabelo de cima desenha a linha do cabelo na testa (como no Gacha Club), para a testa não ficar enorme */
     const hairline = () => {
@@ -251,6 +265,34 @@ const Rig = (() => {
       return `<g transform="${T ? 'translate(154 0) scale(.95 1) translate(-150 0)' : ''}">${fx(svg, 'dkB')}</g>`;
     };
     const faceD = T ? FACE_T : FACE;
+    const bp = BLUSH_POS[FC.blushPos] || BLUSH_POS[0];
+    /* sombra do rosto: escurece o alto do rosto (0 a 9) */
+    const faceShade = () => { if (!FC.shade || H.head) return '';
+      defs.push(`<linearGradient id="${u}fsg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${Color.shade(S, -45)}" stop-opacity="${(FC.shade * .1).toFixed(2)}"/><stop offset=".75" stop-color="${Color.shade(S, -45)}" stop-opacity="0"/></linearGradient>`);
+      return `<path d="${faceD}" fill="url(#${u}fsg)" class="fxs"/>`; };
+    /* brilho do rosto: traços brancos no nariz, bochechas e testa */
+    const faceHl = () => { const t = FC.hl; if (!t) return '';
+      const x = -12 * T, sp = (cx, cy, rx, ry, r = 0) => `<ellipse cx="${cx + x}" cy="${cy}" rx="${rx}" ry="${ry}" fill="#fff" opacity=".85" transform="rotate(${r} ${cx + x} ${cy})"/>`;
+      let o = '';
+      if (t === 1 || t >= 3) o += sp(147, 167, 2.2, 4.4, 14);
+      if (t === 2 || t === 4) o += sp(100 + 12 * T, 164, 7, 2.6, -22) + sp(200, 164, 7, 2.6, 22) + sp(92 + 12 * T, 170, 2.2, 1.4) + sp(208, 170, 2.2, 1.4);
+      if (t === 3) o += sp(136, 104, 12, 3.2, -8);
+      return `<g class="fxs" clip-path="url(#${u}fc)">${o}</g>`; };
+    /* queixo */
+    const chin = () => { const t = FC.chin; if (!t) return '';
+      const x = 150 - 13 * T, y = 194, c = Color.shade(S, -40), ln = (d, w = 1.8) => `<path d="${d}" stroke="${c}" stroke-width="${w}" fill="none" stroke-linecap="round"/>`;
+      const hc = ch.parts.bangs.c[0] || '#6b4226';
+      return [ '',
+        ln(`M${x - 5} ${y} Q${x} ${y + 1.5} ${x + 5} ${y}`),
+        ln(`M${x - 3} ${y - 2} Q${x - 1} ${y + 1} ${x - 2} ${y + 3} M${x + 3} ${y - 2} Q${x + 1} ${y + 1} ${x + 2} ${y + 3}`, 1.5),
+        ln(`M${x - 9} ${y - 3} Q${x} ${y + 4} ${x + 9} ${y - 3}`),
+        ln(`M${x - 8} ${y - 3} L${x} ${y + 3} L${x + 8} ${y - 3}`),
+        ln(`M${x - 8} ${y - 3} Q${x} ${y + 3} ${x + 8} ${y - 3} M${x - 6} ${y + 2} Q${x} ${y + 6} ${x + 6} ${y + 2}`, 1.5),
+        [[-12, -6], [-6, -2], [0, 0], [6, -2], [12, -6], [-9, -1], [9, -1], [-3, 3], [3, 3]].map(([dx, dy]) => `<circle cx="${x + dx}" cy="${y + dy}" r=".9" fill="${Color.shade(hc, -10)}" opacity=".7"/>`).join(''),
+        `<path d="M${x - 5} ${y - 3} Q${x} ${y - 5} ${x + 5} ${y - 3} Q${x + 4} ${y + 5} ${x} ${y + 6} Q${x - 4} ${y + 5} ${x - 5} ${y - 3}Z" fill="${hc}" stroke="${Color.shade(hc, -40)}" stroke-width="1.2"/>`,
+        `<ellipse cx="${x}" cy="${y}" rx="11" ry="4" fill="${c}" opacity=".22"/>`,
+        `<circle cx="${x + 9}" cy="${y - 4}" r="1.3" fill="${Color.shade(S, -60)}"/>`,
+      ][t] || ''; };
     defs.push(`<clipPath id="${u}fc"><path d="${faceD}"/></clipPath>`);
     const hatOn = tpl('hat');
     const faceShadow = !hair && !hatOn ? '' : `<g class="fxs" clip-path="url(#${u}fc)">
@@ -261,11 +303,12 @@ const Rig = (() => {
       ${fx((T ? '' : `<ellipse cx="77" cy="146" rx="7" ry="10" fill="${S}" stroke="${SO}" stroke-width="3"/>`) + `<ellipse cx="${223 + 2 * T}" cy="146" rx="7" ry="10" fill="${S}" stroke="${SO}" stroke-width="3"/>
       <path d="${faceD}" fill="${S}" stroke="${SO}" stroke-width="3"/>`, 'celS')}
       ${faceShadow}
-      ${H.face ? '' : `<g transform="translate(${-10 * T} 8) translate(150 166) scale(.94 1) translate(-150 -166)">${draw('blush')}</g><g transform="translate(${-10 * T} 4)">${draw('faceMark')}</g><g transform="translate(${-12 * T} 6)">${draw('faceAcc3')}</g>` + eye(0) + eye(1) + `<g transform="translate(${-18 * T} 3)">${draw('nose')}</g><g transform="translate(${-13 * T} 1) translate(150 184) scale(.9) translate(-150 -184)">${draw('mouth')}</g>`}
+      ${faceShade()}
+      ${H.face ? '' : `<g clip-path="url(#${u}fc)"><g transform="translate(${-10 * T + bp[0]} ${8 + bp[1]}) translate(150 166) scale(${.94 * bp[2]} 1) translate(-150 -166)">${draw('blush')}</g></g>${faceHl()}${chin()}<g transform="translate(${-10 * T} 4)">${draw('faceMark')}</g><g transform="translate(${-12 * T} 6)">${draw('faceAcc3')}</g>` + (FC.over ? '' : eye(0) + eye(1)) + `<g transform="translate(${-18 * T} 3)">${draw('nose')}</g><g transform="translate(${-13 * T} 1) translate(150 184) scale(.9) translate(-150 -184)">${draw('mouth')}</g>`}
       <g transform="translate(${-12 * T} 6)">${draw('faceAcc') + draw('glasses')}</g>
       <g transform="translate(${-4 * T} 0)">${draw('headAcc4')}</g>
       ${hair ? `<g class="anim-hair">${draw('bangs') || hairline()}</g>${draw('ahoge')}` : ''}
-      ${H.face ? '' : brow(0) + brow(1)}
+      ${H.face ? '' : (FC.over ? eye(0) + eye(1) : '') + brow(0) + brow(1)}
       <g transform="translate(${-12 * T} 6)">${draw('faceAcc2')}</g>
       <g transform="translate(${-4 * T} 0)">${draw('headAcc') + draw('headAcc2') + draw('hat') + draw('headAcc3')}</g>
       ${emote ? `<text x="214" y="40" font-size="40" text-anchor="middle" class="anim-bob" font-family="'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif">${emote}</text>` : ''}
@@ -311,41 +354,99 @@ const Rig = (() => {
     const bodyX = x => { const v = 150 + (x - 150) * TSX; return T ? turnX(v) : v; };
     const lean = `rotate(${pose.t || 0} 150 ${bodyY(282)})`;
     const behind = `<g transform="${lean}">
-      <g transform="${BODY_T} translate(150 232) scale(1.3) translate(-150 -232)"><g class="anim-wing">${wing('wings', 'wL') + wing('wingsR', 'wR')}</g>
-      ${cape ? `<g class="anim-cape">${capeAdj(cape.back)}</g>` : ''}</g>
+      <g transform="${BODY_T} translate(150 232) scale(1.3) translate(-150 -232)"><g class="anim-wing">${H.wings ? '' : wing('wings', 'wL') + wing('wingsR', 'wR')}</g>
+      ${cape && !H.cape ? `<g class="anim-cape">${capeAdj(cape.back)}</g>` : ''}</g>
       ${headBack}
     </g>`;
     const upper = `<g transform="${lean}">
       ${H.arms || !T ? '' : arm(0, bodyX(126))}
       ${T ? [[TURN_NEAR, 'tg'], [TURN_FAR, 'tl']].map(([k, id]) => `<g transform="translate(${TURN_C} 0) scale(${k} 1) translate(-150 0)"><g ${id === 'tl' ? `mask="url(#${u}tm)"` : `clip-path="url(#${u}${id})"`}><g transform="${TORSO_T}">${torso}</g></g></g>`).join('') : `<g transform="${TORSO_T}">${torso}</g>`}
       ${H.arms ? '' : (T ? '' : arm(0, bodyX(126))) + arm(1, bodyX(174))}
-      ${cape && cape.front ? `<g transform="${BODY_T}">${capeAdj(cape.front)}</g>` : ''}
+      ${cape && cape.front && !H.cape ? `<g transform="${BODY_T}">${capeAdj(cape.front)}</g>` : ''}
       ${headFront}
     </g>`;
 
+    /* mascote: o do espaço ligado ao personagem (Store.s.petSlots) ou, em dados antigos, parts.pet */
+    const PS = ch.petSlot >= 0 && typeof Store !== 'undefined' && Store.s && Store.s.petSlots ? Store.s.petSlots[ch.petSlot] : null;
     const petT = tpl('pet');
-    const pet = petT && !o.noPet ? `<g transform="translate(${228 + (ch.pet.x || 0)} ${354 + (ch.pet.y || 0)}) scale(${ch.pet.s || 1})"><g class="anim-bob">${petT.d(K('pet'))}</g></g>` : '';
+    let pet = '';
+    if (!o.noPet && PS && PS.i) pet = `<g transform="translate(${228 + (PS.x || 0)} ${354 + (PS.y || 0)})"><g class="anim-bob">${petSVG(PS, u + 'pt')}</g></g>`;
+    else if (!o.noPet && petT) pet = `<g transform="translate(${228 + (ch.pet.x || 0)} ${354 + (ch.pet.y || 0)}) scale(${ch.pet.s || 1})"><g class="anim-bob">${petT.d(K('pet'))}</g></g>`;
+    const petBack = PS && PS.back;
 
-    const sz = 0.7 + (ch.body.size || 10) * 0.03, flip = ch.body.flip ? -1 : 1;
+    const sz = 0.7 + (ch.body.size || 10) * 0.03, flip = ch.body.flip ? -1 : 1, wx = 0.7 + (ch.body.w || 10) * 0.03;
     const rot = (ch.body.rot || 0) + (pose.r || 0);
-    const rootT = `translate(${(pose.x || 0) * sz} ${(pose.y || 0) * sz}) translate(150 ${G.FEET_Y}) scale(${sz * flip} ${sz}) translate(-150 ${-G.FEET_Y}) rotate(${rot} 150 250)`;
+    const rootT = `translate(${(pose.x || 0) * sz} ${(pose.y || 0) * sz}) translate(150 ${G.FEET_Y}) scale(${sz * flip * wx} ${sz}) translate(-150 ${-G.FEET_Y}) rotate(${rot} 150 250)`;
     const A = ch.anim || {};
-    const cls = ['rig', !A.blink && 'na-blink', !A.hair && 'na-hair', !A.wings && 'na-wing', !A.cape && 'na-cape', !A.tail && 'na-tail', !A.effects && 'na-fx'].filter(Boolean).join(' ');
+    const cls = ['rig', !A.blink && 'na-blink', !A.hair && 'na-hair', !A.hairB && 'na-hairb', !A.wings && 'na-wing', !A.cape && 'na-cape', !A.tail && 'na-tail', !A.effects && 'na-fx'].filter(Boolean).join(' ');
+    /* velocidade: nível 5 = normal; cada nível acima acelera (a duração da animação é multiplicada) */
+    const spd = k => { const l = A[k] == null ? 5 : A[k]; return l ? Math.pow(2, (5 - l) / 4).toFixed(2) : 1; };
+    const animVars = ['blink', 'hair', 'hairB', 'wings', 'cape', 'tail', 'effects'].map(k => `--d-${k}:${spd(k)}`).join(';');
 
-    const body = `<g transform="${rootT} translate(0 ${SHIFT})">
+    const tintOn = ch.body.tint ? ` filter="url(#${tintF('body', ch.body.tintCol || '#ff4f86', ch.body.tint)})"` : '';
+    const body = `<g transform="${rootT} translate(0 ${SHIFT})"${tintOn}>
+      ${petBack ? pet : ''}
       <g class="fx-back">${draw('effBack')}</g>
       <g${H.outline ? '' : ` class="fx" filter="url(#${u}ol)"`}>
       ${behind}
-      <g class="anim-tail"><g transform="${TORSO_T}">${H.body ? '' : draw('tail')}</g></g>
+      <g class="anim-tail"><g transform="${TORSO_T}">${H.body || H.tail ? '' : draw('tail')}</g></g>
       ${H.legs ? '' : leg(0, bodyX(bust ? 135.5 : 137)) + leg(1, bodyX(bust ? 164.5 : 163))}
       ${upper}
       </g>
       <g class="fx-front">${draw('effFront')}</g>
-      ${pet}
+      ${petBack ? '' : pet}
     </g>`;
     /* sombra no chão como no Gacha Club: elipse sólida translúcida, da largura dos pés, com as solas a 3/4 da altura dela (base logo abaixo dos pés) */
-    const shadow = ch.body.shadow && !o.noShadow ? `<ellipse cx="${150 + (T ? -10.5 : 0) * sz * flip}" cy="${G.FEET_Y - 13 * sz}" rx="${57 * sz}" ry="${11.5 * sz}" fill="#0a0620" opacity=".6"/>` : '';
-    return `<defs>${defs.join('')}</defs><g class="${cls}">${shadow}${body}</g>`;
+    const shadow = ch.body.shadow && !o.noShadow ? groundShadow(ch.body.shType || 0, 150 + (T ? -10.5 : 0) * sz * flip, G.FEET_Y - 13 * sz, 57 * sz * wx, 11.5 * sz, ch.body.shCol || '#0a0620', u, defs) : '';
+    return `<defs>${defs.join('')}</defs><g class="${cls}" style="${animVars}">${shadow}${body}</g>`;
+  }
+
+  /* Sombra no chão (20 tipos, SHADOWS em defaults.js): cx/cy centro, rx/ry tamanho da padrão */
+  function groundShadow(t, cx, cy, rx, ry, col, u, defs) {
+    const E = (x, y, a, b, extra = '') => `<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="${a.toFixed(1)}" ry="${b.toFixed(1)}" ${extra}/>`;
+    const f = (op = .6) => `fill="${col}" opacity="${op}"`, st = (w, op = .7, dash = '') => `fill="none" stroke="${col}" stroke-width="${w}" opacity="${op}"${dash ? ` stroke-dasharray="${dash}"` : ''}`;
+    const rg = (id, inner, outer) => { defs.push(`<radialGradient id="${u}${id}"><stop offset="0" stop-color="${inner}" stop-opacity=".8"/><stop offset=".55" stop-color="${inner}" stop-opacity=".45"/><stop offset="1" stop-color="${outer}" stop-opacity="0"/></radialGradient>`); return `fill="url(#${u}${id})"`; };
+    const shape = (d, op = .6) => `<g transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) scale(${(rx / 57 * 1.3).toFixed(3)} ${(ry / 11.5 * 1.3).toFixed(3)})"><path d="${d}" fill="${col}" opacity="${op}"/></g>`;
+    switch (t) {
+      case 1: return E(cx, cy, rx * 1.15, ry * 1.3, rg('sh1', col, col));
+      case 2: return E(cx, cy, rx * .62, ry * .75, f());
+      case 3: return E(cx, cy, rx * 1.4, ry * 1.4, f());
+      case 4: return E(cx, cy, rx, ry, f(.3));
+      case 5: return E(cx, cy, rx, ry, f(.88));
+      case 6: return E(cx, cy, rx, ry, st(3.2));
+      case 7: return E(cx, cy, rx, ry, f(.45)) + E(cx, cy, rx * .6, ry * .6, f(.45));
+      case 8: return E(cx, cy, rx * 1.3, ry * 1.6, rg('sh8', Color.mix(col, '#ffffff', .75), col));
+      case 9: return E(cx, cy, rx * 1.2, ry * 1.4, rg('sh9', '#fffbe0', '#fffbe0')) + E(cx, cy, rx * 1.2, ry * 1.4, st(1.6, .5));
+      case 10: return `<rect x="${(cx - rx).toFixed(1)}" y="${(cy - ry).toFixed(1)}" width="${(rx * 2).toFixed(1)}" height="${(ry * 2).toFixed(1)}" rx="${(ry * .5).toFixed(1)}" ${f()}/>`;
+      case 11: return shape('M0 9 C-30 -2 -52 -6 -48 -12 C-44 -18 -12 -14 0 -6 C12 -14 44 -18 48 -12 C52 -6 30 -2 0 9Z');
+      case 12: return shape('M0 -13 L10 -4 L52 -4 L17 3 L32 13 L0 7 L-32 13 L-17 3 L-52 -4 L-10 -4Z');
+      case 13: return shape('M-50 -2 C-56 -12 -30 -14 -14 -10 C0 -16 26 -14 40 -9 C62 -4 58 8 36 10 C20 14 -2 11 -18 12 C-40 13 -60 8 -50 -2Z');
+      case 14: return E(cx, cy, rx, ry, st(2.6, .8, '5 5'));
+      case 15: return [1, .66, .33].map((k, i) => E(cx, cy, rx * k, ry * k, i === 2 ? f(.6) : st(2.4, .65))).join('');
+      case 16: return E(cx + rx * .6, cy, rx * 1.7, ry * .9, f(.5));
+      case 17: return `<g transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) skewX(-50)">${E(0, 0, rx * .8, ry, f(.5))}<ellipse cx="${(rx * 1.3).toFixed(1)}" cy="${(-ry * .2).toFixed(1)}" rx="${(rx * .9).toFixed(1)}" ry="${(ry * .6).toFixed(1)}" ${f(.35)}/></g>`;
+      case 18: return [[-.55, 0, .5], [0, -.2, .6], [.55, 0, .5], [-.25, .35, .45], [.28, .35, .45]].map(([dx, dy, k]) => E(cx + rx * dx, cy + ry * dy, rx * k, ry * k * 1.6, f(.5))).join('');
+      case 19: return E(cx, cy, rx * 1.1, ry * 1.4, rg('sh19', Color.mix(col, '#9ae8ff', .6), col)) + E(cx, cy, rx * 1.1, ry * 1.4, st(2.2, .9)) + E(cx, cy, rx * .75, ry, st(1.4, .7));
+      default: return E(cx, cy, rx, ry, f());
+    }
+  }
+
+  const tintDef = (id, col, amt) => `<filter id="${id}" color-interpolation-filters="sRGB"><feFlood flood-color="${col}" flood-opacity="${(amt / 100).toFixed(2)}"/><feComposite in2="SourceAlpha" operator="in" result="t"/><feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="t"/></feMerge></filter>`;
+  /* Mascote de um espaço (P), em coordenadas do mascote (~54×54): escala/rotação no centro, tingimento, contorno e sombra */
+  function petSVG(P, u) {
+    const t = PARTS.pet[P.i]; if (!t) return '';
+    const c = [P.c[0], P.c[1], P.ol === 0 ? 'none' : P.c[2]];
+    let svg = t.d({ c, F: c[0], u, shOp: P.shadow == null ? .6 : P.shadow / 10 });
+    if (P.tint) svg = `<defs>${tintDef(u + 'tn', P.tc || '#ff4f86', P.tint)}</defs><g filter="url(#${u}tn)">${svg}</g>`;
+    return `<g transform="translate(26 30) rotate(${P.r || 0}) scale(${P.sx || 1} ${P.sy || 1}) translate(-26 -30)">${svg}</g>`;
+  }
+  /* Objeto de um espaço (O): dy sobe/desce o desenho (profundidade), com tingimento, contorno e sombra */
+  function objSVG(O, u) {
+    const t = PARTS.object[O.i]; if (!t) return '';
+    const c = [O.c[0], O.c[1], O.ol === 0 ? 'none' : O.c[2]];
+    let svg = t.d({ c, F: c[0], u, shOp: O.shadow == null ? .6 : O.shadow / 10 });
+    if (O.tint) svg = `<defs>${tintDef(u + 'tn', O.tc || '#ff4f86', O.tint)}</defs><g filter="url(#${u}tn)">${svg}</g>`;
+    return O.dy ? `<g transform="translate(0 ${O.dy * 4})">${svg}</g>` : svg;
   }
 
   function render(ch, o = {}) {
@@ -386,5 +487,5 @@ const Rig = (() => {
     return render(MANNEQUIN, { cls: 'thumb still', noPet: true, noShadow: true });
   }
 
-  return { render, inner, portrait, thumb, poseThumb, VIEW };
+  return { render, inner, portrait, thumb, poseThumb, petSVG, objSVG, VIEW };
 })();

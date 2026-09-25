@@ -195,6 +195,30 @@ h4 { margin: 14px 0 6px; font-weight: 600; color: var(--muted); letter-spacing: 
 .pk-nav span { text-align: center; line-height: 1.1; color: var(--muted); }
 .pk-nav b { color: #e9e8ff; }
 .pk-nav .btn:disabled { opacity: .4; }
+/* Espaços de mascotes/objetos (20/30) */
+.slot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(62px, 1fr)); gap: 5px; margin: 8px 0 6px; }
+.slot-grid .pz { position: relative; aspect-ratio: 1 / 1; }
+.slot-grid .pz small { position: absolute; left: 3px; top: 1px; padding: 0; font-size: .75em; color: var(--muted); }
+.slot-grid .pz.target { border-style: dashed; border-color: var(--acc); }
+.slot-grid .star { position: absolute; right: 3px; top: 0; color: #ffd23f; font-style: normal; font-size: 1.1em; text-shadow: 0 1px 2px #000; }
+.ctl-grid.one { grid-template-columns: 1fr; }
+.obj-edit { display: grid; grid-template-columns: minmax(120px, 34%) 1fr; gap: 10px; align-items: start; }
+.obj-prev { aspect-ratio: 1 / 1; display: flex; border-radius: var(--r); border: 1px solid var(--line); background: linear-gradient(180deg, #2f3a6e, #1d2248); }
+.obj-prev svg { width: 100%; height: 100%; }
+/* Perfil: personagem e clube favoritos */
+.fav-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; grid-column: 1 / -1; }
+.fav { width: 100%; height: 110px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: var(--r); background: linear-gradient(180deg, #3a3478, #26224f); border: 2px solid var(--line2); overflow: hidden; }
+.fav svg { flex: 1; min-height: 0; width: 100%; }
+.fav i { font-style: normal; font-size: 52px; line-height: 1.1; filter: drop-shadow(0 0 10px var(--cc)); }
+.fav small { font-size: .85em; color: #d9d7ff; }
+.fav-grid { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); }
+.club-gal { display: grid; grid-template-columns: minmax(120px, 36%) 1fr; gap: 10px; }
+.club-big { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border-radius: var(--r); background: #151230; border: 1px solid var(--line); padding: 10px; }
+.club-big i { font-style: normal; font-size: 84px; filter: drop-shadow(0 0 16px var(--cc)); }
+.club-big b { font-size: 1.2em; text-align: center; }
+.club-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: 4px; align-content: start; }
+.club-grid button { aspect-ratio: 1 / 1; font-size: 26px; border-radius: 8px; background: #151230; border: 2px solid var(--line); }
+.club-grid button.on { border-color: var(--cc); box-shadow: 0 0 10px var(--cc); }
 /* Posição da estampa (junto das cores) */
 .pos { width: 28px; padding: 2px 0; border-radius: 5px; background: #151230; border: 1px solid var(--line); font-size: .7em; line-height: 1.1; color: #d9d7ff; display: flex; flex-direction: column; align-items: center; }
 .pos b { font-weight: 600; }
@@ -229,7 +253,8 @@ h4 { margin: 14px 0 6px; font-weight: 600; color: var(--muted); letter-spacing: 
 .adj-side { display: flex; flex-direction: column; gap: 8px; }
 
 /* Chat */
-.chat-prev { display: flex; flex-direction: column; align-items: center; padding: 16px; margin-bottom: 6px; border-radius: var(--r); background: repeating-linear-gradient(45deg, #221e48 0 12px, #1d1a3f 12px 24px); }
+.chat-svg { width: 100%; max-width: 460px; display: block; }
+.chat-prev { display: flex; flex-direction: column; align-items: center; padding: 8px; margin-bottom: 6px; border-radius: var(--r); background: repeating-linear-gradient(45deg, #221e48 0 12px, #1d1a3f 12px 24px); }
 .bubble { position: relative; max-width: 90%; padding: 12px 18px; font-size: 1.15em; border: 3px solid #2b2140; border-radius: 16px; text-align: center; box-shadow: 0 3px 0 rgba(0, 0, 0, .3); word-break: break-word; }
 .bubble.r-think { border-radius: 40px; }
 .bubble.r-shout { border-radius: 4px; transform: rotate(-2deg); font-weight: 700; border-width: 4px; }
@@ -338,12 +363,14 @@ h4 { margin: 14px 0 6px; font-weight: 600; color: var(--muted); letter-spacing: 
 .ld-logo img { width: 72px; }
 
 /* ============ ANIMAÇÕES DO PERSONAGEM ============ */
-.rig .anim-blink { animation: blink 4.2s infinite; }
-.rig .anim-hair { animation: hairSway 5s ease-in-out infinite; transform-origin: 150px 110px; }
-.rig .anim-wing-l { animation: flapL 2.4s ease-in-out infinite; transform-origin: 132px 232px; }
-.rig .anim-wing-r { animation: flapR 2.4s ease-in-out infinite; transform-origin: 168px 232px; }
-.rig .anim-cape { animation: capeSway 3.6s ease-in-out infinite; transform-origin: 150px 212px; }
-.rig .anim-tail { animation: tailWag 2.2s ease-in-out infinite; transform-origin: 166px 280px; }
+/* a duração é multiplicada pelo nível de animação do personagem (--d-*, definido pelo rig) */
+.rig .anim-blink { animation: blink calc(4.2s * var(--d-blink, 1)) infinite; }
+.rig .anim-hair { animation: hairSway calc(5s * var(--d-hair, 1)) ease-in-out infinite; transform-origin: 150px 110px; }
+.rig .anim-hairb { animation: hairSway calc(5s * var(--d-hairB, 1)) ease-in-out infinite; transform-origin: 150px 110px; }
+.rig .anim-wing-l { animation: flapL calc(2.4s * var(--d-wings, 1)) ease-in-out infinite; transform-origin: 132px 232px; }
+.rig .anim-wing-r { animation: flapR calc(2.4s * var(--d-wings, 1)) ease-in-out infinite; transform-origin: 168px 232px; }
+.rig .anim-cape { animation: capeSway calc(3.6s * var(--d-cape, 1)) ease-in-out infinite; transform-origin: 150px 212px; }
+.rig .anim-tail { animation: tailWag calc(2.2s * var(--d-tail, 1)) ease-in-out infinite; transform-origin: 166px 280px; }
 .anim-bob { animation: bob 2.4s ease-in-out infinite; }
 .anim-tw { animation: twinkle 1.8s ease-in-out infinite; }
 .anim-float { animation: floatUp 3.5s ease-in-out infinite; }
@@ -357,7 +384,7 @@ h4 { margin: 14px 0 6px; font-weight: 600; color: var(--muted); letter-spacing: 
 .anim-flap { animation: flapSmall .6s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
 .tw { animation: twinkle 1.8s ease-in-out infinite; }
 .sway { animation: sway 3.5s ease-in-out infinite; transform-box: fill-box; transform-origin: center bottom; }
-.na-blink .anim-blink, .na-hair .anim-hair, .na-wing .anim-wing-l, .na-wing .anim-wing-r, .na-wing .anim-wing, .na-cape .anim-cape, .na-tail .anim-tail,
+.na-blink .anim-blink, .na-hair .anim-hair, .na-hairb .anim-hairb, .na-wing .anim-wing-l, .na-wing .anim-wing-r, .na-wing .anim-wing, .na-cape .anim-cape, .na-tail .anim-tail,
 .na-fx .fx-back *, .na-fx .fx-front * { animation: none !important; }
 .still *, .low-quality *, .low-quality *::before { animation: none !important; transition: none !important; }
 
@@ -533,7 +560,8 @@ svg .bg-bat { animation: wWander 6s ease-in-out infinite; }
   .sw { width: 22px; height: 22px; }
   .num-grid { grid-template-columns: 1fr; }
   .prof { grid-template-columns: 1fr; }
-  .pf { grid-template-columns: 1fr; } .pf-art { min-height: 260px; }
+  .pf { grid-template-columns: 1fr; }
+  .obj-edit, .club-gal { grid-template-columns: 1fr; } .obj-prev { max-width: 200px; } .pf-art { min-height: 260px; }
   .swap { grid-template-columns: 1fr; } .swap-main { grid-template-columns: repeat(5, 1fr); }
   .opt-grid { grid-template-columns: 1fr; }
   .tut-main { grid-template-columns: 30px minmax(0, 1fr) 30px; }
