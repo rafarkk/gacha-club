@@ -69,6 +69,8 @@ PARTS.shirt = [null,
   { n: 'Moletom com orelhas', d: k => P(k, TORSO) + P(k, 'M122 214 Q150 236 178 214 L176 206 Q150 222 124 206Z', Color.shade(k.c[0], -12)) + [[124, 204], [176, 204]].map(([x, y]) => `<path d="M${x - 8} ${y} L${x} ${y - 14} L${x + 8} ${y}Z" fill="${k.c[0]}" ${ol(k, 2)}/>`).join('') },
   { n: 'Túnica com cinto', d: k => P(k, TORSO) + tclip(k, 'tc', `<rect x="100" y="258" width="100" height="10" fill="${k.c[1]}"/>`) + `<rect x="145" y="256" width="10" height="14" rx="2" fill="none" stroke="#ffd23f" stroke-width="2"/><path d="M140 210 L150 226 L160 210" stroke="${k.c[2]}" stroke-width="2" fill="none"/>` },
   { n: 'Blusa ombro a ombro', d: k => tclip(k, 'oo', `<rect x="100" y="222" width="100" height="90" fill="${k.c[0]}"/>`) + Array.from({ length: 9 }, (_, i) => `<circle cx="${120 + i * 7.6}" cy="222" r="5" fill="${k.c[0]}" ${ol(k, 1.6)}/>`).join('') + tline(k, 226) },
+  /* ---- padrões do Gacha Club ---- */
+  { n: 'Camiseta com barra', d: k => P(k, TORSO) + tclip(k, 'cb', `<rect x="100" y="${TORSO === TORSO_F ? 285 : 281}" width="100" height="20" fill="${k.c[1]}"/>`) + `<path d="${TORSO}" fill="none" ${ol(k, 3)}/><path d="M140 208 Q150 219 160 208" stroke="${k.c[2]}" stroke-width="2" fill="none"/>` },
 ];
 
 /* Detalhes de camisa aplicados por cima (hem: barra mais escura; fold: dobras na cintura; rib: barra canelada) */
@@ -228,6 +230,8 @@ PARTS.logo = [null,
   { n: 'Número 7', d: k => `<text x="160" y="252" text-anchor="middle" font-size="22" font-weight="700" font-family="sans-serif" fill="${k.c[0]}">7</text>` },
   { n: 'Cruz vermelha', d: k => `<path d="M157 234 L163 234 L163 239 L168 239 L168 245 L163 245 L163 250 L157 250 L157 245 L152 245 L152 239 L157 239Z" fill="${k.c[0]}"/>` },
   { n: 'Asas', d: k => [-1, 1].map(m => `<path d="M160 242 Q${160 + m * 10} 232 ${160 + m * 16} 236 Q${160 + m * 12} 240 ${160 + m * 14} 244 Q${160 + m * 8} 246 160 244Z" fill="${k.c[0]}"/>`).join('') },
+  /* ---- padrões do Gacha Club ---- */
+  { n: 'Planeta do clube', d: k => `<circle cx="160" cy="241" r="9.5" fill="${k.c[0]}"/><circle cx="160" cy="241" r="7" fill="${k.c[1]}"/><path d="M151 245 Q160 236 170 234 Q162 242 152 248Z" fill="${k.c[0]}"/>` },
 ];
 
 /* ---------- Membros (seg: 'u' braço, 'f' antebraço, 't' coxa, 's' canela) ---------- */

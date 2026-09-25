@@ -145,6 +145,8 @@ PARTS.hairBack = [null,
   { n: 'Longo e reto com franja lateral', d: k => hair(k, CAP_BACK, [[226, 128], [234, 250], [236, 370], [150, 374], [64, 370], [66, 250], [74, 128]], { top: 150, shine: 0, bulge: .1 }) },
   { n: 'Pontas repicadas curtas', d: k => hair(k, CAP_BACK, [[230, 128], [238, 190], [226, 184], [230, 206], [212, 196], [206, 220], [188, 204], [174, 226], [150, 208], [126, 226], [112, 204], [94, 220], [88, 196], [70, 206], [74, 184], [62, 190], [70, 128]], { top: 150, shine: 0, bulge: .05 }) },
   { n: 'Longo com laço baixo', d: k => hair(k, CAP_BACK, [[226, 128], [230, 250], [216, 300], [196, 330], [176, 346], [150, 352], [124, 346], [104, 330], [84, 300], [70, 250], [74, 128]], { top: 150, shine: 0, bulge: .4 }) + P(k, 'M150 250 L126 238 L126 262Z M150 250 L174 238 L174 262Z', k.c[1]) },
+  /* ---- padrões do Gacha Club ---- */
+  { n: 'Chanel bagunçado', d: k => hair(k, CAP_BACK, [[228, 128], [248, 180], [236, 176], [252, 208], [230, 196], [228, 224], [208, 206], [194, 222], [182, 204], [150, 212], [118, 204], [106, 222], [92, 206], [72, 230], [70, 198], [46, 214], [58, 176], [40, 182], [72, 128]], { top: 150, shine: 0, bulge: .3 }) },
 ];
 
 /* Cabelo posterior (volume da cabeça, atrás do rosto) */
@@ -191,6 +193,8 @@ PARTS.ponytail = [null,
   { n: 'Rabo trançado', d: k => braid(k, [[204, 88], [222, 104], [234, 126], [240, 150], [242, 174], [242, 198], [240, 222]], 11) + `<ellipse cx="240" cy="236" rx="6" ry="4" fill="${k.c[1]}" ${ol(k, 2)}/>` },
   { n: 'Coque baixo', d: k => `<circle cx="150" cy="206" r="24" fill="${k.F}" ${ol(k, 2.8)}/><path d="M132 204 Q150 194 168 204" stroke="${k.c[2]}" stroke-width="1.6" fill="none" opacity=".45"/>` },
   { n: 'Chiquinhas com laços', d: k => [0, 1].map(m => { const p = hair(Object.assign({}, k, { u: k.u + 'l' + m }), 'M88 86 C58 78 42 104 44 150', [[44, 150], [48, 176], [58, 160], [66, 172], [70, 130], [80, 110], [92, 98]], { top: 96, bulge: .4, shine: 0 }) + P(k, 'M86 90 L72 80 L72 100Z M86 90 L100 80 L100 100Z', k.c[1]); return m ? `<g transform="translate(300 0) scale(-1 1)">${p}</g>` : p; }).join('') },
+  /* ---- padrões do Gacha Club ---- */
+  { n: 'Rabo alto de lado', d: k => hair(k, 'M128 46 C108 4 56 6 46 60', [[46, 60], [36, 102], [52, 94], [52, 132], [64, 108], [72, 140], [76, 100], [92, 72], [114, 60]], { top: 36, bulge: .3, shine: 0, sw: 2 }) + `<ellipse cx="120" cy="54" rx="8" ry="11" fill="#ff4f86" ${ol(k, 2.2)} transform="rotate(-40 120 54)"/>` },
 ];
 
 /* Cabelo frontal (franja) — mechas pontudas sobre a testa, laterais emoldurando o rosto */
@@ -229,6 +233,8 @@ PARTS.bangs = [null,
   { n: 'Franja com presilha', d: k => hair(k, CAP_BANGS, [[230, 150], [224, 176], [212, 112], [196, 132], [182, 98], [164, 128], [150, 96], [134, 128], [118, 98], [102, 132], [88, 112], [76, 176], [70, 150]], { edgeOnly: 1, bulge: .45 }) + `<rect x="184" y="84" width="24" height="7" rx="3" fill="${k.c[1]}" ${ol(k, 1.6)} transform="rotate(-20 196 88)"/>` },
   { n: 'Franja assimétrica', d: k => hair(k, CAP_BANGS, [[230, 150], [226, 160], [216, 100], [200, 110], [186, 90], [170, 116], [150, 100], [132, 138], [116, 116], [100, 160], [88, 130], [76, 196], [70, 150]], { edgeOnly: 1, bulge: .3, sw: -5 }) },
   { n: 'Franja de anime longa', d: k => hair(k, CAP_BANGS, [[230, 150], [228, 230], [216, 136], [200, 152], [188, 110], [170, 150], [154, 106], [136, 152], [120, 110], [104, 150], [88, 132], [74, 230], [70, 150]], { edgeOnly: 1, bulge: .35 }) },
+  /* ---- padrões do Gacha Club ---- */
+  { n: 'Franja de anime bagunçada', d: k => hair(k, CAP_BANGS, [[230, 150], [238, 204], [220, 140], [210, 158], [198, 102], [186, 138], [174, 98], [160, 172], [152, 104], [140, 136], [126, 98], [112, 150], [100, 106], [80, 200], [74, 146], [70, 150]], { edgeOnly: 1, bulge: .25, sw: -2 }) },
 ];
 
 /* Ahoge (mechas-antena no topo) */
