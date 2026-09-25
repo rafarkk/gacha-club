@@ -198,6 +198,17 @@ PARTS.neck = [null,
   { n: 'Lenço no pescoço', d: k => P(k, 'M128 204 L172 204 L164 216 L150 212 L136 216Z') + P(k, 'M150 212 L142 234 L150 228 L158 234Z', k.c[1]) },
   { n: 'Choker de spikes', d: k => P(k, 'M140 196 Q150 200 160 196 L160 204 Q150 208 140 204Z') + [142, 147, 152, 157].map(x => `<path d="M${x} 204 L${x + 1.5} 210 L${x + 3} 204Z" fill="#c8ccd8" ${ol(k, 1)}/>`).join('') },
   { n: 'Medalha', d: k => `<path d="M140 200 L146 228 M160 200 L154 228" stroke="${k.c[0]}" stroke-width="4"/><circle cx="150" cy="236" r="9" fill="${k.c[1]}" ${ol(k, 1.8)}/><path d="${Shape.star(150, 236, 4.4, 2)}" fill="${k.c[0]}"/>` },
+  /* ---- rodada 3 (fase 5) ---- */
+  { n: 'Cachecol listrado', d: k => P(k, 'M126 202 Q150 222 174 202 L176 216 Q150 236 124 216Z') + P(k, 'M160 214 L172 218 L176 262 L162 262Z') + [226, 238, 250].map(y => `<path d="M161 ${y} L175 ${y}" stroke="${k.c[1]}" stroke-width="4"/>`).join('') + `<path d="M130 208 Q150 222 170 208" stroke="${k.c[1]}" stroke-width="4" fill="none"/>` },
+  { n: 'Gola de pelo', d: k => Array.from({ length: 8 }, (_, i) => `<circle cx="${122 + i * 8}" cy="${210 + Math.sin(i * Math.PI / 7) * 8}" r="7" fill="${k.c[0]}" ${ol(k, 1.6)}/>`).join('') },
+  { n: 'Lenço de caubói', d: k => P(k, 'M126 204 Q150 214 174 204 L150 240Z') + [[140, 214], [158, 216], [150, 228]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2" fill="${k.c[1]}"/>`).join('') },
+  { n: 'Colar de pérolas curto', d: k => Array.from({ length: 11 }, (_, i) => { const t = i / 10, x = 134 + 32 * t, y = 206 + Math.sin(t * Math.PI) * 18; return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.2" fill="${k.c[0]}" ${ol(k, 1)}/>`; }).join('') },
+  { n: 'Coleira com sino', d: k => P(k, 'M140 197 L160 197 L160 205 L140 205Z') + `<circle cx="150" cy="211" r="5.5" fill="#ffd23f" ${ol(k, 1.6)}/><path d="M146 212 L154 212" stroke="${k.c[2]}" stroke-width="1.2"/>` },
+  { n: 'Gravata comprida', d: k => P(k, 'M145 206 L155 206 L153 214 L147 214Z') + P(k, 'M147 214 L153 214 L158 258 L150 266 L142 258Z') + `<path d="M144 230 L156 226 M144 244 L157 240" stroke="${k.c[1]}" stroke-width="3"/>` },
+  { n: 'Cachecol grande', d: k => P(k, 'M120 200 Q150 230 180 200 L184 222 Q150 250 116 222Z') + P(k, 'M126 222 L144 230 L140 272 L122 268Z') + `<path d="M124 262 L142 266" stroke="${k.c[1]}" stroke-width="3"/>` },
+  { n: 'Colar de coração', d: k => `<path d="M136 206 Q150 234 164 206" stroke="${k.c[1]}" stroke-width="1.8" fill="none"/><path d="${Shape.heart(150, 232, 5.5)}" fill="${k.c[0]}" ${ol(k, 1.4)}/>` },
+  { n: 'Laço no pescoço', d: k => P(k, 'M150 212 L134 202 L132 222Z M150 212 L166 202 L168 222Z') + P(k, 'M147 214 L140 236 L146 234 L150 214Z M153 214 L160 236 L154 234 L150 214Z') + `<circle cx="150" cy="212" r="4" fill="${k.c[1]}" ${ol(k, 1.4)}/>` },
+  { n: 'Gola de marinheiro listrada', d: k => P(k, 'M122 206 L178 206 L172 226 L150 244 L128 226Z', k.c[0]) + `<path d="M128 214 L150 236 L172 214" stroke="${k.c[1]}" stroke-width="2.4" fill="none"/>` },
 ];
 
 PARTS.logo = [null,

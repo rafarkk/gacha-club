@@ -141,6 +141,17 @@ PARTS.nose = [null,
   { n: 'Sombra fina', d: k => `<path d="M153.5 160 Q156 166 152 170.5" stroke="${k.c[0]}" stroke-width="1.8" fill="none" stroke-linecap="round" opacity=".85"/>` },
   { n: 'Linha fina', d: k => `<path d="M152 161 L148.5 169.5 L152.5 169.5" stroke="${k.c[0]}" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>` },
   { n: 'Corado', d: k => `<ellipse cx="150" cy="167" rx="7" ry="3.2" fill="#ff8fa3" opacity=".45"/><circle cx="150" cy="167.5" r="1.6" fill="${k.c[0]}"/>` },
+  /* ---- rodada 3 (fase 5) ---- */
+  { n: 'Ponto duplo', d: k => `<circle cx="147.5" cy="168" r="1.3" fill="${k.c[0]}"/><circle cx="152.5" cy="168" r="1.3" fill="${k.c[0]}"/>` },
+  { n: 'Gancho', d: k => `<path d="M152 160 Q155 167 149 170" stroke="${k.c[0]}" stroke-width="1.8" fill="none" stroke-linecap="round"/>` },
+  { n: 'Arredondado', d: k => `<path d="M146 169 Q150 173 154 169" stroke="${k.c[0]}" stroke-width="1.8" fill="none" stroke-linecap="round"/>` },
+  { n: 'Seta', d: k => `<path d="M147 165 L151 169 L147 171" stroke="${k.c[0]}" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>` },
+  { n: 'Coração', d: k => `<path d="${Shape.heart(150, 167.5, 2.6)}" fill="${k.c[0]}"/>` },
+  { n: 'Porquinho', d: k => `<ellipse cx="150" cy="168" rx="5.5" ry="4" fill="#ffb3c4" stroke="${k.c[0]}" stroke-width="1.2"/><ellipse cx="148" cy="168" rx="1" ry="1.5" fill="${k.c[0]}"/><ellipse cx="152" cy="168" rx="1" ry="1.5" fill="${k.c[0]}"/>` },
+  { n: 'Palhaço', d: k => `<circle cx="150" cy="167" r="5.5" fill="#ff3b4f" stroke="#a0142a" stroke-width="1.2"/><circle cx="148.2" cy="165.2" r="1.6" fill="#fff" opacity=".8"/>` },
+  { n: 'Narinas', d: k => `<path d="M146.5 169 q1.5 -1.5 3 0 M150.5 169 q1.5 -1.5 3 0" stroke="${k.c[0]}" stroke-width="1.4" fill="none" stroke-linecap="round"/>` },
+  { n: 'Brilho', d: k => `<path d="M152 161 L149 170" stroke="${k.c[0]}" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="151" cy="164" rx=".9" ry="2" fill="#fff" opacity=".85"/>` },
+  { n: 'Gato', d: k => `<path d="M147 166 L153 166 L150 169.5Z" fill="${k.c[0]}"/><path d="M150 169.5 L150 172" stroke="${k.c[0]}" stroke-width="1.2"/>` },
 ];
 
 /* Boca (centro 150,184) — cores [interior, língua, contorno] */
@@ -191,6 +202,12 @@ PARTS.blush = [null,
   { n: 'Forte', d: k => `<defs><radialGradient id="${k.u}bg"><stop offset="0" stop-color="${k.c[0]}" stop-opacity=".8"/><stop offset=".6" stop-color="${k.c[0]}" stop-opacity=".45"/><stop offset="1" stop-color="${k.c[0]}" stop-opacity="0"/></radialGradient></defs><ellipse cx="104" cy="166" rx="21" ry="11" fill="url(#${k.u}bg)"/><ellipse cx="196" cy="166" rx="21" ry="11" fill="url(#${k.u}bg)"/><ellipse cx="104" cy="166" rx="14" ry="7" fill="url(#${k.u}bg)"/><ellipse cx="196" cy="166" rx="14" ry="7" fill="url(#${k.u}bg)"/>` + [96, 186].map(x => `<path d="M${x} 170 l5 -8 M${x + 7} 170 l5 -8 M${x + 14} 170 l5 -8" stroke="#fff" stroke-opacity=".6" stroke-width="1.6" stroke-linecap="round"/>`).join('') },
   { n: 'Corações', d: k => `<path d="${Shape.heart(104, 166, 5)}" fill="${k.c[0]}"/><path d="${Shape.heart(196, 166, 5)}" fill="${k.c[0]}"/>` },
   { n: 'Brilho', d: k => `<defs><radialGradient id="${k.u}bg"><stop offset="0" stop-color="${k.c[0]}" stop-opacity=".8"/><stop offset=".6" stop-color="${k.c[0]}" stop-opacity=".45"/><stop offset="1" stop-color="${k.c[0]}" stop-opacity="0"/></radialGradient></defs><ellipse cx="104" cy="166" rx="19" ry="10" fill="url(#${k.u}bg)"/><ellipse cx="196" cy="166" rx="19" ry="10" fill="url(#${k.u}bg)"/><path d="${Shape.star(112, 160, 4, 1, 4)}" fill="#fff"/><path d="${Shape.star(204, 160, 4, 1, 4)}" fill="#fff"/>` },
+  /* ---- rodada 3 (fase 5) ---- */
+  { n: 'Riscos', d: k => [96, 186].map(x => `<path d="M${x} 168 l4 -6 M${x + 6} 168 l4 -6 M${x + 12} 168 l4 -6 M${x + 18} 168 l4 -6" stroke="${k.c[0]}" stroke-width="1.5" stroke-linecap="round" opacity=".85"/>`).join('') },
+  { n: 'Bolinhas', d: k => [104, 196].map(x => [[-8, 0], [0, -2], [8, 0], [-4, 5], [4, 5]].map(([dx, dy]) => `<circle cx="${x + dx}" cy="${166 + dy}" r="2.2" fill="${k.c[0]}" opacity=".7"/>`).join('')).join('') },
+  { n: 'Estrelinhas', d: k => [104, 196].map(x => `<path d="${Shape.star(x, 166, 5, 2.2)}" fill="${k.c[0]}" opacity=".85"/>`).join('') },
+  { n: 'Espirais', d: k => [104, 196].map(x => `<path d="M${x} 166 m-1 0 a1.5 1.5 0 1 1 3 0 a3 3 0 1 1 -6 0 a4.5 4.5 0 1 1 9 0" stroke="${k.c[0]}" stroke-width="1.4" fill="none" opacity=".8"/>`).join('') },
+  { n: 'Faixa no nariz', d: k => `<defs><linearGradient id="${k.u}bn" x1="0" x2="1"><stop offset="0" stop-color="${k.c[0]}" stop-opacity="0"/><stop offset=".25" stop-color="${k.c[0]}" stop-opacity=".55"/><stop offset=".75" stop-color="${k.c[0]}" stop-opacity=".55"/><stop offset="1" stop-color="${k.c[0]}" stop-opacity="0"/></linearGradient></defs><rect x="92" y="158" width="116" height="14" rx="7" fill="url(#${k.u}bn)"/>` },
 ];
 
 /* Marcas no rosto — cores [cor] */
@@ -203,4 +220,17 @@ PARTS.faceMark = [null,
   { n: 'Listras', d: k => `<path d="M84 150 L100 152 M84 158 L100 158 M216 150 L200 152 M216 158 L200 158" stroke="${k.c[0]}" stroke-width="3" stroke-linecap="round"/>` },
   { n: 'Coração', d: k => `<path d="${Shape.heart(196, 166, 5)}" fill="${k.c[0]}"/>` },
   { n: 'Lua', d: k => `<path d="M156 70 A12 12 0 1 0 156 94 A9 9 0 1 1 156 70Z" fill="${k.c[0]}"/>` },
+  /* ---- rodada 3 (fase 5) ---- */
+  { n: 'Sardas no nariz', d: k => [[140, 164], [145, 161], [155, 161], [160, 164], [143, 168], [157, 168]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.3" fill="${k.c[0]}"/>`).join('') },
+  { n: 'Pinta no olho', d: k => `<circle cx="206" cy="160" r="1.8" fill="${k.c[0]}"/>` },
+  { n: 'Lágrimas', d: k => [104, 196].map(x => `<path d="M${x} 160 C${x - 4} 168 ${x - 4} 172 ${x} 174 C${x + 4} 172 ${x + 4} 168 ${x} 160Z" fill="${k.c[0]}" opacity=".85"/>`).join('') },
+  { n: 'Arranhão', d: k => `<path d="M190 150 L204 164 M194 148 L208 162 M198 146 L212 160" stroke="${k.c[0]}" stroke-width="1.8" stroke-linecap="round"/>` },
+  { n: 'Band-aid na bochecha', d: k => `<g transform="rotate(-25 196 166)"><rect x="185" y="162" width="22" height="8" rx="4" fill="#f4cfa4" stroke="#b98a5c" stroke-width="1.2"/><rect x="192.5" y="163" width="7" height="6" rx="1.2" fill="#fbe6c8"/></g>` },
+  { n: 'Triângulos', d: k => `<path d="M98 172 L104 160 L110 172Z M190 172 L196 160 L202 172Z" fill="${k.c[0]}"/>` },
+  { n: 'Terceiro olho', d: k => `<path d="M140 108 Q150 100 160 108 Q150 116 140 108Z" fill="#fff" stroke="${k.c[0]}" stroke-width="1.6"/><circle cx="150" cy="108" r="3.2" fill="${k.c[0]}"/>` },
+  { n: 'Gota na testa', d: k => `<path d="M190 100 C186 108 186 112 190 114 C194 112 194 108 190 100Z" fill="#9ee7ff" stroke="#3a8ab0" stroke-width="1.2"/>` },
+  { n: 'Marcas tribais', d: k => [[100, 1], [200, -1]].map(([x, s]) => `<path d="M${x - 8 * s} 150 Q${x} 156 ${x - 8 * s} 162 M${x - 3 * s} 152 Q${x + 5 * s} 158 ${x - 3 * s} 164" stroke="${k.c[0]}" stroke-width="2.2" fill="none" stroke-linecap="round"/>`).join('') },
+  { n: 'Estrelas nos olhos', d: k => [104, 196].map(x => `<path d="${Shape.star(x, 172, 3.4, 1.4)}" fill="${k.c[0]}"/>`).join('') },
+  { n: 'Veia de raiva', d: k => `<path d="M182 104 q4 -4 8 0 M182 104 q-4 4 0 8 M190 104 q4 4 0 8 M182 112 q4 4 8 0" stroke="#e0203f" stroke-width="2.2" fill="none" stroke-linecap="round"/>` },
+  { n: 'Bigode', d: k => `<path d="M150 177 C144 171 134 173 132 179 C138 177 144 179 150 180 C156 179 162 177 168 179 C166 173 156 171 150 177Z" fill="${k.c[0]}"/>` },
 ];
