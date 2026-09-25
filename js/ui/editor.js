@@ -129,7 +129,7 @@ const Editor = (() => {
     const sh = { i: 1 + pick(PARTS.shoe.length - 1), c: cloth() }; c.parts.shoeL = clone(sh); c.parts.shoeR = clone(sh);
     set('hat', PARTS.hat.length - 1, .3);
     set('neck', PARTS.neck.length - 1, .3);
-    set('wings', PARTS.wings.length - 1, .12);
+    set('wings', PARTS.wings.length - 1, .12); c.parts.wingsR = clone(c.parts.wings);
     set('tail', PARTS.tail.length - 1, .12);
     c.parts.gloveL.i = c.parts.gloveR.i = 0;
     c.parts.effBack.i = c.parts.effFront.i = 0;

@@ -29,6 +29,8 @@ const Store = (() => {
     const b = baseChar();
     const c = Object.assign(b, ch);
     c.parts = Object.assign(blankParts(), ch.parts || {});
+    /* asa direita virou peça separada: saves antigos continuam com as duas asas */
+    if (ch.parts && ch.parts.wings && !ch.parts.wingsR) c.parts.wingsR = clone(ch.parts.wings);
     for (const [k, p] of Object.entries(c.parts)) {
       if (!SLOT_DEFS[k]) { delete c.parts[k]; continue; }
       if (!Array.isArray(p.c) || p.c.length < 3) p.c = ['#ffffff', '#b8c0cf', OUTLINE];
@@ -101,7 +103,7 @@ const Store = (() => {
   }
 
   /* ---------- Cópias entre personagens ---------- */
-  const CLOTHES = ['hat', 'glasses', 'headAcc', 'headAcc2', 'faceAcc', 'neck', 'logo', 'shirt', 'jacket', 'skirt', 'sleeveL', 'sleeveR', 'pantsL', 'pantsR', 'sockL', 'sockR', 'shoeL', 'shoeR', 'gloveL', 'gloveR', 'cape', 'tail', 'wings', 'propL', 'propR', 'shield', 'effBack', 'effFront'];
+  const CLOTHES = ['hat', 'glasses', 'headAcc', 'headAcc2', 'headAcc3', 'headAcc4', 'faceAcc', 'faceAcc2', 'faceAcc3', 'neck', 'neck2', 'logo', 'shirt', 'jacket', 'skirt', 'skirt2', 'sleeveL', 'sleeveR', 'pantsL', 'pantsR', 'sockL', 'sockR', 'shoeL', 'shoeR', 'gloveL', 'gloveR', 'shoulderL', 'shoulderR', 'wristL', 'wristR', 'kneeL', 'kneeR', 'cape', 'tail', 'wings', 'wingsR', 'propL', 'propR', 'shield', 'effBack', 'effFront'];
   function copyInto(dst, src, mode = 'all', colors = true) {
     const slots = mode === 'hair' ? HAIR_SLOTS : mode === 'clothes' ? CLOTHES : Object.keys(SLOT_DEFS);
     for (const s of slots) {

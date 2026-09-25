@@ -13,33 +13,46 @@ const SLOT_DEFS = {
   nose: { t: 'nose', n: 'Nariz', cn: ['Cor'] }, mouth: { t: 'mouth', n: 'Boca', cn: ['Interior', 'Língua', 'Contorno'] },
   blush: { t: 'blush', n: 'Corado', cn: ['Cor'] }, faceMark: { t: 'faceMark', n: 'Marca no rosto', cn: ['Cor'] },
   hat: { t: 'hat', n: 'Chapéu' }, glasses: { t: 'glasses', n: 'Óculos' },
-  headAcc: { t: 'headAcc', n: 'Enfeite de cabeça' }, headAcc2: { t: 'headAcc', n: 'Enfeite de cabeça 2' },
-  faceAcc: { t: 'faceAcc', n: 'Acessório de rosto' }, neck: { t: 'neck', n: 'Pescoço' }, logo: { t: 'logo', n: 'Estampa' },
-  shirt: { t: 'shirt', n: 'Camisa' }, jacket: { t: 'jacket', n: 'Jaqueta' }, skirt: { t: 'skirt', n: 'Cinto/Saia' },
+  /* acessórios de cabeça/rosto/pescoço em camadas (como no Gacha Club): topo · meio · base */
+  headAcc: { t: 'headAcc', n: 'Acessório (meio)' }, headAcc2: { t: 'headAcc', n: 'Acessório (meio 2)' },
+  faceAcc: { t: 'faceAcc', n: 'Acessório de rosto (meio)' }, neck: { t: 'neck', n: 'Cachecol (topo)' }, logo: { t: 'logo', n: 'Estampa' },
+  shirt: { t: 'shirt', n: 'Camisa' }, jacket: { t: 'jacket', n: 'Jaqueta' }, skirt: { t: 'skirt', n: 'Cinto/Saia (topo)' },
   sleeveL: { t: 'sleeve', n: 'Manga' }, sleeveR: { t: 'sleeve', n: 'Manga direita' },
   pantsL: { t: 'pants', n: 'Calça' }, pantsR: { t: 'pants', n: 'Calça direita' },
   sockL: { t: 'sock', n: 'Meia' }, sockR: { t: 'sock', n: 'Meia direita' },
   shoeL: { t: 'shoe', n: 'Sapato' }, shoeR: { t: 'shoe', n: 'Sapato direito' },
   gloveL: { t: 'glove', n: 'Luva' }, gloveR: { t: 'glove', n: 'Luva direita' },
-  cape: { t: 'cape', n: 'Capa' }, tail: { t: 'tail', n: 'Cauda' }, wings: { t: 'wings', n: 'Asas' },
+  cape: { t: 'cape', n: 'Capa' }, tail: { t: 'tail', n: 'Cauda' }, wings: { t: 'wings', n: 'Asa' },
   propL: { t: 'prop', n: 'Item mão esquerda' }, propR: { t: 'prop', n: 'Item mão direita' }, shield: { t: 'shield', n: 'Escudo' },
   effBack: { t: 'effect', n: 'Efeito atrás' }, effFront: { t: 'effect', n: 'Efeito à frente' },
   pet: { t: 'pet', n: 'Mascote' },
+  headAcc3: { t: 'headAcc', n: 'Acessório (topo)' }, headAcc4: { t: 'headAcc', n: 'Acessório (base)' },
+  faceAcc2: { t: 'faceAcc', n: 'Acessório de rosto (topo)' }, faceAcc3: { t: 'faceAcc', n: 'Acessório de rosto (base)' },
+  neck2: { t: 'neck', n: 'Cachecol (base)' }, skirt2: { t: 'skirt', n: 'Cinto/Saia (base)' },
+  wingsR: { t: 'wings', n: 'Asa direita' },
+  shoulderL: { t: 'shoulder', n: 'Ombro' }, shoulderR: { t: 'shoulder', n: 'Ombro direito' },
+  wristL: { t: 'wrist', n: 'Pulso' }, wristR: { t: 'wrist', n: 'Pulso direito' },
+  kneeL: { t: 'knee', n: 'Joelho' }, kneeR: { t: 'knee', n: 'Joelho direito' },
 };
 const HAIR_SLOTS = ['hairBack', 'hairBase', 'ponytail', 'bangs', 'ahoge'];
-const PAIRS = { eyeL: 'eyeR', pupilL: 'pupilR', browL: 'browR', sleeveL: 'sleeveR', pantsL: 'pantsR', sockL: 'sockR', shoeL: 'shoeR', gloveL: 'gloveR' };
+/* Pares: o cartão do lado esquerdo muda os dois lados; o do direito, só o direito */
+const PAIRS = { eyeL: 'eyeR', pupilL: 'pupilR', browL: 'browR', sleeveL: 'sleeveR', pantsL: 'pantsR', sockL: 'sockR', shoeL: 'shoeR', gloveL: 'gloveR',
+  wings: 'wingsR', shoulderL: 'shoulderR', wristL: 'wristR', kneeL: 'kneeR' };
+/* 16 posições da estampa no tronco: [dx, dy, escala] a partir do peito direito */
+const LOGO_POS = [[0, 0, 1], [-20, 0, 1], [-10, 0, 1], [-10, 4, 1.3], [-10, 18, 1], [0, -8, .8], [-20, -8, .8], [-10, -10, .7],
+  [-10, 8, 1.7], [0, 18, .9], [-20, 18, .9], [-10, 30, .8], [4, 6, .7], [-24, 6, .7], [-10, 6, 2.2], [-10, 20, 1.4]];
 
 /* Âncoras para Ajustar (posição/escala/rotação) */
 const ANCHORS = {
   hairBack: [150, 110], hairBase: [150, 110], ponytail: [150, 90], bangs: [150, 100], ahoge: [150, 40],
   eyeL: [0, 0], eyeR: [0, 0], pupilL: [0, 0], pupilR: [0, 0], browL: [0, 0], browR: [0, 0],
   mouth: [150, 184], nose: [150, 168], blush: [150, 166], faceMark: [150, 160],
-  hat: [150, 60], glasses: [150, 142], headAcc: [150, 80], headAcc2: [150, 80], faceAcc: [150, 160],
+  hat: [150, 60], glasses: [150, 142], headAcc: [150, 80], headAcc2: [150, 80], headAcc3: [150, 80], headAcc4: [150, 80], faceAcc: [150, 160], faceAcc2: [150, 160], faceAcc3: [150, 160], neck2: [150, 210], wingsR: [150, 230],
   neck: [150, 210], logo: [160, 240], wings: [150, 230], tail: [170, 280], cape: [150, 212],
   propL: [0, 36], propR: [0, 36], shield: [0, 15],
 };
 const ADJ_HEAD = ['bangs', 'hairBack', 'hairBase', 'ponytail', 'ahoge', 'eyeL', 'eyeR', 'pupilL', 'pupilR', 'browL', 'browR', 'mouth', 'nose', 'blush', 'faceMark'];
-const ADJ_CLOTHES = ['hat', 'glasses', 'headAcc', 'headAcc2', 'faceAcc', 'neck', 'logo', 'wings', 'tail', 'cape', 'propL', 'propR', 'shield'];
+const ADJ_CLOTHES = ['hat', 'glasses', 'headAcc3', 'headAcc', 'headAcc2', 'headAcc4', 'faceAcc2', 'faceAcc', 'faceAcc3', 'neck', 'neck2', 'logo', 'wings', 'wingsR', 'tail', 'cape', 'propL', 'propR', 'shield'];
 
 const OUTLINE = '#2b2140';
 const SKIN_TONES = ['#fff0e6', '#fde0cc', '#f6c9a3', '#e8b48a', '#d19a6e', '#b07a4f', '#8a5634', '#5b3522', '#cfe8ff', '#d9ffd6', '#ffd6f0', '#c9b8ff'];
@@ -67,8 +80,9 @@ function look(o) {
   if (o.fm) set('faceMark', o.fm);
   /* sem nariz por padrão (como a maioria dos personagens do Gacha Club) */
   set('nose', [o.n || 0, Color.shade(o.s || ch.skin, -28)]);
-  for (const k of ['shirt', 'jacket', 'skirt', 'neck', 'logo', 'hat', 'glasses', 'headAcc', 'headAcc2', 'faceAcc', 'cape', 'tail', 'wings', 'propL', 'propR', 'shield', 'effBack', 'effFront', 'pet']) set(k, o[k]);
-  for (const k of ['sleeve', 'pants', 'sock', 'shoe', 'glove']) both(k, o[k]);
+  for (const k of ['shirt', 'jacket', 'skirt', 'skirt2', 'neck', 'neck2', 'logo', 'hat', 'glasses', 'headAcc', 'headAcc2', 'headAcc3', 'headAcc4', 'faceAcc', 'faceAcc2', 'faceAcc3', 'cape', 'tail', 'wings', 'propL', 'propR', 'shield', 'effBack', 'effFront', 'pet']) set(k, o[k]);
+  set('wingsR', o.wingsR || o.wings);
+  for (const k of ['sleeve', 'pants', 'sock', 'shoe', 'glove', 'shoulder', 'wrist', 'knee']) both(k, o[k]);
   if (o.pose != null) ch.body.pose = o.pose;
   if (o.bust) ch.body.bust = 1;
   if (o.hand) { ch.body.handL = o.hand[0]; ch.body.handR = o.hand[1]; }

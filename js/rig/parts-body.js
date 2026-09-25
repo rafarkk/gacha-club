@@ -414,6 +414,89 @@ PARTS.glove = [null,
   { n: 'Luva de cavaleiro', d: k => ({ f: P(k, tube(AF - 12, AF + 1, 18, 17), '#9aa0b0') + [AF - 9, AF - 5, AF - 1].map(y => `<path d="M-8 ${y} L8 ${y}" stroke="#6a7080" stroke-width="1.4"/>`).join(''), hand: '#9aa0b0', big: true }) },
 ];
 
+/* ---------- Extra: ombro, pulso e joelho ----------
+   Presos num ponto do membro (t: 0 = ombro/quadril, 1 = pulso/tornozelo). No desenho local, x atravessa o membro
+   (h = meia largura do membro naquele ponto) e y desce ao longo dele. */
+const onLimb = (L, t, f) => { const p = L.pt(t), a = Math.atan2(p.ny, p.nx) * 180 / Math.PI;
+  return `<g transform="translate(${p.x.toFixed(2)} ${p.y.toFixed(2)}) rotate(${a.toFixed(1)})">${f(p.w / 2)}</g>`; };
+const PL = (k, d, fill, w = 2.2) => `<path d="${d}" fill="${fill || k.c[0]}" ${ol(k, w)}/>`;
+const EL = (k, cx, cy, rx, ry, fill, w = 1.8) => `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${fill || k.c[0]}" ${ol(k, w)}/>`;
+/* traço fino na cor dada (espessura já compensada pela escala do membro) */
+const LN = (d, color, w) => `<path d="${d}" stroke="${color}" stroke-width="${(w / G.sf).toFixed(2)}" fill="none" stroke-linecap="round"/>`;
+const starD = (cx, cy, r) => Shape.star(cx, cy, r, r * .45);
+/* cinta em volta do membro (arco na frente, como uma pulseira vista de lado) */
+const cuff = (k, h, y0, y1, fill) => PL(k, `M${-h - .8} ${y0} Q0 ${y0 + 2} ${h + .8} ${y0} L${h + .8} ${y1} Q0 ${y1 + 2} ${-h - .8} ${y1}Z`, fill, 1.8);
+const pad = (h, e = 3, top = 6, y = 5) => `M${-h - e} ${y} C${-h - e} ${-h - top} ${h + e} ${-h - top} ${h + e} ${y} Q0 ${y + 3} ${-h - e} ${y}Z`;
+const ring = (k, n, h, dy = 0) => Array.from({ length: n }, (_, i) => `<ellipse cx="${(-h + i * 2 * h / (n - 1)).toFixed(1)}" cy="${(dy + (i % 2) * .8).toFixed(1)}" rx="1.9" ry="1.3" fill="none" stroke="${k.c[0]}" stroke-width="${(2 / G.sf).toFixed(2)}"/>`).join('');
+
+PARTS.shoulder = [null,
+  { n: 'Ombreira redonda', d: (k, L) => onLimb(L, 0, h => PL(k, pad(h))) },
+  { n: 'Ombreira militar', d: (k, L) => onLimb(L, 0, h => PL(k, pad(h, 3, 5, 3)) + Array.from({ length: 6 }, (_, i) => LN(`M${(-h - 2 + i * (2 * h + 4) / 5).toFixed(1)} 4 l0 5`, k.c[1], 3)).join('')) },
+  { n: 'Armadura', d: (k, L) => onLimb(L, 0, h => [8, 3, -2].map((y, i) => PL(k, pad(h + i, 3, 6, y), Color.shade(k.c[0], -14 + i * 7))).join('')) },
+  { n: 'Babado', d: (k, L) => onLimb(L, .04, h => { const n = 5, s = (2 * h + 2) / n;
+    return PL(k, `M${-h - 1} -2 ` + Array.from({ length: n }, (_, i) => `Q${(-h - 1 + (i + .5) * s).toFixed(1)} 10 ${(-h - 1 + (i + 1) * s).toFixed(1)} 5`).join(' ') + ` L${h + 1} -2 Q0 -6 ${-h - 1} -2Z`, k.c[1]); }) },
+  { n: 'Laço', d: (k, L) => onLimb(L, .03, h => PL(k, 'M0 0 L-9 -6 L-9 6Z') + PL(k, 'M0 0 L9 -6 L9 6Z') + EL(k, 0, 0, 2.4, 2.8, k.c[1], 1.4)) },
+  { n: 'Estrela', d: (k, L) => onLimb(L, .02, h => PL(k, starD(0, -1, 8))) },
+  { n: 'Pelo', d: (k, L) => onLimb(L, .02, h => [-h, -h / 2, 0, h / 2, h].map((x, i) => EL(k, x.toFixed(1), i % 2 ? -3 : 0, 4.2, 4.2, i % 2 ? k.c[0] : Color.shade(k.c[0], -8), 1.4)).join('')) },
+  { n: 'Espinhos', d: (k, L) => onLimb(L, 0, h => [-50, -15, 20].map(a => `<g transform="rotate(${a} 0 2)">${PL(k, `M-3 ${-h + 1} L0 ${-h - 10} L3 ${-h + 1}Z`, '#d8dce6', 1.6)}</g>`).join('') + PL(k, pad(h, 2, 3, 3))) },
+  { n: 'Asinha', d: (k, L) => onLimb(L, .04, h => PL(k, `M${-h} -2 C${-h - 8} -12 ${-h - 18} -10 ${-h - 20} -4 C${-h - 14} -4 ${-h - 16} 2 ${-h - 10} 2 C${-h - 12} 6 ${-h - 6} 6 ${-h} 3Z`, k.c[0], 1.8)) },
+  { n: 'Coração', d: (k, L) => onLimb(L, .02, h => PL(k, Shape.heart(0, -1, 6))) },
+  { n: 'Faixa', d: (k, L) => L.band(k, .03, .13, 1.6, 1.6) },
+  { n: 'Flor', d: (k, L) => onLimb(L, .02, h => [0, 72, 144, 216, 288].map(a => EL(k, (Math.cos(a * Math.PI / 180) * 4.5).toFixed(1), (Math.sin(a * Math.PI / 180) * 4.5 - 1).toFixed(1), 3.4, 3.4, k.c[0], 1.2)).join('') + EL(k, 0, -1, 2.6, 2.6, k.c[1], 1.2)) },
+  { n: 'Pena', d: (k, L) => onLimb(L, .03, h => PL(k, `M${-h + 2} 0 C${-h - 4} -10 ${-h - 14} -16 ${-h - 20} -16 C${-h - 16} -8 ${-h - 8} -2 ${-h + 2} 0Z`, k.c[0], 1.6) + LN(`M${-h + 1} 0 L${-h - 16} -13`, k.c[1], 2)) },
+  { n: 'Corrente', d: (k, L) => onLimb(L, .06, h => ring(k, 4, h)) },
+  { n: 'Placa listrada', d: (k, L) => onLimb(L, 0, h => PL(k, pad(h)) + LN(`M${-h - 1} 0 Q0 -3 ${h + 1} 0`, k.c[1], 3.6)) },
+  { n: 'Chama', d: (k, L) => onLimb(L, .02, h => `<g transform="translate(${-h * .5} -2)">` + PL(k, 'M-5 2 C-8 -6 -2 -8 -3 -14 C1 -10 3 -12 3 -16 C8 -10 8 -2 5 2Z', '#ff8a2a', 1.4) + PL(k, 'M-2 2 C-3 -3 0 -5 0 -8 C3 -4 4 -1 2 2Z', '#ffe066', 1) + '</g>') },
+  { n: 'Escamas', d: (k, L) => onLimb(L, .03, h => [[-h, 2], [h, 2], [0, 2], [-h / 2, -2], [h / 2, -2]].map(([x, y]) => PL(k, `M${(x - 3.4).toFixed(1)} ${y} Q${x.toFixed(1)} ${y + 7} ${(x + 3.4).toFixed(1)} ${y} Q${x.toFixed(1)} ${y - 3} ${(x - 3.4).toFixed(1)} ${y}Z`, k.c[1], 1.2)).join('')) },
+  { n: 'Tachinhas', d: (k, L) => L.band(k, .03, .12, 1.6, 1.6) + onLimb(L, .075, h => [-h / 1.6, 0, h / 1.6].map(x => `<circle cx="${x.toFixed(1)}" cy="0" r="1.3" fill="#e8ecf4"/>`).join('')) },
+  { n: 'Ombreira de pelúcia', d: (k, L) => onLimb(L, 0, h => PL(k, pad(h, 4, 8, 6), k.c[1])) },
+  { n: 'Fita solta', d: (k, L) => onLimb(L, .05, h => PL(k, `M${-h} -1 L${-h - 4} 14 L${-h - 7} 11 L${-h - 3} -1Z`, k.c[1], 1.4) + PL(k, `M${-h} 0 L${-h - 10} 10 L${-h - 12} 7 L${-h - 3} -1Z`, k.c[0], 1.4)) },
+];
+
+PARTS.wrist = [null,
+  { n: 'Pulseira fina', d: (k, L) => onLimb(L, .9, h => cuff(k, h, -1.5, 1)) },
+  { n: 'Munhequeira', d: (k, L) => onLimb(L, .88, h => cuff(k, h, -4, 3)) },
+  { n: 'Munhequeira listrada', d: (k, L) => onLimb(L, .88, h => cuff(k, h, -4, 3) + LN(`M${-h} -.5 Q0 1.5 ${h} -.5`, k.c[1], 3)) },
+  { n: 'Relógio', d: (k, L) => onLimb(L, .9, h => cuff(k, h, -1.8, 1.8) + `<rect x="-3.4" y="-3.6" width="6.8" height="7" rx="1.6" fill="${k.c[1]}" ${ol(k, 1.4)}/>` + LN('M0 -1.5 L0 0 L1.5 .8', k.c[2], 1)) },
+  { n: 'Contas', d: (k, L) => onLimb(L, .9, h => Array.from({ length: 5 }, (_, i) => EL(k, (-h + i * h / 2).toFixed(1), .6, 1.7, 1.7, i % 2 ? k.c[1] : k.c[0], 1)).join('')) },
+  { n: 'Bracelete com pedra', d: (k, L) => onLimb(L, .88, h => cuff(k, h, -3, 2.5) + PL(k, 'M0 -3.4 L2.6 -.4 L0 2.8 L-2.6 -.4Z', k.c[1], 1.2)) },
+  { n: 'Espinhos', d: (k, L) => onLimb(L, .88, h => [-h / 1.5, 0, h / 1.5].map(x => PL(k, `M${(x - 1.6).toFixed(1)} -2 L${x.toFixed(1)} -7 L${(x + 1.6).toFixed(1)} -2Z`, '#dfe3ec', 1)).join('') + cuff(k, h, -2.5, 2.5)) },
+  { n: 'Pelo', d: (k, L) => onLimb(L, .88, h => [-h, -h / 2, 0, h / 2, h].map(x => EL(k, x.toFixed(1), 0, 3, 3.4, k.c[0], 1.2)).join('')) },
+  { n: 'Laço', d: (k, L) => onLimb(L, .88, h => cuff(k, h, -1.5, 1.5) + PL(k, 'M0 0 L-6 -4 L-6 4Z', k.c[1], 1.3) + PL(k, 'M0 0 L6 -4 L6 4Z', k.c[1], 1.3) + EL(k, 0, 0, 1.6, 1.8, k.c[0], 1)) },
+  { n: 'Babado', d: (k, L) => onLimb(L, .86, h => PL(k, `M${-h - 1} -3 L${h + 1} -3 L${h + 4} 3 Q${h / 2} 6 0 3 Q${-h / 2} 6 ${-h - 4} 3Z`, k.c[1], 1.6)) },
+  { n: 'Algema', d: (k, L) => onLimb(L, .9, h => cuff(k, h, -2.2, 2.2, '#c8ccd8') + `<ellipse cx="${-h - 3}" cy="3" rx="2" ry="3" fill="none" stroke="#9aa0b0" stroke-width="${(2 / G.sf).toFixed(2)}"/>`) },
+  { n: 'Atadura', d: (k, L) => onLimb(L, .86, h => [-4, -1, 2].map(y => PL(k, `M${-h - .6} ${y - 1} L${h + .6} ${y + .6} L${h + .6} ${y + 2.4} L${-h - .6} ${y + 1}Z`, '#f4f0e8', 1)).join('')) },
+  { n: 'Pompom', d: (k, L) => onLimb(L, .9, h => cuff(k, h, -1.5, 1.5) + EL(k, -h - 2, 1, 3.2, 3.2, k.c[1], 1.2)) },
+  { n: 'Corações', d: (k, L) => onLimb(L, .9, h => cuff(k, h, -1.2, 1.2) + [-h / 2, h / 2].map(x => PL(k, Shape.heart(x, 1.8, 2.4), k.c[1], 1)).join('')) },
+  { n: 'Estrela', d: (k, L) => onLimb(L, .9, h => cuff(k, h, -1.5, 1.5) + PL(k, starD(0, 0, 4.4), k.c[1], 1.2)) },
+  { n: 'Relógio digital', d: (k, L) => onLimb(L, .9, h => cuff(k, h, -2, 2) + `<rect x="-4" y="-3.4" width="8" height="6.8" rx="1.2" fill="#1c2238" ${ol(k, 1.4)}/><rect x="-2.6" y="-1.6" width="5.2" height="3" fill="${k.c[1]}" opacity=".85"/>`) },
+  { n: 'Corrente', d: (k, L) => onLimb(L, .9, h => ring(k, 5, h)) },
+  { n: 'Pulseira dupla', d: (k, L) => onLimb(L, .88, h => cuff(k, h, -3.5, -1.5) + cuff(k, h, .5, 2.5, k.c[1])) },
+  { n: 'Fita', d: (k, L) => onLimb(L, .9, h => cuff(k, h, -1.5, 1.5) + PL(k, `M${-h} 0 L${-h - 3} 9 L${-h - 5} 7 L${-h - 2} 0Z`, k.c[1], 1.2)) },
+  { n: 'Tachas', d: (k, L) => onLimb(L, .88, h => cuff(k, h, -3, 3) + [-h / 1.6, 0, h / 1.6].map(x => `<circle cx="${x.toFixed(1)}" cy=".5" r="1.1" fill="#eef1f8"/>`).join('')) },
+];
+
+PARTS.knee = [null,
+  { n: 'Joelheira', d: (k, L) => onLimb(L, L.knee, h => PL(k, `M${-h - 1} -5 Q0 -9 ${h + 1} -5 L${h + 1} 5 Q0 9 ${-h - 1} 5Z`)) },
+  { n: 'Joelheira redonda', d: (k, L) => onLimb(L, L.knee, h => EL(k, 0, 0, h * .8, h * .75) + EL(k, 0, 0, h * .4, h * .36, k.c[1], 1.2)) },
+  { n: 'Curativo', d: (k, L) => onLimb(L, L.knee, h => `<g transform="rotate(-30)">${PL(k, 'M-5 -2.2 L5 -2.2 Q6.6 0 5 2.2 L-5 2.2 Q-6.6 0 -5 -2.2Z', '#f3c9a0', 1.2)}<rect x="-1.8" y="-1.6" width="3.6" height="3.2" fill="#e8a878"/></g>`) },
+  { n: 'Faixa', d: (k, L) => L.band(k, L.knee - .03, L.knee + .03, 1.2, 1.2) },
+  { n: 'Faixa dupla', d: (k, L) => L.band(k, L.knee - .05, L.knee - .015, 1.2, 1.2) + L.band(k, L.knee + .015, L.knee + .05, 1.2, 1.2, k.c[1]) },
+  { n: 'Remendo', d: (k, L) => onLimb(L, L.knee, h => `<rect x="-5" y="-5" width="10" height="10" rx="1" fill="${k.c[0]}" ${ol(k, 1.4)}/><rect x="-3.6" y="-3.6" width="7.2" height="7.2" fill="none" stroke="${k.c[1]}" stroke-width="${(1.5 / G.sf).toFixed(2)}" stroke-dasharray="1.4 1"/>`) },
+  { n: 'Laço', d: (k, L) => onLimb(L, L.knee, h => PL(k, 'M0 0 L-7 -4 L-7 4Z', k.c[0], 1.3) + PL(k, 'M0 0 L7 -4 L7 4Z', k.c[0], 1.3) + EL(k, 0, 0, 1.8, 2, k.c[1], 1)) },
+  { n: 'Liga', d: (k, L) => L.band(k, L.knee - .12, L.knee - .07, 1.2, 1.2) + onLimb(L, L.knee - .095, h => PL(k, 'M0 0 L-4 -3 L-4 3Z', k.c[1], 1) + PL(k, 'M0 0 L4 -3 L4 3Z', k.c[1], 1)) },
+  { n: 'Joelheira de metal', d: (k, L) => onLimb(L, L.knee, h => PL(k, `M${-h - 1.5} -6 Q0 -10 ${h + 1.5} -6 L${h + 1.5} 5 Q0 11 ${-h - 1.5} 5Z`, '#b8bfcc') + '<circle cx="0" cy="0" r="1.6" fill="#e8ecf4"/>') },
+  { n: 'Fita em X', d: (k, L) => onLimb(L, L.knee, h => LN(`M${-h} -5 L${h} 5 M${h} -5 L${-h} 5`, k.c[0], 5.5)) },
+  { n: 'Estrela', d: (k, L) => onLimb(L, L.knee, h => PL(k, starD(0, 0, 5.5), k.c[0], 1.4)) },
+  { n: 'Coração', d: (k, L) => onLimb(L, L.knee, h => PL(k, Shape.heart(0, 0, 4.4), k.c[0], 1.4)) },
+  { n: 'Rasgo', d: (k, L) => onLimb(L, L.knee, h => PL(k, `M${-h + 1} -2 L${-h / 3} -4 L0 -1.5 L${h / 3} -4 L${h - 1} -2 L${h - 1.5} 2 L${h / 3} 3.5 L0 1.5 L${-h / 3} 3.5 L${-h + 1.5} 2Z`, k.S, 1.2)) },
+  { n: 'Esportiva', d: (k, L) => L.band(k, L.knee - .06, L.knee + .06, 1.4, 1.4) + L.line(k, L.knee - .02, 1.4, k.c[1], 1.2) + L.line(k, L.knee + .02, 1.4, k.c[1], 1.2) },
+  { n: 'Pelo', d: (k, L) => onLimb(L, L.knee, h => [-h * .75, -h * .25, h * .25, h * .75].map(x => EL(k, x.toFixed(1), 0, h * .32, h * .38, k.c[0], 1.2)).join('')) },
+  { n: 'Corrente', d: (k, L) => onLimb(L, L.knee, h => ring(k, 5, h)) },
+  { n: 'Chama', d: (k, L) => onLimb(L, L.knee, h => PL(k, 'M-4 4 C-7 -2 -2 -4 -2 -9 C1 -6 3 -8 3 -11 C7 -6 7 1 4 4Z', '#ff8a2a', 1.2) + PL(k, 'M-1.5 4 C-2.5 0 0 -2 0 -4 C2 -1 3 1 1.5 4Z', '#ffe066', .8)) },
+  { n: 'Esparadrapo em X', d: (k, L) => onLimb(L, L.knee, h => [30, -30].map(a => `<g transform="rotate(${a})">${PL(k, 'M-6 -1.8 L6 -1.8 L6 1.8 L-6 1.8Z', '#f4f0e8', 1)}</g>`).join('')) },
+];
+
 /* Mãos (formato escolhido em Corpo) — desenhadas na ponta do antebraço */
 const HANDS = ['Aberta', 'Punho', 'Apontando', 'Paz', 'Aceno'];
 /* Mãos no estilo do Gacha Club: maiores que o pulso, arredondadas, com o polegar para a frente e vincos dos dedos */

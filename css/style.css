@@ -185,6 +185,19 @@ h4 { margin: 14px 0 6px; font-weight: 600; color: var(--muted); letter-spacing: 
 .expr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; }
 .pz { display: flex; flex-direction: column; aspect-ratio: 1 / 1.08; border-radius: 8px; background: linear-gradient(180deg, #3a3478, #26224f); border: 2px solid var(--line); overflow: hidden; }
 .pose-grid .pz { aspect-ratio: 1 / 1.35; }
+/* Lista paginada de peças (como no Gacha Club): título com Remover, grade 5×4 e navegação de páginas */
+.pk-head { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+.pk-head b { flex: 1; min-width: 0; text-align: center; font-size: 1.15em; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pick-grid.pk { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; }
+.pick-grid.pk .pz { aspect-ratio: 1.35 / 1; }
+.pick-grid.pk .pz small { display: none; }
+.pk-nav { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; margin-top: 8px; }
+.pk-nav span { text-align: center; line-height: 1.1; color: var(--muted); }
+.pk-nav b { color: #e9e8ff; }
+.pk-nav .btn:disabled { opacity: .4; }
+/* Posição da estampa (junto das cores) */
+.pos { width: 28px; padding: 2px 0; border-radius: 5px; background: #151230; border: 1px solid var(--line); font-size: .7em; line-height: 1.1; color: #d9d7ff; display: flex; flex-direction: column; align-items: center; }
+.pos b { font-weight: 600; }
 .pz.on { border-color: var(--acc); box-shadow: 0 0 0 2px rgba(95, 211, 224, .35); }
 .pz.mod { border-color: var(--gold); }
 .sil { filter: grayscale(1) brightness(1.9) contrast(.45) sepia(.35) hue-rotate(180deg); }

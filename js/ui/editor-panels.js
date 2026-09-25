@@ -5,44 +5,44 @@ const Panels = (() => {
   let PRE = null;
   const box = () => $('#edPanel');
   const ch = () => Editor.ch();
-  const linked = () => !!Store.s.settings.linkPairs;
-  const RIGHT = new Set(Object.values(PAIRS));
 
   const SUBS = {
     head: [['hair', 'Cabelo'], ['eyes', 'Olhos'], ['face', 'Rosto'], ['expr', 'Expressões'], ['adj', 'Ajustar']],
-    clothes: [['hats', 'Chapéus'], ['acc', 'Acessórios'], ['upper', 'Superior'], ['lower', 'Inferior'], ['other', 'Extras'], ['adj', 'Ajustar']],
+    clothes: [['hats', 'Chapéus'], ['acc', 'Acessórios'], ['upper', 'Superior'], ['lower', 'Inferior'], ['other', 'Outros'], ['extra', 'Extra'], ['adj', 'Ajustar']],
     other: [['props', 'Itens'], ['effects', 'Efeitos'], ['hide', 'Ocultar'], ['chat', 'Chat'], ['pet', 'Mascote']],
   };
   const GROUPS = {
     'head:hair': HAIR_SLOTS, 'head:eyes': ['eyeL', 'eyeR', 'pupilL', 'pupilR', 'browL', 'browR'], 'head:face': ['nose', 'mouth', 'blush', 'faceMark'],
-    'clothes:hats': ['hat', 'glasses', 'headAcc', 'headAcc2'], 'clothes:acc': ['faceAcc', 'neck', 'logo'],
-    'clothes:upper': ['shirt', 'jacket', 'sleeveL', 'sleeveR', 'skirt'], 'clothes:lower': ['pantsL', 'pantsR', 'sockL', 'sockR', 'shoeL', 'shoeR'],
-    'clothes:other': ['cape', 'tail', 'wings', 'gloveL', 'gloveR'], 'other:props': ['propL', 'propR', 'shield'], 'other:effects': ['effBack', 'effFront'],
+    /* mesma ordem das telas do Gacha Club (em duas colunas: esquerda/direita, topo/base) */
+    'clothes:hats': ['hat', 'glasses', 'headAcc3', 'headAcc', 'headAcc2', 'headAcc4'],
+    'clothes:acc': ['faceAcc2', 'neck', 'faceAcc', 'neck2', 'faceAcc3', 'logo'],
+    'clothes:upper': ['shirt', 'jacket', 'sleeveL', 'sleeveR', 'skirt', 'skirt2'], 'clothes:lower': ['pantsL', 'pantsR', 'sockL', 'sockR', 'shoeL', 'shoeR'],
+    'clothes:other': ['cape', 'tail', 'wings', 'wingsR', 'gloveL', 'gloveR'], 'clothes:extra': ['shoulderL', 'shoulderR', 'wristL', 'wristR', 'kneeL', 'kneeR'],
+    'other:props': ['propL', 'propR', 'shield'], 'other:effects': ['effBack', 'effFront'],
   };
-  const HAS_PAIRS = ['head:eyes', 'clothes:upper', 'clothes:lower', 'clothes:other'];
 
   /* ---------- Blocos reutilizáveis ---------- */
   const colorNames = slot => SLOT_DEFS[slot].cn || ['Principal', 'Secundária', 'Contorno'];
   function ctl(slot) {
     const d = SLOT_DEFS[slot], p = ch().parts[slot], list = PARTS[d.t], max = list.length - 1;
     const name = p.i ? list[p.i].n : 'Nenhum';
-    const label = linked() && PAIRS[slot] ? d.n + 's' : d.n;
+    const pos = slot === 'logo' ? `<button class="pos" data-logopos title="Posição da estampa">Pos.<b>${(p.p || 0) + 1}/${LOGO_POS.length}</b></button>` : '';
     return `<div class="ctl" data-slot="${slot}">
-      <div class="ctl-lab"><span>${esc(label)}</span><b>${p.i}/${max}</b></div>
+      <div class="ctl-lab"><span>${esc(d.n)}</span><b>${p.i}/${max}</b></div>
       <div class="ctl-row">
         <button class="arr" data-step="-1" aria-label="Anterior">‹</button>
         <button class="ctl-th" data-pick title="Ver todas as opções">${Rig.thumb(ch(), slot, p.i)}<small>${esc(name)}</small></button>
         <button class="arr" data-step="1" aria-label="Próximo">›</button>
-        <div class="sws">${colorNames(slot).map((n, i) => `<button class="sw" data-col="${i}" style="background:${p.c[i]}" title="${esc(n)}"></button>`).join('')}</div>
+        <div class="sws">${colorNames(slot).map((n, i) => `<button class="sw" data-col="${i}" style="background:${p.c[i]}" title="${esc(n)}"></button>`).join('')}${pos}</div>
       </div></div>`;
   }
-  const group = key => `<div class="ctl-grid">${GROUPS[key].filter(s => !(linked() && RIGHT.has(s))).map(ctl).join('')}</div>`;
-  const linkChip = () => `<button class="chip${linked() ? ' on' : ''}" data-link>${ICON.link} Lados iguais</button>`;
+  const group = key => `<div class="ctl-grid">${GROUPS[key].map(ctl).join('')}</div>`;
   const num = (key, label, val, shown) => `<div class="num"><span>${label}</span><div><button class="arr" data-num="${key}" data-d="-1">‹</button><b>${shown != null ? shown : val}</b><button class="arr" data-num="${key}" data-d="1">›</button></div></div>`;
   const toggle = (key, label, on) => `<button class="tgl${on ? ' on' : ''}" data-tgl="${key}"><span>${label}</span><i>${on ? 'ON' : 'OFF'}</i></button>`;
 
+  /* Como no Gacha Club: o cartão do lado esquerdo (ex.: "Meia") muda os dois lados; o "direito" muda só o direito */
   function setPart(slot, fn, opt) {
-    Editor.change(c => { fn(c.parts[slot], c); if (linked() && PAIRS[slot]) c.parts[PAIRS[slot]] = clone(c.parts[slot]); }, opt);
+    Editor.change(c => { fn(c.parts[slot], c); if (PAIRS[slot]) fn(c.parts[PAIRS[slot]], c); }, opt);
   }
 
   /* ---------- Conteúdo por aba ---------- */
@@ -58,7 +58,6 @@ const Panels = (() => {
     if (key === 'other:pet') return petPanel();
     let top = '';
     if (key === 'head:hair') { const c = ch().parts.bangs.c; top = `<div class="bar-row"><span>Todos os cabelos</span><div class="sws">${['Base', 'Degradê', 'Contorno'].map((n, i) => `<button class="sw" data-allhair="${i}" style="background:${c[i]}" title="${n}"></button>`).join('')}</div></div>`; }
-    if (HAS_PAIRS.includes(key)) top += `<div class="bar-row">${linkChip()}<small class="muted">${linked() ? 'Esquerda e direita mudam juntas' : 'Cada lado é editado separado'}</small></div>`;
     let extra = '';
     if (key === 'other:effects') { const A = ch().anim; extra = `<h4>Animações</h4><div class="tgl-grid">${[['blink', 'Piscar'], ['hair', 'Cabelo balança'], ['wings', 'Asas'], ['cape', 'Capa'], ['tail', 'Cauda'], ['effects', 'Efeitos']].map(([k, n]) => toggle('anim.' + k, n, A[k])).join('')}</div>`; }
     return top + group(key) + extra;
@@ -189,11 +188,18 @@ const Panels = (() => {
   }
   const rerender = () => render(Editor.tab, Editor.sub);
 
-  function pickGrid(slot) {
-    const d = SLOT_DEFS[slot], list = PARTS[d.t], p = ch().parts[slot];
-    mode = { type: 'pick', slot };
-    box().innerHTML = `<div class="bar-row"><button class="btn sm" data-back>‹ Voltar</button><b>${esc(d.n)}</b><small class="muted">${list.length - 1} opções</small></div>
-      <div class="pick-grid">${list.map((t, i) => `<button class="pz${i === p.i ? ' on' : ''}" data-pi="${i}">${Rig.thumb(ch(), slot, i)}<small>${i ? esc(t.n) : 'Nenhum'}</small></button>`).join('')}</div>`;
+  /* Lista de opções como no Gacha Club: 20 por página, "Remover" e título da peça */
+  const PER_PAGE = 20;
+  function pickGrid(slot, page) {
+    const d = SLOT_DEFS[slot], list = PARTS[d.t], p = ch().parts[slot], pages = Math.max(1, Math.ceil((list.length - 1) / PER_PAGE));
+    if (page == null) page = p.i ? Math.floor((p.i - 1) / PER_PAGE) : 0;
+    page = clamp(page, 0, pages - 1);
+    mode = { type: 'pick', slot, page };
+    const title = PAIRS[slot] ? `${d.n} · os dois lados` : d.n;
+    const first = 1 + page * PER_PAGE, items = list.slice(first, first + PER_PAGE);
+    box().innerHTML = `<div class="pk-head"><button class="btn sm danger" data-pi="0">✕ Remover</button><b>${esc(title)}</b><button class="btn sm" data-back aria-label="Fechar">✕</button></div>
+      <div class="pick-grid pk">${items.map((t, j) => { const i = first + j; return `<button class="pz${i === p.i ? ' on' : ''}" data-pi="${i}" title="${esc(t.n)}">${Rig.thumb(ch(), slot, i)}<small>${esc(t.n)}</small></button>`; }).join('')}</div>
+      <div class="pk-nav"><button class="btn" data-pg="-1"${page ? '' : ' disabled'}>‹ Anterior</button><span>Página<br><b>${page + 1}/${pages}</b></span><button class="btn" data-pg="1"${page < pages - 1 ? '' : ' disabled'}>Próxima ›</button></div>`;
   }
   function openColor(title, targets, active = 0) {
     mode = { type: 'color' };
@@ -207,6 +213,7 @@ const Panels = (() => {
     if (mode && mode.type === 'color') return;
     if (ds.back != null) { Sfx.play('close'); return rerender(); }
     if (ds.sub) { Editor.sub = ds.sub; adjSlot = null; Sfx.play('tap'); return rerender(); }
+    if (ds.pg && mode && mode.type === 'pick') { Sfx.play('tap'); return pickGrid(mode.slot, mode.page + +ds.pg); }
     if (ds.pi != null && mode && mode.type === 'pick') {
       const slot = mode.slot; Sfx.play('pick');
       setPart(slot, p => { p.i = +ds.pi; }, { panel: false });
@@ -214,14 +221,14 @@ const Panels = (() => {
       return;
     }
     const ctlEl = b.closest('.ctl'), slot = ctlEl && ctlEl.dataset.slot;
-    if (slot && ds.step) { const len = PARTS[SLOT_DEFS[slot].t].length; Sfx.play('tap'); return setPart(slot, p => { p.i = (p.i + +ds.step + len) % len; }); }
+    if (slot && ds.step) { const len = PARTS[SLOT_DEFS[slot].t].length, v = (c.parts[slot].i + +ds.step + len) % len; Sfx.play('tap'); return setPart(slot, p => { p.i = v; }); }
+    if (slot && ds.logopos != null) { Sfx.play('tap'); return setPart(slot, p => { p.p = ((p.p || 0) + 1) % LOGO_POS.length; }); }
     if (slot && ds.pick != null) { Sfx.play('open'); return pickGrid(slot); }
     if (slot && ds.col != null) {
       const names = colorNames(slot);
       return openColor(SLOT_DEFS[slot].n, names.map((n, i) => ({ label: n, get: () => ch().parts[slot].c[i], set: v => setPart(slot, p => { p.c[i] = v; }, { panel: false }) })), +ds.col);
     }
     if (ds.allhair != null) return openColor('Todos os cabelos', ['Base', 'Degradê', 'Contorno'].map((n, i) => ({ label: n, get: () => ch().parts.bangs.c[i], set: v => Editor.change(x => HAIR_SLOTS.forEach(s => x.parts[s].c[i] = v), { panel: false }) })), +ds.allhair);
-    if (ds.link != null) { Store.s.settings.linkPairs = linked() ? 0 : 1; Store.save(); Sfx.play('tap'); return rerender(); }
     // Predefinidos
     if (ds.copymode) { copyMode = ds.copymode; Sfx.play('tap'); return rerender(); }
     if (ds.club != null) { club = +ds.club; Sfx.play('tap'); return rerender(); }
