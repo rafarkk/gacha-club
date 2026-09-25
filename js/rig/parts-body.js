@@ -6,7 +6,7 @@ const G = {
   HC: [150, 128], NECK: [150, 198],
   /* ombro abaixo do topo do tronco: o alto da manga fica alinhado com a linha do ombro */
   SH: [[126, 222], [174, 222]], HIP: [[137, 282], [163, 282]],
-  AU: 24, AF: 21, LT: 36, LS: 33, AW: 10.5, TW: 16.5, SW: 13.5,
+  AU: 24, AF: 21, LT: 33, LS: 31, AW: 11.5, TW: 19, SW: 15,
   FEET_Y: 408,
   /* sf: escala do trecho que está sendo desenhado (o rig ajusta); os contornos dividem por ela para não engrossar */
   sf: 1,
